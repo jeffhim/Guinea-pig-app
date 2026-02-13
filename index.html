@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Guinea Pig Care Tracker</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+  <style>
+    body { padding-bottom: 70px; }
+    .nav-tabs { position: fixed; bottom: 0; width: 100%; }
+  </style>
+</head>
+<body>
+  <div class="container mt-3">
+    <h2>Guinea Pig Care Tracker</h2>
+    <div id="content"></div>
+  </div>
+
+  <!-- Bottom Tabs -->
+  <ul class="nav nav-tabs justify-content-around">
+    <li class="nav-item"><a class="nav-link active" href="#" onclick="showTab('profiles')">Profiles</a></li>
+    <li class="nav-item"><a class="nav-link" href="#" onclick="showTab('weight')">Body Weight</a></li>
+    <li class="nav-item"><a class="nav-link" href="#" onclick="showTab('shape')">Body Shape</a></li>
+    <li class="nav-item"><a class="nav-link" href="#" onclick="showTab('vet')">Vet Visits</a></li>
+    <li class="nav-item"><a class="nav-link" href="#" onclick="showTab('routine')">Daily Routine</a></li>
+  </ul>
+
+  <script>
+    // TODO: Replace with your Firebase project config
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const storage = firebase.storage();
+
+    function showTab(tab) {
+      let html = '';
+      if (tab === 'profiles') {
+        html = `
+          <h3>Profiles</h3>
+          <form onsubmit="saveProfile(event)">
+            <input id="name" type="text" placeholder="Name" class="form-control mb-2" required>
+            <input id="birthdate" type="date" class="form-control mb-2" required>
+            <input id="photo" type="file" class="form-control mb-2">
+            <button class="btn btn-primary">Save Profile</button>
+          </form>
+          <div id="profilesList" class="mt-3"></div>
+        `;
+        loadProfiles();
+      } else if (tab === 'weight') {
+        html = `
+          <h3>Body Weight</h3>
+          <form onsubmit="saveWeight(event)">
+            <input id="weightValue" type="number" placeholder="Weight (g)" class="form-control mb-2" required>
+            <button class="btn btn-primary">Save Weight</button>
+          </form>
+          <canvas id="weightChart" class="mt-3"></canvas>
+        `;
+        loadWeights();
+      } else if (tab === 'shape') {
+        html = `
+          <h3>Body Shape</h3>
+          <form onsubmit="saveShape(event)">
+            <textarea id="shapeNotes" placeholder="Notes" class="form-control mb-2"></textarea>
+            <input id="shapePhoto" type="file" class="form-control mb-2">
+            <button class="btn btn-primary">Save Shape</button>
+          </form>
+        `;
+      } else if (tab === 'vet') {
+        html = `
+          <h3>Vet Visits</h3>
+          <form onsubmit="saveVet(event)">
+            <input id="vetReason" type="text" placeholder="Reason" class="form-control mb-2" required>
+            <textarea id="vetAdvice" placeholder="Advice" class="form-control mb-2"></textarea>
+            <input id="vetDoc" type="file" class="form-control mb-2">
+            <button class="btn btn-primary">Save Visit</button>
+          </form>
+        `;
+      } else if (tab === 'routine') {
+        html = `
+          <h3>Daily Routine</h3>
+          <form onsubmit="saveRoutine(event)">
+            <label><input id="cucumber" type="checkbox"> Cucumber</label><br>
+            <label><input id="lettuce" type="checkbox"> Lettuce</label><br>
+            <label><input id="pepper" type="checkbox"> Bell Pepper</label><br>
+            <label><input id="hay" type="checkbox"> Hay Powder</label><br>
+            <button class="btn btn-primary">Save Feeding</button>
+          </form>
+        `;
+      }
+      document.getElementById('content').innerHTML = html;
+    }
+
+    // Save profile
+    async function saveProfile(e) {
+      e.preventDefault();
+      const name = document.getElementById('name').value;
+      const birthdate = document.getElementById('birthdate').value;
+      const file = document.getElementById('photo').files[0];
+      let photoURL = '';
+      if (file) {
+        const ref = storage.ref('profiles/' + file.name);
+        await ref.put(file);
+        photoURL = await ref.getDownloadURL();
+      }
+      await db.collection('profiles').add({ name, birthdate, photoURL });
+      loadProfiles();
+    }
+
+    async function loadProfiles() {
+      const snapshot = await db.collection('profiles').get();
+      let html = '<ul>';
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const age = Math.floor((Date.now() - new Date(data.birthdate)) / (365*24*60*60*1000));
+        html += `<li>${data.name} - Age: ${age} <br><img src="${data.photoURL}" width="100"></li>`;
+      });
+      html += '</ul>';
+      document.getElementById('profilesList').innerHTML = html;
+    }
+
+    // Save weight
+    async function saveWeight(e) {
+      e.preventDefault();
+      const value = document.getElementById('weightValue').value;
+      await db.collection('weights').add({ value: parseInt(value), date: new Date() });
+      loadWeights();
+    }
+
+    async function loadWeights() {
+      const snapshot = await db.collection('weights').orderBy('date').get();
+      const labels = [], data = [];
+      snapshot.forEach(doc => {
+        const d = doc.data();
+        labels.push(new Date(d.date.seconds*1000).toLocaleDateString());
+        data.push(d.value);
+      });
+      const ctx = document.getElementById('weightChart');
+      new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets: [{ label: 'Weight (g)', data }] }
+      });
+    }
+
+    // Save shape
+    async function saveShape(e) {
+      e.preventDefault();
+      const notes = document.getElementById('shapeNotes').value;
+      const file = document.getElementById('shapePhoto').files[0];
+      let photoURL = '';
+      if (file) {
+        const ref = storage.ref('shapes/' + file.name);
+        await ref.put(file);
+        photoURL = await ref.getDownloadURL();
+      }
+      await db.collection('shapes').add({ notes, photoURL, date: new Date() });
+    }
+
+    // Save vet visit
+    async function saveVet(e) {
+      e.preventDefault();
+      const reason = document.getElementById('vetReason').value;
+      const advice = document.getElementById('vetAdvice').value;
+      const file = document.getElementById('vetDoc').files[0];
+      let docURL = '';
+      if (file) {
+        const ref = storage.ref('vet/' + file.name);
+        await ref.put(file);
+        docURL = await ref.getDownloadURL();
+      }
+      await db.collection('vet').add({ reason, advice, docURL, date: new Date() });
+    }
+
+    // Save routine
+    async function saveRoutine(e) {
+      e.preventDefault();
+      const routine = {
+        cucumber: document.getElementById('cucumber').checked,
+        lettuce: document.getElementById('lettuce').checked,
+        pepper: document.getElementById('pepper').checked,
+        hay: document.getElementById('hay').checked,
+        date: new Date()
+      };
+      await db.collection('routine').add
