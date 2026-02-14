@@ -39,7 +39,6 @@ self.addEventListener('fetch', function(event) {
   // Always go network-first for Firebase / API requests
   if (url.indexOf('firestore.googleapis.com') !== -1 ||
       url.indexOf('firebaseauth') !== -1 ||
-      url.indexOf('firebasestorage') !== -1 ||
       url.indexOf('googleapis.com/identitytoolkit') !== -1) {
     return;
   }
