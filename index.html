@@ -44,7 +44,7 @@
       --warning: #FDCB6E;
       --chart-line: #4A7C59;
       --chart-fill: rgba(74, 124, 89, 0.15);
-      --tab-height: 68px;
+      --tab-height: 74px;
       --header-height: 60px;
       --radius: 14px;
       --radius-sm: 8px;
@@ -297,7 +297,7 @@
       background: var(--surface);
       border-top: 1px solid var(--border);
       display: flex;
-      align-items: center;
+      align-items: stretch;
       justify-content: space-around;
       z-index: 100;
       padding-bottom: env(safe-area-inset-bottom);
@@ -306,18 +306,21 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 3px;
-      padding: 6px 12px;
-      border-radius: var(--radius-sm);
+      justify-content: center;
+      gap: 2px;
+      padding: 8px 4px;
+      border-radius: 0;
       color: var(--text-muted);
       font-size: 10px;
       font-weight: 600;
       transition: all 0.2s;
       background: none;
-      min-width: 56px;
+      flex: 1;
+      min-height: var(--tab-height);
+      -webkit-tap-highlight-color: transparent;
     }
-    .nav-item i { font-size: 20px; transition: transform 0.2s; }
-    .nav-item.active { color: var(--primary); }
+    .nav-item i { font-size: 22px; transition: transform 0.2s; }
+    .nav-item.active { color: var(--primary); background: var(--bg-secondary); }
     .nav-item.active i { transform: scale(1.15); }
     .nav-item:hover { color: var(--primary-light); }
 
@@ -497,6 +500,26 @@
     .check-icon { font-size: 20px; }
     .check-label { font-weight: 600; flex: 1; }
     .check-time { font-size: 12px; color: var(--text-muted); }
+    .check-right { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+    .exception-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; padding-left: 38px; }
+    .exception-chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: var(--danger-light); color: #fff;
+      padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;
+    }
+    .exception-chip.add-ex {
+      background: var(--bg-secondary); color: var(--text-secondary);
+      cursor: pointer; border: 1px dashed var(--border);
+    }
+    .exception-chip.add-ex:hover { border-color: var(--primary); color: var(--primary); }
+    .exception-chip button {
+      background: none; border: none; color: #fff; font-size: 13px;
+      cursor: pointer; padding: 0; line-height: 1;
+    }
+    .routine-subtitle {
+      font-size: 12px; color: var(--text-muted); text-align: center;
+      margin-bottom: 14px; font-style: italic;
+    }
 
     /* File upload area */
     .upload-area {
@@ -713,7 +736,8 @@
       .modal-overlay { align-items: center; }
     }
     @media (max-width: 380px) {
-      .nav-item { min-width: 48px; padding: 6px 6px; font-size: 9px; }
+      .nav-item { padding: 8px 2px; font-size: 9px; }
+      .nav-item i { font-size: 20px; }
     }
   </style>
 </head>
@@ -882,16 +906,13 @@ const firebaseConfig = {
       <div class="section-header">
         <h2 class="section-title">Daily Routine</h2>
       </div>
-      <div id="routineNoGp" class="empty-state" style="display:none;">
-        <i class="fas fa-hand-pointer"></i>
-        <p>Select a guinea pig first from the Profiles tab.</p>
-      </div>
-      <div id="routineContent" style="display:none;">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+      <div id="routineContent">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
           <button class="btn-icon" id="routinePrev"><i class="fas fa-chevron-left"></i></button>
           <h3 class="routine-date" id="routineDate" style="flex:1;text-align:center;"></h3>
           <button class="btn-icon" id="routineNext"><i class="fas fa-chevron-right"></i></button>
         </div>
+        <p class="routine-subtitle">Applies to all piggies — tap ✕ to mark exceptions</p>
         <ul class="checklist" id="routineChecklist"></ul>
         <div class="form-group" style="margin-top:16px;">
           <label>Notes</label>
@@ -1414,17 +1435,17 @@ function deleteVetVisit(gpId, id) {
   return db.collection('guineaPigs').doc(gpId).collection('vetVisits').doc(id).delete();
 }
 
-// ---- Daily Routine CRUD ----
-function loadRoutine(gpId, dateKey) {
-  var docRef = db.collection('guineaPigs').doc(gpId).collection('routines').doc(dateKey);
+// ---- Daily Routine CRUD (global — shared across all piggies) ----
+function loadRoutine(dateKey) {
+  var docRef = db.collection('routines').doc(dateKey);
   return docRef.get().then(function(doc) {
     if (doc.exists) return doc.data();
     return null;
   });
 }
 
-function saveRoutine(gpId, dateKey, data) {
-  return db.collection('guineaPigs').doc(gpId).collection('routines').doc(dateKey).set(data, { merge: true });
+function saveRoutine(dateKey, data) {
+  return db.collection('routines').doc(dateKey).set(data, { merge: true });
 }
 
 // ---- Render: Profiles ----
@@ -1724,35 +1745,90 @@ var routineItems = [
   { key: 'water', label: 'Fresh Water', icon: '💧' }
 ];
 
+ 
+function addRoutineException(itemKey) {
+  // Build a picker from existing guinea pigs
+  var dateKey = dateStr(routineDate);
+  loadRoutine(dateKey).then(function(data) {
+    var exKey = itemKey + '_exceptions';
+    var current = (data && data[exKey]) || [];
+    // Filter out already-excepted piggies
+    var available = guineaPigs.filter(function(gp) { return current.indexOf(gp.name) === -1; });
+    if (available.length === 0) { toast('All piggies already excluded', true); return; }
+
+    // Build picker modal
+    var overlay = document.createElement('div');
+    overlay.className = 'confirm-overlay active';
+    overlay.style.zIndex = '260';
+    var listHtml = available.map(function(gp) {
+      return '<button class="btn btn-secondary btn-sm btn-block" style="margin-bottom:6px;" data-name="' + escapeHtml(gp.name) + '">' +
+        '🐹 ' + escapeHtml(gp.name) + '</button>';
+    }).join('');
+    overlay.innerHTML = '<div class="confirm-dialog">' +
+      '<p style="font-weight:600;margin-bottom:12px;">Who did NOT get ' + escapeHtml(itemKey) + '?</p>' +
+      listHtml +
+      '<button class="btn btn-secondary btn-sm btn-block" style="margin-top:4px;" id="exPickerCancel">Cancel</button>' +
+    '</div>';
+    document.body.appendChild(overlay);
+    overlay.querySelector('#exPickerCancel').addEventListener('click', function() { overlay.remove(); });
+    overlay.querySelectorAll('[data-name]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var name = this.dataset.name;
+        var update = {};
+        update[exKey] = firebase.firestore.FieldValue.arrayUnion(name);
+        saveRoutine(dateKey, update).then(function() { renderRoutine(); });
+        overlay.remove();
+      });
+    });
+  });
+}
+
+ 
+function removeRoutineException(itemKey, name) {
+  var dateKey = dateStr(routineDate);
+  var update = {};
+  update[itemKey + '_exceptions'] = firebase.firestore.FieldValue.arrayRemove(name);
+  saveRoutine(dateKey, update).then(function() { renderRoutine(); });
+}
+
 function renderRoutine() {
-  if (!currentGpId) {
-    show('routineNoGp'); hide('routineContent');
-    return;
-  }
-  hide('routineNoGp'); show('routineContent');
+  show('routineContent');
 
   var dateKey = dateStr(routineDate);
   var isToday = dateKey === todayStr();
   $('routineDate').textContent = isToday ? '📅 Today' : formatDate(dateKey);
 
-  loadRoutine(currentGpId, dateKey).then(function(data) {
+  loadRoutine(dateKey).then(function(data) {
     var checklist = $('routineChecklist');
     var html = '';
     routineItems.forEach(function(item) {
       var checked = data && data[item.key];
       var time = data && data[item.key + '_time'] ? data[item.key + '_time'] : '';
+      var exceptions = (data && data[item.key + '_exceptions']) || [];
+
       html += '<li class="checklist-item' + (checked ? ' checked' : '') + '" data-key="' + item.key + '">' +
         '<div class="check-box">' + (checked ? '<i class="fas fa-check" style="font-size:13px;"></i>' : '') + '</div>' +
         '<span class="check-icon">' + item.icon + '</span>' +
         '<span class="check-label">' + item.label + '</span>' +
         (time ? '<span class="check-time">' + time + '</span>' : '') +
       '</li>';
+
+      // Exception chips row
+      html += '<div class="exception-chips" data-exkey="' + item.key + '">';
+      exceptions.forEach(function(name) {
+        html += '<span class="exception-chip">' + escapeHtml(name) + ' ✕' +
+          '<button onclick="event.stopPropagation();removeRoutineException(\'' + escapeHtml(item.key) + '\',\'' + escapeHtml(name) + '\')">×</button></span>';
+      });
+      if (guineaPigs.length > 0 && checked) {
+        html += '<span class="exception-chip add-ex" onclick="event.stopPropagation();addRoutineException(\'' + escapeHtml(item.key) + '\')">+ skip</span>';
+      }
+      html += '</div>';
     });
     checklist.innerHTML = html;
 
     $('routineNotes').value = (data && data.notes) || '';
 
-    // Attach click events
+    // Attach click events to checklist items only
     checklist.querySelectorAll('.checklist-item').forEach(function(li) {
       li.addEventListener('click', function() {
         var key = this.dataset.key;
@@ -1764,8 +1840,10 @@ function renderRoutine() {
           update[key + '_time'] = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
         } else {
           update[key + '_time'] = firebase.firestore.FieldValue.delete();
+          // Also clear exceptions when unchecking
+          update[key + '_exceptions'] = firebase.firestore.FieldValue.delete();
         }
-        saveRoutine(currentGpId, dateKey, update).then(function() {
+        saveRoutine(dateKey, update).then(function() {
           renderRoutine();
         });
       });
@@ -1846,11 +1924,10 @@ function refreshCurrentTab() {
   var activePanel = document.querySelector('.tab-panel.active');
   if (!activePanel) return;
   var panelId = activePanel.id;
-  if (!currentGpId && panelId !== 'panelProfiles' && panelId !== 'panelSettings') {
+  if (!currentGpId && panelId !== 'panelProfiles' && panelId !== 'panelSettings' && panelId !== 'panelRoutine') {
     if (panelId === 'panelWeight') { show('weightNoGp'); hide('weightContent'); }
     if (panelId === 'panelShape') { show('shapeNoGp'); hide('shapeContent'); }
     if (panelId === 'panelVet') { show('vetNoGp'); hide('vetContent'); }
-    if (panelId === 'panelRoutine') { show('routineNoGp'); hide('routineContent'); }
     return;
   }
 
@@ -2120,9 +2197,8 @@ function setupEventHandlers() {
     renderRoutine();
   });
   $('saveRoutineNotes').addEventListener('click', function() {
-    if (!currentGpId) return;
     var dateKey = dateStr(routineDate);
-    saveRoutine(currentGpId, dateKey, { notes: $('routineNotes').value.trim() }).then(function() {
+    saveRoutine(dateKey, { notes: $('routineNotes').value.trim() }).then(function() {
       toast('Notes saved!');
     });
   });
