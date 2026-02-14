@@ -752,7 +752,6 @@
         <li>Create a new project (or use existing)</li>
         <li>Enable <code>Authentication</code> → Google sign-in</li>
         <li>Enable <code>Cloud Firestore</code> database</li>
-        <li>Enable <code>Storage</code> for file uploads</li>
         <li>Go to Project Settings → add a <strong>Web app</strong></li>
         <li>Copy the <strong>entire config code</strong> and paste below:</li>
       </ol>
@@ -1110,7 +1109,6 @@ const firebaseConfig = {
 <script src="https://cdn.jsdelivr.net/npm/firebase@10.7.1/firebase-app-compat.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/firebase@10.7.1/firebase-auth-compat.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/firebase@10.7.1/firebase-firestore-compat.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/firebase@10.7.1/firebase-storage-compat.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
 <script>
@@ -1132,7 +1130,6 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', fun
 
 // ---- App State ----
 var db = null;
-var storage = null;
 var auth = null;
 var currentUser = null;
 var currentGpId = null;
@@ -1249,10 +1246,9 @@ function clearConfig() {
 
 // ---- Firebase Init ----
 function initFirebase(config) {
-  var app = firebase.initializeApp(config);
+  firebase.initializeApp(config);
   auth = firebase.auth();
   db = firebase.firestore();
-  storage = firebase.storage();
 
   // Enable offline persistence
   db.enablePersistence({ synchronizeTabs: true }).catch(function() {
@@ -1282,11 +1278,34 @@ function checkAccess(email) {
   });
 }
 
-// ---- Upload Files to Firebase Storage ----
-function uploadFile(path, file) {
-  var ref = storage.ref().child(path);
-  return ref.put(file).then(function(snapshot) {
-    return snapshot.ref.getDownloadURL();
+// ---- Compress & Convert File to Base64 (no Storage needed) ----
+function compressImage(file, maxWidth, quality) {
+  maxWidth = maxWidth || 800;
+  quality = quality || 0.7;
+  return new Promise(function(resolve) {
+    // Non-image files: store as raw base64
+    if (file.type.indexOf('image') === -1) {
+      var reader = new FileReader();
+      reader.onload = function(e) { resolve(e.target.result); };
+      reader.readAsDataURL(file);
+      return;
+    }
+    var reader2 = new FileReader();
+    reader2.onload = function(e) {
+      var img = new Image();
+      img.onload = function() {
+        var canvas = document.createElement('canvas');
+        var w = img.width;
+        var h = img.height;
+        if (w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = e.target.result;
+    };
+    reader2.readAsDataURL(file);
   });
 }
 
@@ -1962,11 +1981,10 @@ function setupEventHandlers() {
     };
 
     if (pendingUploadFiles.profile) {
-      var filePath = 'profiles/' + (editId || Date.now()) + '/' + pendingUploadFiles.profile.name;
-      uploadFile(filePath, pendingUploadFiles.profile).then(function(url) {
-        doSave(url);
+      compressImage(pendingUploadFiles.profile, 400, 0.7).then(function(base64) {
+        doSave(base64);
       }).catch(function(err) {
-        toast('Upload error: ' + err.message, true);
+        toast('Image error: ' + err.message, true);
       });
     } else {
       doSave(null);
@@ -2029,13 +2047,12 @@ function setupEventHandlers() {
       notes: $('shapeNotes').value.trim()
     };
 
-    var uploadPromises = pendingUploadFiles.shape.map(function(file, i) {
-      var filePath = 'shapes/' + currentGpId + '/' + Date.now() + '_' + i + '_' + file.name;
-      return uploadFile(filePath, file);
+    var compressPromises = pendingUploadFiles.shape.map(function(file) {
+      return compressImage(file, 800, 0.7);
     });
 
-    Promise.all(uploadPromises).then(function(urls) {
-      data.photoURLs = urls;
+    Promise.all(compressPromises).then(function(base64Arr) {
+      data.photoURLs = base64Arr;
       return saveShape(currentGpId, data, $('shapeEditId').value || null);
     }).then(function() {
       closeModal('shapeModal');
@@ -2076,14 +2093,13 @@ function setupEventHandlers() {
       followUp: $('vetFollowUp').value || ''
     };
 
-    var uploadPromises = pendingUploadFiles.vet.map(function(file, i) {
-      var filePath = 'vet/' + currentGpId + '/' + Date.now() + '_' + i + '_' + file.name;
-      return uploadFile(filePath, file);
+    var compressPromises = pendingUploadFiles.vet.map(function(file) {
+      return compressImage(file, 800, 0.7);
     });
 
-    Promise.all(uploadPromises).then(function(urls) {
-      data.documentURLs = urls.map(function(url, i) {
-        return { url: url, name: pendingUploadFiles.vet[i].name, type: pendingUploadFiles.vet[i].type };
+    Promise.all(compressPromises).then(function(base64Arr) {
+      data.documentURLs = base64Arr.map(function(b64, i) {
+        return { url: b64, name: pendingUploadFiles.vet[i].name, type: pendingUploadFiles.vet[i].type };
       });
       return saveVetVisit(currentGpId, data, $('vetEditId').value || null);
     }).then(function() {
