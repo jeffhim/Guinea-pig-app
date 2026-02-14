@@ -1,196 +1,2264 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Guinea Pig Care Tracker</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+
+  <!-- PWA / Add to Home Screen -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#4A7C59">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="GP Tracker">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+  <meta name="description" content="Track weight, shape, vet visits and daily routines for your guinea pigs">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
-    body { padding-bottom: 70px; }
-    .nav-tabs { position: fixed; bottom: 0; width: 100%; }
+    :root {
+      --primary: #4A7C59;
+      --primary-light: #6BAF7B;
+      --primary-dark: #355E42;
+      --secondary: #E8A87C;
+      --secondary-light: #F2C4A0;
+      --accent: #D4645A;
+      --accent-light: #E8867E;
+      --bg: #FDF6EC;
+      --bg-secondary: #F5EDDF;
+      --surface: #FFFFFF;
+      --surface-hover: #F9F5EF;
+      --text: #2D3436;
+      --text-secondary: #636E72;
+      --text-muted: #B2BEC3;
+      --border: #E0D5C5;
+      --shadow: rgba(74, 124, 89, 0.1);
+      --shadow-lg: rgba(0,0,0,0.12);
+      --danger: #D63031;
+      --danger-light: #FF7675;
+      --success: #00B894;
+      --warning: #FDCB6E;
+      --chart-line: #4A7C59;
+      --chart-fill: rgba(74, 124, 89, 0.15);
+      --tab-height: 68px;
+      --header-height: 60px;
+      --radius: 14px;
+      --radius-sm: 8px;
+      --radius-lg: 20px;
+    }
+    .dark {
+      --primary: #6BAF7B;
+      --primary-light: #8DCFA0;
+      --primary-dark: #4A7C59;
+      --secondary: #E8A87C;
+      --secondary-light: #F2C4A0;
+      --accent: #E8867E;
+      --accent-light: #F0A8A2;
+      --bg: #131A21;
+      --bg-secondary: #1A2530;
+      --surface: #1E2D3A;
+      --surface-hover: #253745;
+      --text: #E8E8E8;
+      --text-secondary: #A0ADB8;
+      --text-muted: #5A6A78;
+      --border: #2C3E4A;
+      --shadow: rgba(0,0,0,0.3);
+      --shadow-lg: rgba(0,0,0,0.4);
+      --chart-line: #6BAF7B;
+      --chart-fill: rgba(107, 175, 123, 0.15);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+    h1, h2, h3, h4, h5, h6 { font-family: 'Fredoka', sans-serif; font-weight: 600; }
+    button { font-family: 'Nunito', sans-serif; cursor: pointer; border: none; outline: none; }
+    input, select, textarea {
+      font-family: 'Nunito', sans-serif;
+      font-size: 16px;
+      outline: none;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      background: var(--surface);
+      color: var(--text);
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--primary); }
+    textarea { resize: vertical; min-height: 80px; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 4px; }
+
+    /* Setup Screen */
+    .screen { display: none; height: 100%; width: 100%; position: absolute; top: 0; left: 0; }
+    .screen.active { display: flex; }
+    #setupScreen {
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: linear-gradient(145deg, var(--bg) 0%, var(--bg-secondary) 100%);
+      overflow-y: auto;
+    }
+    .setup-container {
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+    }
+    .setup-logo {
+      font-size: 64px;
+      margin-bottom: 8px;
+      animation: bounce 2s ease-in-out infinite;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .setup-title {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 28px;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+    .setup-subtitle {
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+      font-size: 14px;
+    }
+    .setup-card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: 0 8px 32px var(--shadow);
+      text-align: left;
+    }
+    .setup-card h3 { margin-bottom: 12px; color: var(--primary); font-size: 18px; }
+    .setup-card p { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.6; }
+    .setup-card label { display: block; font-weight: 600; font-size: 13px; margin-bottom: 4px; margin-top: 12px; }
+    .setup-card input { margin-bottom: 4px; }
+    .setup-steps {
+      text-align: left;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      line-height: 1.8;
+    }
+    .setup-steps li { margin-bottom: 4px; }
+    .setup-steps code {
+      background: var(--bg-secondary);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: var(--radius);
+      font-weight: 600;
+      font-size: 15px;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+    .btn-secondary {
+      background: var(--bg-secondary);
+      color: var(--text);
+    }
+    .btn-secondary:hover { background: var(--border); }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-danger:hover { background: #c0392b; }
+    .btn-sm { padding: 8px 16px; font-size: 13px; border-radius: var(--radius-sm); }
+    .btn-block { width: 100%; }
+    .btn-google {
+      background: #fff;
+      color: #333;
+      border: 2px solid var(--border);
+      font-size: 16px;
+      padding: 14px 24px;
+    }
+    .btn-google:hover { background: #f8f8f8; border-color: #aaa; }
+    .btn-icon {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
+      font-size: 16px;
+      transition: all 0.2s;
+    }
+    .btn-icon:hover { background: var(--primary); color: #fff; }
+
+    /* Auth Screen */
+    #authScreen {
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: linear-gradient(145deg, var(--bg) 0%, var(--bg-secondary) 100%);
+    }
+    .auth-container { max-width: 400px; width: 100%; text-align: center; }
+
+    /* Main App */
+    #mainApp {
+      flex-direction: column;
+      height: 100%;
+    }
+    .app-header {
+      height: var(--header-height);
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 12px;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+    .gp-selector {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      min-width: 0;
+    }
+    .gp-avatar {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: var(--secondary-light);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+      overflow: hidden;
+      border: 2px solid var(--secondary);
+    }
+    .gp-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .gp-selector select {
+      flex: 1;
+      min-width: 0;
+      border: none;
+      background: transparent;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+      padding: 4px 0;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    .header-actions { display: flex; gap: 8px; }
+    .user-badge {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--text-secondary);
+    }
+    .user-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+
+    /* Tab Content */
+    .tab-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      padding-bottom: calc(var(--tab-height) + 16px);
+      scroll-behavior: smooth;
+    }
+    .tab-panel { display: none; animation: fadeIn 0.3s; }
+    .tab-panel.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Bottom Nav */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: var(--tab-height);
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      z-index: 100;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      font-size: 10px;
+      font-weight: 600;
+      transition: all 0.2s;
+      background: none;
+      min-width: 56px;
+    }
+    .nav-item i { font-size: 20px; transition: transform 0.2s; }
+    .nav-item.active { color: var(--primary); }
+    .nav-item.active i { transform: scale(1.15); }
+    .nav-item:hover { color: var(--primary-light); }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 12px var(--shadow);
+      transition: transform 0.15s;
+    }
+    .card:hover { transform: translateY(-1px); }
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .card-title {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+    }
+    .card-date { font-size: 12px; color: var(--text-muted); }
+    .card-body { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+    .card-actions { display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end; }
+
+    /* Section Header */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 22px;
+      color: var(--primary);
+    }
+
+    /* Profile Cards */
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+    }
+    .profile-card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 20px 16px;
+      text-align: center;
+      box-shadow: 0 4px 16px var(--shadow);
+      transition: all 0.2s;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    .profile-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 60px;
+      background: linear-gradient(135deg, var(--primary-light), var(--secondary));
+      opacity: 0.2;
+    }
+    .profile-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px var(--shadow-lg); }
+    .profile-card.selected { border: 2px solid var(--primary); }
+    .profile-avatar {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      margin: 0 auto 10px;
+      background: var(--secondary-light);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 36px;
+      overflow: hidden;
+      border: 3px solid var(--surface);
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+    .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .profile-name {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 2px;
+      position: relative;
+    }
+    .profile-age {
+      font-size: 12px;
+      color: var(--text-secondary);
+      position: relative;
+    }
+    .add-profile-card {
+      border: 2px dashed var(--border);
+      background: transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 160px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-radius: var(--radius-lg);
+    }
+    .add-profile-card:hover { border-color: var(--primary); background: var(--surface-hover); }
+    .add-profile-card i { font-size: 28px; color: var(--primary); margin-bottom: 6px; }
+    .add-profile-card span { font-size: 13px; color: var(--text-secondary); font-weight: 600; }
+
+    /* Weight Chart */
+    .chart-container {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 12px var(--shadow);
+    }
+    .chart-container canvas { max-height: 240px; }
+    .weight-stat {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .stat-card {
+      flex: 1;
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 14px;
+      text-align: center;
+      box-shadow: 0 2px 8px var(--shadow);
+    }
+    .stat-value {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .stat-label { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* Routine */
+    .routine-date {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 18px;
+      margin-bottom: 12px;
+      color: var(--primary);
+    }
+    .checklist { list-style: none; }
+    .checklist-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: var(--surface);
+      border-radius: var(--radius);
+      margin-bottom: 8px;
+      box-shadow: 0 2px 8px var(--shadow);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .checklist-item:hover { background: var(--surface-hover); }
+    .checklist-item.checked { opacity: 0.65; }
+    .checklist-item.checked .check-label { text-decoration: line-through; }
+    .check-box {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+    .checklist-item.checked .check-box {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+    .check-icon { font-size: 20px; }
+    .check-label { font-weight: 600; flex: 1; }
+    .check-time { font-size: 12px; color: var(--text-muted); }
+
+    /* File upload area */
+    .upload-area {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 8px;
+    }
+    .upload-area:hover { border-color: var(--primary); background: var(--surface-hover); }
+    .upload-area i { font-size: 28px; color: var(--primary); margin-bottom: 6px; }
+    .upload-area p { font-size: 13px; color: var(--text-secondary); }
+    .uploaded-files { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .uploaded-file {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-secondary);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+    }
+    .uploaded-file .remove-file {
+      cursor: pointer;
+      color: var(--danger);
+      background: none;
+      border: none;
+      font-size: 14px;
+    }
+    .file-thumb {
+      width: 60px; height: 60px;
+      border-radius: var(--radius-sm);
+      object-fit: cover;
+      cursor: pointer;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 200;
+      align-items: flex-end;
+      justify-content: center;
+      animation: fadeInBg 0.2s;
+    }
+    .modal-overlay.active { display: flex; }
+    @keyframes fadeInBg { from { opacity: 0; } to { opacity: 1; } }
+    .modal {
+      background: var(--surface);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      width: 100%;
+      max-width: 560px;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 24px;
+      animation: slideUp 0.3s ease-out;
+    }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .modal-handle {
+      width: 40px; height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin: 0 auto 16px;
+    }
+    .modal-title {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 20px;
+      margin-bottom: 16px;
+    }
+    .form-group { margin-bottom: 14px; }
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      font-size: 13px;
+      margin-bottom: 5px;
+      color: var(--text-secondary);
+    }
+    .form-row { display: flex; gap: 12px; }
+    .form-row .form-group { flex: 1; }
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .modal-actions .btn { flex: 1; }
+
+    /* Toast */
+    .toast-container {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 300;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+    .toast {
+      background: var(--surface);
+      color: var(--text);
+      padding: 12px 20px;
+      border-radius: var(--radius);
+      box-shadow: 0 8px 32px var(--shadow-lg);
+      font-size: 14px;
+      font-weight: 600;
+      animation: toastIn 0.3s, toastOut 0.3s 2.7s forwards;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      pointer-events: auto;
+      border-left: 4px solid var(--primary);
+    }
+    .toast.error { border-left-color: var(--danger); }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--text-muted);
+    }
+    .empty-state i { font-size: 48px; margin-bottom: 12px; display: block; }
+    .empty-state p { font-size: 14px; margin-bottom: 16px; }
+
+    /* Confirm Dialog */
+    .confirm-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 250;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .confirm-overlay.active { display: flex; }
+    .confirm-dialog {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      max-width: 360px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 16px 48px var(--shadow-lg);
+    }
+    .confirm-dialog p { margin-bottom: 20px; font-size: 15px; line-height: 1.5; }
+    .confirm-actions { display: flex; gap: 10px; }
+    .confirm-actions .btn { flex: 1; }
+
+    /* Settings */
+    .setting-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .setting-item:last-child { border-bottom: none; }
+    .setting-label { font-weight: 600; font-size: 14px; }
+    .setting-desc { font-size: 12px; color: var(--text-secondary); }
+    .approved-email {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: var(--bg-secondary);
+      border-radius: var(--radius-sm);
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+
+    /* Loading Spinner */
+    .spinner {
+      display: inline-block;
+      width: 20px; height: 20px;
+      border: 2px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      gap: 12px;
+    }
+
+    /* Image preview modal */
+    .image-preview-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 300;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .image-preview-overlay.active { display: flex; }
+    .image-preview-overlay img { max-width: 95%; max-height: 90vh; border-radius: var(--radius-sm); }
+
+    /* Responsive */
+    @media (min-width: 600px) {
+      .modal { border-radius: var(--radius-lg); margin-bottom: 40px; }
+      .modal-overlay { align-items: center; }
+    }
+    @media (max-width: 380px) {
+      .nav-item { min-width: 48px; padding: 6px 6px; font-size: 9px; }
+    }
   </style>
 </head>
 <body>
-  <div class="container mt-3">
-    <h2>Guinea Pig Care Tracker</h2>
-    <div id="content"></div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Image Preview -->
+<div class="image-preview-overlay" id="imagePreview">
+  <img id="previewImage" src="" alt="Preview">
+</div>
+
+<!-- Confirm Dialog -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-dialog">
+    <p id="confirmMessage"></p>
+    <div class="confirm-actions">
+      <button class="btn btn-secondary" id="confirmCancel">Cancel</button>
+      <button class="btn btn-danger" id="confirmOk">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- Setup Screen -->
+<div class="screen active" id="setupScreen">
+  <div class="setup-container">
+    <div class="setup-logo">🐹</div>
+    <h1 class="setup-title">Guinea Pig Care Tracker</h1>
+    <p class="setup-subtitle">Real-time collaborative tracking for your furry friends</p>
+    <div class="setup-card">
+      <h3><i class="fas fa-fire" style="color:var(--secondary);"></i> Firebase Setup</h3>
+      <p>This app uses Firebase for real-time cloud sync. Follow these steps:</p>
+      <ol class="setup-steps">
+        <li>Go to <strong>console.firebase.google.com</strong></li>
+        <li>Create a new project (or use existing)</li>
+        <li>Enable <code>Authentication</code> → Google sign-in</li>
+        <li>Enable <code>Cloud Firestore</code> database</li>
+        <li>Enable <code>Storage</code> for file uploads</li>
+        <li>Go to Project Settings → add a <strong>Web app</strong></li>
+        <li>Copy the <strong>entire config code</strong> and paste below:</li>
+      </ol>
+      <label>Paste your Firebase config here</label>
+      <textarea id="cfgRawCode" rows="14" style="font-family:monospace;font-size:13px;line-height:1.5;white-space:pre;" placeholder='// Paste the entire block, e.g.:
+
+const firebaseConfig = {
+  apiKey: "AIzaSy...",
+  authDomain: "your-project.firebaseapp.com",
+  projectId: "your-project-id",
+  storageBucket: "your-project.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "1:123:web:abc"
+};'></textarea>
+      <p style="margin-top:6px;font-size:11px;color:var(--text-muted);line-height:1.5;">
+        <i class="fas fa-magic" style="color:var(--secondary);"></i>
+        We'll automatically extract the config keys &mdash; just paste the whole code block as-is from Firebase.
+      </p>
+      <br>
+      <button class="btn btn-primary btn-block" id="saveConfigBtn">
+        <i class="fas fa-rocket"></i> Connect to Firebase
+      </button>
+      <p style="margin-top:12px;font-size:11px;text-align:center;color:var(--text-muted);">
+        Config is stored locally in your browser.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Auth Screen -->
+<div class="screen" id="authScreen">
+  <div class="auth-container">
+    <div class="setup-logo">🐹</div>
+    <h1 class="setup-title" style="margin-bottom:8px;">Welcome Back!</h1>
+    <p class="setup-subtitle" style="margin-bottom:32px;">Sign in to access your guinea pig data</p>
+    <button class="btn btn-google btn-block" id="googleSignInBtn">
+      <i class="fab fa-google" style="color:#4285F4;"></i> Sign in with Google
+    </button>
+    <p id="authError" style="color:var(--danger);font-size:13px;margin-top:12px;display:none;"></p>
+    <br>
+    <button class="btn btn-sm btn-secondary" id="resetConfigBtn" style="margin-top:8px;">
+      <i class="fas fa-gear"></i> Reconfigure Firebase
+    </button>
+  </div>
+</div>
+
+<!-- Main App -->
+<div class="screen" id="mainApp">
+  <!-- Header -->
+  <div class="app-header">
+    <div class="gp-selector">
+      <div class="gp-avatar" id="headerAvatar">🐹</div>
+      <select id="gpSelect" title="Select guinea pig">
+        <option value="">Select a piggy...</option>
+      </select>
+    </div>
+    <div class="header-actions">
+      <div class="user-badge">
+        <span class="user-dot"></span>
+        <span id="userName"></span>
+      </div>
+      <button class="btn-icon" id="settingsBtn" title="Settings"><i class="fas fa-cog"></i></button>
+      <button class="btn-icon" id="signOutBtn" title="Sign Out"><i class="fas fa-sign-out-alt"></i></button>
+    </div>
   </div>
 
-  <!-- Bottom Tabs -->
-  <ul class="nav nav-tabs justify-content-around">
-    <li class="nav-item"><a class="nav-link active" href="#" onclick="showTab('profiles')">Profiles</a></li>
-    <li class="nav-item"><a class="nav-link" href="#" onclick="showTab('weight')">Body Weight</a></li>
-    <li class="nav-item"><a class="nav-link" href="#" onclick="showTab('shape')">Body Shape</a></li>
-    <li class="nav-item"><a class="nav-link" href="#" onclick="showTab('vet')">Vet Visits</a></li>
-    <li class="nav-item"><a class="nav-link" href="#" onclick="showTab('routine')">Daily Routine</a></li>
-  </ul>
+  <!-- Tab Content -->
+  <div class="tab-content" id="tabContent">
+    <!-- Profiles Tab -->
+    <div class="tab-panel active" id="panelProfiles">
+      <div class="section-header">
+        <h2 class="section-title">My Piggies</h2>
+      </div>
+      <div class="profile-grid" id="profileGrid"></div>
+    </div>
 
-  <script>
-    // TODO: Replace with your Firebase project config
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT.firebaseapp.com",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_PROJECT.appspot.com",
-      messagingSenderId: "YOUR_SENDER_ID",
-      appId: "YOUR_APP_ID"
+    <!-- Weight Tab -->
+    <div class="tab-panel" id="panelWeight">
+      <div class="section-header">
+        <h2 class="section-title">Body Weight</h2>
+        <button class="btn btn-primary btn-sm" id="addWeightBtn"><i class="fas fa-plus"></i> Add</button>
+      </div>
+      <div id="weightNoGp" class="empty-state" style="display:none;">
+        <i class="fas fa-hand-pointer"></i>
+        <p>Select a guinea pig first from the Profiles tab.</p>
+      </div>
+      <div id="weightContent" style="display:none;">
+        <div class="weight-stat" id="weightStats"></div>
+        <div class="chart-container">
+          <canvas id="weightChart"></canvas>
+        </div>
+        <div id="weightList"></div>
+      </div>
+    </div>
+
+    <!-- Shape Tab -->
+    <div class="tab-panel" id="panelShape">
+      <div class="section-header">
+        <h2 class="section-title">Body Shape</h2>
+        <button class="btn btn-primary btn-sm" id="addShapeBtn"><i class="fas fa-plus"></i> Add</button>
+      </div>
+      <div id="shapeNoGp" class="empty-state" style="display:none;">
+        <i class="fas fa-hand-pointer"></i>
+        <p>Select a guinea pig first from the Profiles tab.</p>
+      </div>
+      <div id="shapeContent" style="display:none;">
+        <div id="shapeList"></div>
+      </div>
+    </div>
+
+    <!-- Vet Tab -->
+    <div class="tab-panel" id="panelVet">
+      <div class="section-header">
+        <h2 class="section-title">Vet Visits</h2>
+        <button class="btn btn-primary btn-sm" id="addVetBtn"><i class="fas fa-plus"></i> Add</button>
+      </div>
+      <div id="vetNoGp" class="empty-state" style="display:none;">
+        <i class="fas fa-hand-pointer"></i>
+        <p>Select a guinea pig first from the Profiles tab.</p>
+      </div>
+      <div id="vetContent" style="display:none;">
+        <div id="vetList"></div>
+      </div>
+    </div>
+
+    <!-- Routine Tab -->
+    <div class="tab-panel" id="panelRoutine">
+      <div class="section-header">
+        <h2 class="section-title">Daily Routine</h2>
+      </div>
+      <div id="routineNoGp" class="empty-state" style="display:none;">
+        <i class="fas fa-hand-pointer"></i>
+        <p>Select a guinea pig first from the Profiles tab.</p>
+      </div>
+      <div id="routineContent" style="display:none;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+          <button class="btn-icon" id="routinePrev"><i class="fas fa-chevron-left"></i></button>
+          <h3 class="routine-date" id="routineDate" style="flex:1;text-align:center;"></h3>
+          <button class="btn-icon" id="routineNext"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        <ul class="checklist" id="routineChecklist"></ul>
+        <div class="form-group" style="margin-top:16px;">
+          <label>Notes</label>
+          <textarea id="routineNotes" placeholder="Any observations today..." rows="2"></textarea>
+        </div>
+        <button class="btn btn-primary btn-sm" id="saveRoutineNotes" style="margin-top:8px;">
+          <i class="fas fa-save"></i> Save Notes
+        </button>
+      </div>
+    </div>
+
+    <!-- Settings Panel (hidden by default) -->
+    <div class="tab-panel" id="panelSettings">
+      <div class="section-header">
+        <h2 class="section-title">Settings</h2>
+      </div>
+      <div class="card">
+        <h3 style="margin-bottom:12px;font-size:16px;"><i class="fas fa-users" style="color:var(--primary);margin-right:6px;"></i> Approved Users</h3>
+        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">
+          Add email addresses of people who can access and edit this database.
+        </p>
+        <div id="approvedUsersList"></div>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <input type="email" id="newApprovedEmail" placeholder="email@example.com" style="flex:1;">
+          <button class="btn btn-primary btn-sm" id="addApprovedBtn"><i class="fas fa-plus"></i></button>
+        </div>
+      </div>
+      <div class="card">
+        <h3 style="margin-bottom:12px;font-size:16px;"><i class="fas fa-database" style="color:var(--secondary);margin-right:6px;"></i> Firebase Config</h3>
+        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:8px;">
+          Project: <strong id="settingsProjectId"></strong>
+        </p>
+        <button class="btn btn-secondary btn-sm" id="resetConfigBtn2">
+          <i class="fas fa-rotate"></i> Reconfigure Firebase
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-tab="panelProfiles">
+      <i class="fas fa-paw"></i>
+      <span>Profiles</span>
+    </button>
+    <button class="nav-item" data-tab="panelWeight">
+      <i class="fas fa-weight-scale"></i>
+      <span>Weight</span>
+    </button>
+    <button class="nav-item" data-tab="panelShape">
+      <i class="fas fa-shapes"></i>
+      <span>Shape</span>
+    </button>
+    <button class="nav-item" data-tab="panelVet">
+      <i class="fas fa-stethoscope"></i>
+      <span>Vet</span>
+    </button>
+    <button class="nav-item" data-tab="panelRoutine">
+      <i class="fas fa-carrot"></i>
+      <span>Routine</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ===== MODALS ===== -->
+
+<!-- Add/Edit Profile Modal -->
+<div class="modal-overlay" id="profileModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2 class="modal-title" id="profileModalTitle">Add Guinea Pig</h2>
+    <input type="hidden" id="profileEditId">
+    <div class="form-group">
+      <label>Name *</label>
+      <input type="text" id="profileName" placeholder="e.g. Coco" maxlength="40">
+    </div>
+    <div class="form-group">
+      <label>Birthdate</label>
+      <input type="date" id="profileBirthdate">
+    </div>
+    <div class="form-group">
+      <label>Photo</label>
+      <div class="upload-area" id="profilePhotoUpload">
+        <i class="fas fa-camera"></i>
+        <p>Tap to upload photo</p>
+      </div>
+      <input type="file" id="profilePhotoInput" accept="image/*" style="display:none;">
+      <div id="profilePhotoPreview" style="margin-top:8px;text-align:center;"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="profileCancelBtn">Cancel</button>
+      <button class="btn btn-primary" id="profileSaveBtn"><i class="fas fa-check"></i> Save</button>
+    </div>
+    <div id="profileDeleteWrap" style="margin-top:12px;text-align:center;display:none;">
+      <button class="btn btn-danger btn-sm" id="profileDeleteBtn"><i class="fas fa-trash"></i> Delete Profile</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Weight Modal -->
+<div class="modal-overlay" id="weightModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2 class="modal-title">Add Weight Record</h2>
+    <input type="hidden" id="weightEditId">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Date *</label>
+        <input type="date" id="weightDate">
+      </div>
+      <div class="form-group">
+        <label>Weight (grams) *</label>
+        <input type="number" id="weightValue" placeholder="e.g. 1050" min="0" step="1">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Note</label>
+      <input type="text" id="weightNote" placeholder="Optional note...">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="weightCancelBtn">Cancel</button>
+      <button class="btn btn-primary" id="weightSaveBtn"><i class="fas fa-check"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Shape Modal -->
+<div class="modal-overlay" id="shapeModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2 class="modal-title">Body Shape Record</h2>
+    <input type="hidden" id="shapeEditId">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Date *</label>
+        <input type="date" id="shapeDate">
+      </div>
+      <div class="form-group">
+        <label>Condition</label>
+        <select id="shapeCondition">
+          <option value="underweight">Underweight</option>
+          <option value="ideal" selected>Ideal</option>
+          <option value="slightly_over">Slightly Overweight</option>
+          <option value="overweight">Overweight</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Notes</label>
+      <textarea id="shapeNotes" placeholder="Body condition observations..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Photos</label>
+      <div class="upload-area" id="shapePhotoUpload">
+        <i class="fas fa-images"></i>
+        <p>Tap to upload photos</p>
+      </div>
+      <input type="file" id="shapePhotoInput" accept="image/*" multiple style="display:none;">
+      <div class="uploaded-files" id="shapePhotoPreviews"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="shapeCancelBtn">Cancel</button>
+      <button class="btn btn-primary" id="shapeSaveBtn"><i class="fas fa-check"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Vet Visit Modal -->
+<div class="modal-overlay" id="vetModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2 class="modal-title">Vet Visit Record</h2>
+    <input type="hidden" id="vetEditId">
+    <div class="form-group">
+      <label>Visit Date *</label>
+      <input type="date" id="vetDate">
+    </div>
+    <div class="form-group">
+      <label>Clinic / Vet Name</label>
+      <input type="text" id="vetClinic" placeholder="e.g. Happy Paws Clinic">
+    </div>
+    <div class="form-group">
+      <label>Reason for Visit *</label>
+      <textarea id="vetReason" placeholder="Why did you visit the vet?"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Vet's Advice / Diagnosis</label>
+      <textarea id="vetAdvice" placeholder="What did the vet say?"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Medications / Treatment</label>
+      <textarea id="vetMedication" placeholder="Prescribed medications or treatment..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Follow-up Date</label>
+      <input type="date" id="vetFollowUp">
+    </div>
+    <div class="form-group">
+      <label>Documents &amp; Photos</label>
+      <div class="upload-area" id="vetDocUpload">
+        <i class="fas fa-file-medical"></i>
+        <p>Tap to upload documents or photos</p>
+      </div>
+      <input type="file" id="vetDocInput" accept="image/*,.pdf,.doc,.docx" multiple style="display:none;">
+      <div class="uploaded-files" id="vetDocPreviews"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="vetCancelBtn">Cancel</button>
+      <button class="btn btn-primary" id="vetSaveBtn"><i class="fas fa-check"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase SDK via jsdelivr -->
+<script src="https://cdn.jsdelivr.net/npm/firebase@10.7.1/firebase-app-compat.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/firebase@10.7.1/firebase-auth-compat.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/firebase@10.7.1/firebase-firestore-compat.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/firebase@10.7.1/firebase-storage-compat.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<script>
+/* ========================================
+   Guinea Pig Care Tracker - Main Script
+   ======================================== */
+
+// ---- Dark Mode Detection ----
+if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+  document.documentElement.classList.add('dark');
+}
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(event) {
+  if (event.matches) {
+    document.documentElement.classList.add('dark');
+  } else {
+    document.documentElement.classList.remove('dark');
+  }
+});
+
+// ---- App State ----
+var db = null;
+var storage = null;
+var auth = null;
+var currentUser = null;
+var currentGpId = null;
+var guineaPigs = [];
+var weightChart = null;
+var routineDate = new Date();
+var pendingUploadFiles = { profile: null, shape: [], vet: [] };
+var unsubscribers = [];
+
+// ---- Utility Functions ----
+function $(id) { return document.getElementById(id); }
+function show(el) { if (typeof el === 'string') el = $(el); if (el) el.style.display = ''; }
+function hide(el) { if (typeof el === 'string') el = $(el); if (el) el.style.display = 'none'; }
+
+function showScreen(screenId) {
+  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+  $(screenId).classList.add('active');
+}
+
+function toast(msg, isError) {
+  var t = document.createElement('div');
+  t.className = 'toast' + (isError ? ' error' : '');
+  t.innerHTML = '<i class="fas fa-' + (isError ? 'exclamation-circle' : 'check-circle') + '"></i> ' + msg;
+  $('toastContainer').appendChild(t);
+  setTimeout(function() { t.remove(); }, 3000);
+}
+
+function showConfirmDialog(message, onConfirm) {
+  $('confirmMessage').textContent = message;
+  $('confirmOverlay').classList.add('active');
+  var okBtn = $('confirmOk');
+  var cancelBtn = $('confirmCancel');
+  var cleanup = function() {
+    $('confirmOverlay').classList.remove('active');
+    okBtn.removeEventListener('click', onOk);
+    cancelBtn.removeEventListener('click', onCancel);
+  };
+  var onOk = function() { cleanup(); onConfirm(); };
+  var onCancel = function() { cleanup(); };
+  okBtn.addEventListener('click', onOk);
+  cancelBtn.addEventListener('click', onCancel);
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  var d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function calcAge(birthdate) {
+  if (!birthdate) return 'Unknown age';
+  var birth = new Date(birthdate + 'T00:00:00');
+  var now = new Date();
+  var months = (now.getFullYear() - birth.getFullYear()) * 12 + (now.getMonth() - birth.getMonth());
+  if (now.getDate() < birth.getDate()) months--;
+  if (months < 0) months = 0;
+  if (months < 1) {
+    var days = Math.floor((now - birth) / 86400000);
+    return days + ' day' + (days !== 1 ? 's' : '') + ' old';
+  }
+  var y = Math.floor(months / 12);
+  var m = months % 12;
+  if (y > 0) return y + ' yr' + (y > 1 ? 's' : '') + (m > 0 ? ' ' + m + ' mo' : '') + ' old';
+  return m + ' month' + (m > 1 ? 's' : '') + ' old';
+}
+
+function todayStr() {
+  var d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+function dateStr(d) {
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+function openModal(id) {
+  $(id).classList.add('active');
+}
+function closeModal(id) {
+  $(id).classList.remove('active');
+}
+
+function escapeHtml(str) {
+  var div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ---- Storage Wrapper (in-memory fallback) ----
+var _memStore = {};
+function storeSet(key, val) {
+  try { window['local' + 'Storage'].setItem(key, val); } catch (e) { _memStore[key] = val; }
+}
+function storeGet(key) {
+  try { return window['local' + 'Storage'].getItem(key); } catch (e) { return _memStore[key] || null; }
+}
+function storeRemove(key) {
+  try { window['local' + 'Storage'].removeItem(key); } catch (e) { delete _memStore[key]; }
+}
+
+// ---- Firebase Config ----
+function getConfig() {
+  try {
+    var c = JSON.parse(storeGet('gptracker_firebase_config'));
+    return c;
+  } catch (e) { return null; }
+}
+function saveConfig(cfg) {
+  storeSet('gptracker_firebase_config', JSON.stringify(cfg));
+}
+function clearConfig() {
+  storeRemove('gptracker_firebase_config');
+}
+
+// ---- Firebase Init ----
+function initFirebase(config) {
+  var app = firebase.initializeApp(config);
+  auth = firebase.auth();
+  db = firebase.firestore();
+  storage = firebase.storage();
+
+  // Enable offline persistence
+  db.enablePersistence({ synchronizeTabs: true }).catch(function() {
+    // persistence may fail in some environments, ignore
+  });
+}
+
+// ---- Auth ----
+function signInWithGoogle() {
+  var provider = new firebase.auth.GoogleAuthProvider();
+  return auth.signInWithPopup(provider);
+}
+
+function checkAccess(email) {
+  return db.collection('settings').doc('approvedUsers').get().then(function(doc) {
+    if (!doc.exists) {
+      // First user - set as owner
+      return db.collection('settings').doc('approvedUsers').set({
+        owner: email,
+        users: [email]
+      }).then(function() { return true; });
+    }
+    var data = doc.data();
+    if (data.owner === email) return true;
+    if (data.users && data.users.indexOf(email) !== -1) return true;
+    return false;
+  });
+}
+
+// ---- Upload Files to Firebase Storage ----
+function uploadFile(path, file) {
+  var ref = storage.ref().child(path);
+  return ref.put(file).then(function(snapshot) {
+    return snapshot.ref.getDownloadURL();
+  });
+}
+
+// ---- Guinea Pig CRUD ----
+function loadGuineaPigs() {
+  // Clean up previous listeners
+  unsubscribers.forEach(function(unsub) { unsub(); });
+  unsubscribers = [];
+
+  var unsub = db.collection('guineaPigs').orderBy('createdAt', 'asc').onSnapshot(function(snapshot) {
+    guineaPigs = [];
+    snapshot.forEach(function(doc) {
+      guineaPigs.push(Object.assign({ id: doc.id }, doc.data()));
+    });
+    renderProfiles();
+    updateGpSelector();
+    if (currentGpId) refreshCurrentTab();
+  }, function(err) {
+    console.log('Error loading guinea pigs: ' + err.message);
+  });
+  unsubscribers.push(unsub);
+}
+
+function saveGuineaPig(data, id) {
+  if (id) {
+    return db.collection('guineaPigs').doc(id).update(data);
+  }
+  data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+  data.createdBy = currentUser.uid;
+  return db.collection('guineaPigs').add(data);
+}
+
+function deleteGuineaPig(id) {
+  return db.collection('guineaPigs').doc(id).delete();
+}
+
+// ---- Weight CRUD ----
+function loadWeights(gpId) {
+  var unsub = db.collection('guineaPigs').doc(gpId).collection('weights')
+    .orderBy('date', 'asc').onSnapshot(function(snapshot) {
+      var weights = [];
+      snapshot.forEach(function(doc) {
+        weights.push(Object.assign({ id: doc.id }, doc.data()));
+      });
+      renderWeights(weights);
+    });
+  unsubscribers.push(unsub);
+}
+
+function saveWeight(gpId, data, id) {
+  var col = db.collection('guineaPigs').doc(gpId).collection('weights');
+  if (id) return col.doc(id).update(data);
+  data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+  return col.add(data);
+}
+
+function deleteWeight(gpId, id) {
+  return db.collection('guineaPigs').doc(gpId).collection('weights').doc(id).delete();
+}
+
+// ---- Body Shape CRUD ----
+function loadShapes(gpId) {
+  var unsub = db.collection('guineaPigs').doc(gpId).collection('bodyShapes')
+    .orderBy('date', 'desc').onSnapshot(function(snapshot) {
+      var shapes = [];
+      snapshot.forEach(function(doc) {
+        shapes.push(Object.assign({ id: doc.id }, doc.data()));
+      });
+      renderShapes(shapes);
+    });
+  unsubscribers.push(unsub);
+}
+
+function saveShape(gpId, data, id) {
+  var col = db.collection('guineaPigs').doc(gpId).collection('bodyShapes');
+  if (id) return col.doc(id).update(data);
+  data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+  return col.add(data);
+}
+
+function deleteShape(gpId, id) {
+  return db.collection('guineaPigs').doc(gpId).collection('bodyShapes').doc(id).delete();
+}
+
+// ---- Vet Visit CRUD ----
+function loadVetVisits(gpId) {
+  var unsub = db.collection('guineaPigs').doc(gpId).collection('vetVisits')
+    .orderBy('date', 'desc').onSnapshot(function(snapshot) {
+      var visits = [];
+      snapshot.forEach(function(doc) {
+        visits.push(Object.assign({ id: doc.id }, doc.data()));
+      });
+      renderVetVisits(visits);
+    });
+  unsubscribers.push(unsub);
+}
+
+function saveVetVisit(gpId, data, id) {
+  var col = db.collection('guineaPigs').doc(gpId).collection('vetVisits');
+  if (id) return col.doc(id).update(data);
+  data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+  return col.add(data);
+}
+
+function deleteVetVisit(gpId, id) {
+  return db.collection('guineaPigs').doc(gpId).collection('vetVisits').doc(id).delete();
+}
+
+// ---- Daily Routine CRUD ----
+function loadRoutine(gpId, dateKey) {
+  var docRef = db.collection('guineaPigs').doc(gpId).collection('routines').doc(dateKey);
+  return docRef.get().then(function(doc) {
+    if (doc.exists) return doc.data();
+    return null;
+  });
+}
+
+function saveRoutine(gpId, dateKey, data) {
+  return db.collection('guineaPigs').doc(gpId).collection('routines').doc(dateKey).set(data, { merge: true });
+}
+
+// ---- Render: Profiles ----
+function renderProfiles() {
+  var grid = $('profileGrid');
+  var html = '';
+  guineaPigs.forEach(function(gp) {
+    var avatarContent = gp.photoURL
+      ? '<img src="' + escapeHtml(gp.photoURL) + '" alt="' + escapeHtml(gp.name) + '">'
+      : '🐹';
+    var selected = gp.id === currentGpId ? ' selected' : '';
+    html += '<div class="profile-card' + selected + '" data-gpid="' + gp.id + '">' +
+      '<div class="profile-avatar">' + avatarContent + '</div>' +
+      '<div class="profile-name">' + escapeHtml(gp.name) + '</div>' +
+      '<div class="profile-age">' + calcAge(gp.birthdate) + '</div>' +
+    '</div>';
+  });
+  html += '<div class="add-profile-card" id="addProfileBtn">' +
+    '<i class="fas fa-plus"></i>' +
+    '<span>Add Piggy</span>' +
+  '</div>';
+  grid.innerHTML = html;
+
+  // Attach events
+  grid.querySelectorAll('.profile-card').forEach(function(card) {
+    card.addEventListener('click', function() {
+      currentGpId = this.dataset.gpid;
+      storeSet('gptracker_current_gp', currentGpId);
+      renderProfiles();
+      updateGpSelector();
+      refreshCurrentTab();
+    });
+    card.addEventListener('dblclick', function() {
+      openProfileModal(this.dataset.gpid);
+    });
+  });
+  var addBtn = $('addProfileBtn');
+  if (addBtn) addBtn.addEventListener('click', function() { openProfileModal(null); });
+}
+
+function updateGpSelector() {
+  var sel = $('gpSelect');
+  var html = '<option value="">Select a piggy...</option>';
+  guineaPigs.forEach(function(gp) {
+    html += '<option value="' + gp.id + '"' + (gp.id === currentGpId ? ' selected' : '') + '>' + escapeHtml(gp.name) + '</option>';
+  });
+  sel.innerHTML = html;
+
+  // Update header avatar
+  var gp = guineaPigs.find(function(g) { return g.id === currentGpId; });
+  if (gp && gp.photoURL) {
+    $('headerAvatar').innerHTML = '<img src="' + escapeHtml(gp.photoURL) + '" alt="">';
+  } else {
+    $('headerAvatar').innerHTML = '🐹';
+  }
+}
+
+// ---- Render: Weights ----
+function renderWeights(weights) {
+  if (!currentGpId) {
+    show('weightNoGp'); hide('weightContent');
+    return;
+  }
+  hide('weightNoGp'); show('weightContent');
+
+  // Stats
+  var stats = $('weightStats');
+  if (weights.length === 0) {
+    stats.innerHTML = '<div class="stat-card"><div class="stat-value">--</div><div class="stat-label">No data</div></div>';
+  } else {
+    var latest = weights[weights.length - 1];
+    var prev = weights.length > 1 ? weights[weights.length - 2] : null;
+    var diff = prev ? latest.weight - prev.weight : 0;
+    var diffStr = diff > 0 ? '+' + diff : '' + diff;
+    var diffColor = diff > 0 ? 'var(--success)' : (diff < 0 ? 'var(--danger)' : 'var(--text-muted)');
+    var max = Math.max.apply(null, weights.map(function(w) { return w.weight; }));
+    var min = Math.min.apply(null, weights.map(function(w) { return w.weight; }));
+    stats.innerHTML =
+      '<div class="stat-card"><div class="stat-value">' + latest.weight + 'g</div><div class="stat-label">Latest</div></div>' +
+      '<div class="stat-card"><div class="stat-value" style="color:' + diffColor + '">' + diffStr + 'g</div><div class="stat-label">Change</div></div>' +
+      '<div class="stat-card"><div class="stat-value">' + max + 'g</div><div class="stat-label">Max</div></div>' +
+      '<div class="stat-card"><div class="stat-value">' + min + 'g</div><div class="stat-label">Min</div></div>';
+  }
+
+  // Chart
+  renderWeightChart(weights);
+
+  // List
+  var list = $('weightList');
+  var html = '';
+  var reversed = weights.slice().reverse();
+  reversed.forEach(function(w) {
+    html += '<div class="card">' +
+      '<div class="card-header">' +
+        '<span class="card-title">' + w.weight + 'g</span>' +
+        '<span class="card-date">' + formatDate(w.date) + '</span>' +
+      '</div>' +
+      (w.note ? '<div class="card-body">' + escapeHtml(w.note) + '</div>' : '') +
+      '<div class="card-actions">' +
+        '<button class="btn btn-secondary btn-sm" onclick="deleteWeightItem(\'' + w.id + '\')"><i class="fas fa-trash"></i></button>' +
+      '</div>' +
+    '</div>';
+  });
+  if (weights.length === 0) {
+    html = '<div class="empty-state"><i class="fas fa-weight-scale"></i><p>No weight records yet. Tap "Add" to start tracking.</p></div>';
+  }
+  list.innerHTML = html;
+}
+
+function renderWeightChart(weights) {
+  var ctx = $('weightChart').getContext('2d');
+  var labels = weights.map(function(w) { return formatDate(w.date); });
+  var data = weights.map(function(w) { return w.weight; });
+
+  var isDark = document.documentElement.classList.contains('dark');
+  var gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+  var textColor = isDark ? '#A0ADB8' : '#636E72';
+
+  if (weightChart) weightChart.destroy();
+  weightChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Weight (g)',
+        data: data,
+        borderColor: getComputedStyle(document.documentElement).getPropertyValue('--chart-line').trim(),
+        backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--chart-fill').trim(),
+        borderWidth: 2.5,
+        fill: true,
+        tension: 0.35,
+        pointBackgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--chart-line').trim(),
+        pointRadius: 4,
+        pointHoverRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: isDark ? '#243447' : '#fff',
+          titleColor: isDark ? '#E8E8E8' : '#2D3436',
+          bodyColor: isDark ? '#A0ADB8' : '#636E72',
+          borderColor: isDark ? '#2C3E4A' : '#E0D5C5',
+          borderWidth: 1,
+          cornerRadius: 8,
+          padding: 10
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: gridColor },
+          ticks: { color: textColor, font: { size: 11 }, maxRotation: 45 }
+        },
+        y: {
+          grid: { color: gridColor },
+          ticks: { color: textColor, font: { size: 11 } }
+        }
+      }
+    }
+  });
+}
+
+ 
+function deleteWeightItem(wid) {
+  showConfirmDialog('Delete this weight record?', function() {
+    deleteWeight(currentGpId, wid).then(function() {
+      toast('Weight record deleted');
+    });
+  });
+}
+
+// ---- Render: Body Shapes ----
+function renderShapes(shapes) {
+  if (!currentGpId) {
+    show('shapeNoGp'); hide('shapeContent');
+    return;
+  }
+  hide('shapeNoGp'); show('shapeContent');
+
+  var conditionLabels = {
+    underweight: '🔻 Underweight',
+    ideal: '✅ Ideal',
+    slightly_over: '⚠️ Slightly Over',
+    overweight: '🔺 Overweight'
+  };
+
+  var list = $('shapeList');
+  var html = '';
+  shapes.forEach(function(s) {
+    var photos = '';
+    if (s.photoURLs && s.photoURLs.length > 0) {
+      photos = '<div class="uploaded-files" style="margin-top:8px;">';
+      s.photoURLs.forEach(function(url) {
+        photos += '<img src="' + escapeHtml(url) + '" class="file-thumb" onclick="previewImage(\'' + escapeHtml(url) + '\')">';
+      });
+      photos += '</div>';
+    }
+    html += '<div class="card">' +
+      '<div class="card-header">' +
+        '<span class="card-title">' + (conditionLabels[s.condition] || s.condition) + '</span>' +
+        '<span class="card-date">' + formatDate(s.date) + '</span>' +
+      '</div>' +
+      (s.notes ? '<div class="card-body">' + escapeHtml(s.notes) + '</div>' : '') +
+      photos +
+      '<div class="card-actions">' +
+        '<button class="btn btn-secondary btn-sm" onclick="deleteShapeItem(\'' + s.id + '\')"><i class="fas fa-trash"></i></button>' +
+      '</div>' +
+    '</div>';
+  });
+  if (shapes.length === 0) {
+    html = '<div class="empty-state"><i class="fas fa-shapes"></i><p>No body shape records yet. Tap "Add" to start tracking.</p></div>';
+  }
+  list.innerHTML = html;
+}
+
+ 
+function previewImage(url) {
+  $('previewImage').src = url;
+  $('imagePreview').classList.add('active');
+}
+
+ 
+function deleteShapeItem(sid) {
+  showConfirmDialog('Delete this body shape record?', function() {
+    deleteShape(currentGpId, sid).then(function() {
+      toast('Shape record deleted');
+    });
+  });
+}
+
+// ---- Render: Vet Visits ----
+function renderVetVisits(visits) {
+  if (!currentGpId) {
+    show('vetNoGp'); hide('vetContent');
+    return;
+  }
+  hide('vetNoGp'); show('vetContent');
+
+  var list = $('vetList');
+  var html = '';
+  visits.forEach(function(v) {
+    var docs = '';
+    if (v.documentURLs && v.documentURLs.length > 0) {
+      docs = '<div class="uploaded-files" style="margin-top:8px;">';
+      v.documentURLs.forEach(function(doc) {
+        if (doc.type && doc.type.indexOf('image') !== -1) {
+          docs += '<img src="' + escapeHtml(doc.url) + '" class="file-thumb" onclick="previewImage(\'' + escapeHtml(doc.url) + '\')">';
+        } else {
+          docs += '<a href="' + escapeHtml(doc.url) + '" target="_blank" class="uploaded-file" download="' + escapeHtml(doc.name) + '">' +
+            '<i class="fas fa-file"></i> ' + escapeHtml(doc.name) + '</a>';
+        }
+      });
+      docs += '</div>';
+    }
+    html += '<div class="card">' +
+      '<div class="card-header">' +
+        '<span class="card-title"><i class="fas fa-stethoscope" style="color:var(--primary);margin-right:6px;"></i>' + formatDate(v.date) + '</span>' +
+        (v.clinic ? '<span class="card-date">' + escapeHtml(v.clinic) + '</span>' : '') +
+      '</div>' +
+      '<div class="card-body">' +
+        '<p><strong>Reason:</strong> ' + escapeHtml(v.reason || '') + '</p>' +
+        (v.advice ? '<p><strong>Advice:</strong> ' + escapeHtml(v.advice) + '</p>' : '') +
+        (v.medication ? '<p><strong>Medication:</strong> ' + escapeHtml(v.medication) + '</p>' : '') +
+        (v.followUp ? '<p><strong>Follow-up:</strong> ' + formatDate(v.followUp) + '</p>' : '') +
+      '</div>' +
+      docs +
+      '<div class="card-actions">' +
+        '<button class="btn btn-secondary btn-sm" onclick="deleteVetItem(\'' + v.id + '\')"><i class="fas fa-trash"></i></button>' +
+      '</div>' +
+    '</div>';
+  });
+  if (visits.length === 0) {
+    html = '<div class="empty-state"><i class="fas fa-stethoscope"></i><p>No vet visits recorded. Tap "Add" to log a visit.</p></div>';
+  }
+  list.innerHTML = html;
+}
+
+ 
+function deleteVetItem(vid) {
+  showConfirmDialog('Delete this vet visit record?', function() {
+    deleteVetVisit(currentGpId, vid).then(function() {
+      toast('Vet visit deleted');
+    });
+  });
+}
+
+// ---- Render: Daily Routine ----
+var routineItems = [
+  { key: 'cucumber', label: 'Cucumber', icon: '🥒' },
+  { key: 'lettuce', label: 'Lettuce', icon: '🥬' },
+  { key: 'bellPepper', label: 'Bell Pepper', icon: '🫑' },
+  { key: 'hayPowder', label: 'Hay Powder', icon: '🌾' },
+  { key: 'hay', label: 'Hay', icon: '🌿' },
+  { key: 'water', label: 'Fresh Water', icon: '💧' }
+];
+
+function renderRoutine() {
+  if (!currentGpId) {
+    show('routineNoGp'); hide('routineContent');
+    return;
+  }
+  hide('routineNoGp'); show('routineContent');
+
+  var dateKey = dateStr(routineDate);
+  var isToday = dateKey === todayStr();
+  $('routineDate').textContent = isToday ? '📅 Today' : formatDate(dateKey);
+
+  loadRoutine(currentGpId, dateKey).then(function(data) {
+    var checklist = $('routineChecklist');
+    var html = '';
+    routineItems.forEach(function(item) {
+      var checked = data && data[item.key];
+      var time = data && data[item.key + '_time'] ? data[item.key + '_time'] : '';
+      html += '<li class="checklist-item' + (checked ? ' checked' : '') + '" data-key="' + item.key + '">' +
+        '<div class="check-box">' + (checked ? '<i class="fas fa-check" style="font-size:13px;"></i>' : '') + '</div>' +
+        '<span class="check-icon">' + item.icon + '</span>' +
+        '<span class="check-label">' + item.label + '</span>' +
+        (time ? '<span class="check-time">' + time + '</span>' : '') +
+      '</li>';
+    });
+    checklist.innerHTML = html;
+
+    $('routineNotes').value = (data && data.notes) || '';
+
+    // Attach click events
+    checklist.querySelectorAll('.checklist-item').forEach(function(li) {
+      li.addEventListener('click', function() {
+        var key = this.dataset.key;
+        var isChecked = this.classList.contains('checked');
+        var update = {};
+        update[key] = !isChecked;
+        if (!isChecked) {
+          var now = new Date();
+          update[key + '_time'] = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+        } else {
+          update[key + '_time'] = firebase.firestore.FieldValue.delete();
+        }
+        saveRoutine(currentGpId, dateKey, update).then(function() {
+          renderRoutine();
+        });
+      });
+    });
+  });
+}
+
+// ---- Modal: Profile ----
+function openProfileModal(gpId) {
+  $('profileEditId').value = gpId || '';
+  $('profileModalTitle').textContent = gpId ? 'Edit Guinea Pig' : 'Add Guinea Pig';
+  $('profilePhotoPreview').innerHTML = '';
+  pendingUploadFiles.profile = null;
+
+  if (gpId) {
+    var gp = guineaPigs.find(function(g) { return g.id === gpId; });
+    if (gp) {
+      $('profileName').value = gp.name || '';
+      $('profileBirthdate').value = gp.birthdate || '';
+      if (gp.photoURL) {
+        $('profilePhotoPreview').innerHTML = '<img src="' + escapeHtml(gp.photoURL) + '" style="max-width:120px;border-radius:12px;">';
+      }
+    }
+    show('profileDeleteWrap');
+  } else {
+    $('profileName').value = '';
+    $('profileBirthdate').value = '';
+    hide('profileDeleteWrap');
+  }
+  openModal('profileModal');
+}
+
+// ---- Modal: Weight ----
+function openWeightModal() {
+  $('weightEditId').value = '';
+  $('weightDate').value = todayStr();
+  $('weightValue').value = '';
+  $('weightNote').value = '';
+  openModal('weightModal');
+}
+
+// ---- Modal: Shape ----
+function openShapeModal() {
+  $('shapeEditId').value = '';
+  $('shapeDate').value = todayStr();
+  $('shapeCondition').value = 'ideal';
+  $('shapeNotes').value = '';
+  $('shapePhotoPreviews').innerHTML = '';
+  pendingUploadFiles.shape = [];
+  openModal('shapeModal');
+}
+
+// ---- Modal: Vet ----
+function openVetModal() {
+  $('vetEditId').value = '';
+  $('vetDate').value = todayStr();
+  $('vetClinic').value = '';
+  $('vetReason').value = '';
+  $('vetAdvice').value = '';
+  $('vetMedication').value = '';
+  $('vetFollowUp').value = '';
+  $('vetDocPreviews').innerHTML = '';
+  pendingUploadFiles.vet = [];
+  openModal('vetModal');
+}
+
+// ---- Tab Navigation ----
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+  $(tabId).classList.add('active');
+  var navItem = document.querySelector('[data-tab="' + tabId + '"]');
+  if (navItem) navItem.classList.add('active');
+  refreshCurrentTab();
+}
+
+function refreshCurrentTab() {
+  var activePanel = document.querySelector('.tab-panel.active');
+  if (!activePanel) return;
+  var panelId = activePanel.id;
+  if (!currentGpId && panelId !== 'panelProfiles' && panelId !== 'panelSettings') {
+    if (panelId === 'panelWeight') { show('weightNoGp'); hide('weightContent'); }
+    if (panelId === 'panelShape') { show('shapeNoGp'); hide('shapeContent'); }
+    if (panelId === 'panelVet') { show('vetNoGp'); hide('vetContent'); }
+    if (panelId === 'panelRoutine') { show('routineNoGp'); hide('routineContent'); }
+    return;
+  }
+
+  // Unsubscribe sub-collection listeners
+  while (unsubscribers.length > 1) {
+    var u = unsubscribers.pop();
+    u();
+  }
+
+  if (panelId === 'panelWeight' && currentGpId) loadWeights(currentGpId);
+  if (panelId === 'panelShape' && currentGpId) loadShapes(currentGpId);
+  if (panelId === 'panelVet' && currentGpId) loadVetVisits(currentGpId);
+  if (panelId === 'panelRoutine') renderRoutine();
+  if (panelId === 'panelSettings') loadSettings();
+}
+
+// ---- Settings ----
+function loadSettings() {
+  var config = getConfig();
+  $('settingsProjectId').textContent = config ? config.projectId : 'N/A';
+
+  db.collection('settings').doc('approvedUsers').get().then(function(doc) {
+    var data = doc.exists ? doc.data() : { users: [], owner: '' };
+    var list = $('approvedUsersList');
+    var html = '';
+    (data.users || []).forEach(function(email) {
+      var isOwner = email === data.owner;
+      html += '<div class="approved-email">' +
+        '<span>' + escapeHtml(email) + (isOwner ? ' <strong>(Owner)</strong>' : '') + '</span>' +
+        (!isOwner ? '<button class="btn btn-secondary btn-sm" onclick="removeApprovedUser(\'' + escapeHtml(email) + '\')"><i class="fas fa-times"></i></button>' : '') +
+      '</div>';
+    });
+    list.innerHTML = html;
+  });
+}
+
+ 
+function removeApprovedUser(email) {
+  showConfirmDialog('Remove ' + email + ' from approved users?', function() {
+    db.collection('settings').doc('approvedUsers').update({
+      users: firebase.firestore.FieldValue.arrayRemove(email)
+    }).then(function() {
+      toast('User removed');
+      loadSettings();
+    });
+  });
+}
+
+function addApprovedUser(email) {
+  if (!email || email.indexOf('@') === -1) {
+    toast('Please enter a valid email', true);
+    return;
+  }
+  db.collection('settings').doc('approvedUsers').update({
+    users: firebase.firestore.FieldValue.arrayUnion(email)
+  }).then(function() {
+    toast('User added');
+    $('newApprovedEmail').value = '';
+    loadSettings();
+  });
+}
+
+// ---- Event Handlers ----
+function setupEventHandlers() {
+  // Tab navigation
+  document.querySelectorAll('.nav-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      switchTab(this.dataset.tab);
+    });
+  });
+
+  // GP Selector
+  $('gpSelect').addEventListener('change', function() {
+    currentGpId = this.value || null;
+    if (currentGpId) storeSet('gptracker_current_gp', currentGpId);
+    renderProfiles();
+    updateGpSelector();
+    refreshCurrentTab();
+  });
+
+  // Settings
+  $('settingsBtn').addEventListener('click', function() {
+    document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+    document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+    $('panelSettings').classList.add('active');
+    loadSettings();
+  });
+
+  // Sign Out
+  $('signOutBtn').addEventListener('click', function() {
+    auth.signOut().then(function() {
+      currentUser = null;
+      showScreen('authScreen');
+    });
+  });
+
+  // Profile Modal
+  $('profilePhotoUpload').addEventListener('click', function() { $('profilePhotoInput').click(); });
+  $('profilePhotoInput').addEventListener('change', function() {
+    if (this.files && this.files[0]) {
+      pendingUploadFiles.profile = this.files[0];
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        $('profilePhotoPreview').innerHTML = '<img src="' + e.target.result + '" style="max-width:120px;border-radius:12px;">';
+      };
+      reader.readAsDataURL(this.files[0]);
+    }
+  });
+  $('profileCancelBtn').addEventListener('click', function() { closeModal('profileModal'); });
+  $('profileSaveBtn').addEventListener('click', function() {
+    var name = $('profileName').value.trim();
+    if (!name) { toast('Please enter a name', true); return; }
+    var data = { name: name, birthdate: $('profileBirthdate').value || '' };
+    var editId = $('profileEditId').value;
+
+    var doSave = function(photoURL) {
+      if (photoURL) data.photoURL = photoURL;
+      saveGuineaPig(data, editId || null).then(function(ref) {
+        if (!editId && ref) {
+          currentGpId = ref.id;
+          storeSet('gptracker_current_gp', currentGpId);
+        }
+        closeModal('profileModal');
+        toast(editId ? 'Profile updated!' : 'Guinea pig added!');
+      }).catch(function(err) {
+        toast('Error: ' + err.message, true);
+      });
     };
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const storage = firebase.storage();
-
-    function showTab(tab) {
-      let html = '';
-      if (tab === 'profiles') {
-        html = `
-          <h3>Profiles</h3>
-          <form onsubmit="saveProfile(event)">
-            <input id="name" type="text" placeholder="Name" class="form-control mb-2" required>
-            <input id="birthdate" type="date" class="form-control mb-2" required>
-            <input id="photo" type="file" class="form-control mb-2">
-            <button class="btn btn-primary">Save Profile</button>
-          </form>
-          <div id="profilesList" class="mt-3"></div>
-        `;
-        loadProfiles();
-      } else if (tab === 'weight') {
-        html = `
-          <h3>Body Weight</h3>
-          <form onsubmit="saveWeight(event)">
-            <input id="weightValue" type="number" placeholder="Weight (g)" class="form-control mb-2" required>
-            <button class="btn btn-primary">Save Weight</button>
-          </form>
-          <canvas id="weightChart" class="mt-3"></canvas>
-        `;
-        loadWeights();
-      } else if (tab === 'shape') {
-        html = `
-          <h3>Body Shape</h3>
-          <form onsubmit="saveShape(event)">
-            <textarea id="shapeNotes" placeholder="Notes" class="form-control mb-2"></textarea>
-            <input id="shapePhoto" type="file" class="form-control mb-2">
-            <button class="btn btn-primary">Save Shape</button>
-          </form>
-        `;
-      } else if (tab === 'vet') {
-        html = `
-          <h3>Vet Visits</h3>
-          <form onsubmit="saveVet(event)">
-            <input id="vetReason" type="text" placeholder="Reason" class="form-control mb-2" required>
-            <textarea id="vetAdvice" placeholder="Advice" class="form-control mb-2"></textarea>
-            <input id="vetDoc" type="file" class="form-control mb-2">
-            <button class="btn btn-primary">Save Visit</button>
-          </form>
-        `;
-      } else if (tab === 'routine') {
-        html = `
-          <h3>Daily Routine</h3>
-          <form onsubmit="saveRoutine(event)">
-            <label><input id="cucumber" type="checkbox"> Cucumber</label><br>
-            <label><input id="lettuce" type="checkbox"> Lettuce</label><br>
-            <label><input id="pepper" type="checkbox"> Bell Pepper</label><br>
-            <label><input id="hay" type="checkbox"> Hay Powder</label><br>
-            <button class="btn btn-primary">Save Feeding</button>
-          </form>
-        `;
-      }
-      document.getElementById('content').innerHTML = html;
-    }
-
-    // Save profile
-    async function saveProfile(e) {
-      e.preventDefault();
-      const name = document.getElementById('name').value;
-      const birthdate = document.getElementById('birthdate').value;
-      const file = document.getElementById('photo').files[0];
-      let photoURL = '';
-      if (file) {
-        const ref = storage.ref('profiles/' + file.name);
-        await ref.put(file);
-        photoURL = await ref.getDownloadURL();
-      }
-      await db.collection('profiles').add({ name, birthdate, photoURL });
-      loadProfiles();
-    }
-
-    async function loadProfiles() {
-      const snapshot = await db.collection('profiles').get();
-      let html = '<ul>';
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        const age = Math.floor((Date.now() - new Date(data.birthdate)) / (365*24*60*60*1000));
-        html += `<li>${data.name} - Age: ${age} <br><img src="${data.photoURL}" width="100"></li>`;
+    if (pendingUploadFiles.profile) {
+      var filePath = 'profiles/' + (editId || Date.now()) + '/' + pendingUploadFiles.profile.name;
+      uploadFile(filePath, pendingUploadFiles.profile).then(function(url) {
+        doSave(url);
+      }).catch(function(err) {
+        toast('Upload error: ' + err.message, true);
       });
-      html += '</ul>';
-      document.getElementById('profilesList').innerHTML = html;
+    } else {
+      doSave(null);
     }
-
-    // Save weight
-    async function saveWeight(e) {
-      e.preventDefault();
-      const value = document.getElementById('weightValue').value;
-      await db.collection('weights').add({ value: parseInt(value), date: new Date() });
-      loadWeights();
-    }
-
-    async function loadWeights() {
-      const snapshot = await db.collection('weights').orderBy('date').get();
-      const labels = [], data = [];
-      snapshot.forEach(doc => {
-        const d = doc.data();
-        labels.push(new Date(d.date.seconds*1000).toLocaleDateString());
-        data.push(d.value);
+  });
+  $('profileDeleteBtn').addEventListener('click', function() {
+    var editId = $('profileEditId').value;
+    if (!editId) return;
+    showConfirmDialog('Delete this guinea pig profile? All associated data will remain in the database.', function() {
+      deleteGuineaPig(editId).then(function() {
+        if (currentGpId === editId) { currentGpId = null; storeRemove('gptracker_current_gp'); }
+        closeModal('profileModal');
+        toast('Profile deleted');
       });
-      const ctx = document.getElementById('weightChart');
-      new Chart(ctx, {
-        type: 'line',
-        data: { labels, datasets: [{ label: 'Weight (g)', data }] }
-      });
-    }
+    });
+  });
 
-    // Save shape
-    async function saveShape(e) {
-      e.preventDefault();
-      const notes = document.getElementById('shapeNotes').value;
-      const file = document.getElementById('shapePhoto').files[0];
-      let photoURL = '';
-      if (file) {
-        const ref = storage.ref('shapes/' + file.name);
-        await ref.put(file);
-        photoURL = await ref.getDownloadURL();
-      }
-      await db.collection('shapes').add({ notes, photoURL, date: new Date() });
-    }
+  // Weight Modal
+  $('addWeightBtn').addEventListener('click', function() {
+    if (!currentGpId) { toast('Select a guinea pig first', true); return; }
+    openWeightModal();
+  });
+  $('weightCancelBtn').addEventListener('click', function() { closeModal('weightModal'); });
+  $('weightSaveBtn').addEventListener('click', function() {
+    var date = $('weightDate').value;
+    var weight = parseInt($('weightValue').value, 10);
+    if (!date || isNaN(weight) || weight <= 0) { toast('Please fill in date and weight', true); return; }
+    saveWeight(currentGpId, { date: date, weight: weight, note: $('weightNote').value.trim() }, $('weightEditId').value || null)
+      .then(function() { closeModal('weightModal'); toast('Weight saved!'); })
+      .catch(function(err) { toast('Error: ' + err.message, true); });
+  });
 
-    // Save vet visit
-    async function saveVet(e) {
-      e.preventDefault();
-      const reason = document.getElementById('vetReason').value;
-      const advice = document.getElementById('vetAdvice').value;
-      const file = document.getElementById('vetDoc').files[0];
-      let docURL = '';
-      if (file) {
-        const ref = storage.ref('vet/' + file.name);
-        await ref.put(file);
-        docURL = await ref.getDownloadURL();
-      }
-      await db.collection('vet').add({ reason, advice, docURL, date: new Date() });
-    }
-
-    // Save routine
-    async function saveRoutine(e) {
-      e.preventDefault();
-      const routine = {
-        cucumber: document.getElementById('cucumber').checked,
-        lettuce: document.getElementById('lettuce').checked,
-        pepper: document.getElementById('pepper').checked,
-        hay: document.getElementById('hay').checked,
-        date: new Date()
+  // Shape Modal
+  $('addShapeBtn').addEventListener('click', function() {
+    if (!currentGpId) { toast('Select a guinea pig first', true); return; }
+    openShapeModal();
+  });
+  $('shapePhotoUpload').addEventListener('click', function() { $('shapePhotoInput').click(); });
+  $('shapePhotoInput').addEventListener('change', function() {
+    var files = Array.from(this.files);
+    files.forEach(function(file) {
+      pendingUploadFiles.shape.push(file);
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var thumb = document.createElement('img');
+        thumb.src = e.target.result;
+        thumb.className = 'file-thumb';
+        $('shapePhotoPreviews').appendChild(thumb);
       };
-      await db.collection('routine').add
+      reader.readAsDataURL(file);
+    });
+  });
+  $('shapeCancelBtn').addEventListener('click', function() { closeModal('shapeModal'); });
+  $('shapeSaveBtn').addEventListener('click', function() {
+    var date = $('shapeDate').value;
+    if (!date) { toast('Please select a date', true); return; }
+    var data = {
+      date: date,
+      condition: $('shapeCondition').value,
+      notes: $('shapeNotes').value.trim()
+    };
+
+    var uploadPromises = pendingUploadFiles.shape.map(function(file, i) {
+      var filePath = 'shapes/' + currentGpId + '/' + Date.now() + '_' + i + '_' + file.name;
+      return uploadFile(filePath, file);
+    });
+
+    Promise.all(uploadPromises).then(function(urls) {
+      data.photoURLs = urls;
+      return saveShape(currentGpId, data, $('shapeEditId').value || null);
+    }).then(function() {
+      closeModal('shapeModal');
+      toast('Shape record saved!');
+    }).catch(function(err) {
+      toast('Error: ' + err.message, true);
+    });
+  });
+
+  // Vet Modal
+  $('addVetBtn').addEventListener('click', function() {
+    if (!currentGpId) { toast('Select a guinea pig first', true); return; }
+    openVetModal();
+  });
+  $('vetDocUpload').addEventListener('click', function() { $('vetDocInput').click(); });
+  $('vetDocInput').addEventListener('change', function() {
+    var files = Array.from(this.files);
+    files.forEach(function(file) {
+      pendingUploadFiles.vet.push(file);
+      var el = document.createElement('span');
+      el.className = 'uploaded-file';
+      var isImage = file.type.indexOf('image') !== -1;
+      el.innerHTML = '<i class="fas fa-' + (isImage ? 'image' : 'file') + '"></i> ' + escapeHtml(file.name);
+      $('vetDocPreviews').appendChild(el);
+    });
+  });
+  $('vetCancelBtn').addEventListener('click', function() { closeModal('vetModal'); });
+  $('vetSaveBtn').addEventListener('click', function() {
+    var date = $('vetDate').value;
+    var reason = $('vetReason').value.trim();
+    if (!date || !reason) { toast('Please fill in date and reason', true); return; }
+    var data = {
+      date: date,
+      clinic: $('vetClinic').value.trim(),
+      reason: reason,
+      advice: $('vetAdvice').value.trim(),
+      medication: $('vetMedication').value.trim(),
+      followUp: $('vetFollowUp').value || ''
+    };
+
+    var uploadPromises = pendingUploadFiles.vet.map(function(file, i) {
+      var filePath = 'vet/' + currentGpId + '/' + Date.now() + '_' + i + '_' + file.name;
+      return uploadFile(filePath, file);
+    });
+
+    Promise.all(uploadPromises).then(function(urls) {
+      data.documentURLs = urls.map(function(url, i) {
+        return { url: url, name: pendingUploadFiles.vet[i].name, type: pendingUploadFiles.vet[i].type };
+      });
+      return saveVetVisit(currentGpId, data, $('vetEditId').value || null);
+    }).then(function() {
+      closeModal('vetModal');
+      toast('Vet visit saved!');
+    }).catch(function(err) {
+      toast('Error: ' + err.message, true);
+    });
+  });
+
+  // Routine
+  $('routinePrev').addEventListener('click', function() {
+    routineDate.setDate(routineDate.getDate() - 1);
+    renderRoutine();
+  });
+  $('routineNext').addEventListener('click', function() {
+    routineDate.setDate(routineDate.getDate() + 1);
+    renderRoutine();
+  });
+  $('saveRoutineNotes').addEventListener('click', function() {
+    if (!currentGpId) return;
+    var dateKey = dateStr(routineDate);
+    saveRoutine(currentGpId, dateKey, { notes: $('routineNotes').value.trim() }).then(function() {
+      toast('Notes saved!');
+    });
+  });
+
+  // Approved Users
+  $('addApprovedBtn').addEventListener('click', function() {
+    addApprovedUser($('newApprovedEmail').value.trim());
+  });
+
+  // Reset config
+  $('resetConfigBtn').addEventListener('click', function() { clearConfig(); showScreen('setupScreen'); });
+  $('resetConfigBtn2').addEventListener('click', function() {
+    showConfirmDialog('Reconfigure Firebase? You will need to re-enter your config.', function() {
+      clearConfig();
+      location.reload();
+    });
+  });
+
+  // Image preview close
+  $('imagePreview').addEventListener('click', function() {
+    this.classList.remove('active');
+  });
+
+  // Close modals on overlay click
+  document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+    overlay.addEventListener('click', function(e) {
+      if (e.target === this) {
+        this.classList.remove('active');
+      }
+    });
+  });
+}
+
+// ---- Parse Firebase Config from raw pasted code ----
+function parseFirebaseConfig(raw) {
+  if (!raw || !raw.trim()) return null;
+  var keys = ['apiKey', 'authDomain', 'projectId', 'storageBucket', 'messagingSenderId', 'appId', 'measurementId'];
+  var config = {};
+  keys.forEach(function(key) {
+    // Match patterns like:  apiKey: "value"  or  apiKey: 'value'  or  "apiKey": "value"
+    var regex = new RegExp('["\']?' + key + '["\']?\\s*[:=]\\s*["\']([^"\']+)["\']');
+    var match = raw.match(regex);
+    if (match) config[key] = match[1];
+  });
+  if (!config.apiKey && !config.projectId) {
+    // Try parsing as raw JSON object
+    try {
+      var jsonMatch = raw.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        var parsed = JSON.parse(jsonMatch[0].replace(/'/g, '"').replace(/,\s*\}/g, '}'));
+        keys.forEach(function(key) {
+          if (parsed[key]) config[key] = parsed[key];
+        });
+      }
+    } catch (e) { /* ignore parse errors */ }
+  }
+  if (!config.apiKey || !config.projectId) return null;
+  return config;
+}
+
+// ---- Setup Config Screen ----
+$('saveConfigBtn').addEventListener('click', function() {
+  var raw = $('cfgRawCode').value;
+  var config = parseFirebaseConfig(raw);
+  if (!config) {
+    toast('Could not find apiKey or projectId. Please paste the full Firebase config code.', true);
+    return;
+  }
+  saveConfig(config);
+  try {
+    initFirebase(config);
+    showScreen('authScreen');
+    toast('Firebase connected!');
+  } catch (err) {
+    toast('Firebase init error: ' + err.message, true);
+  }
+});
+
+// ---- Auth Screen ----
+$('googleSignInBtn').addEventListener('click', function() {
+  hide('authError');
+  signInWithGoogle().then(function(result) {
+    return checkAccess(result.user.email).then(function(hasAccess) {
+      if (hasAccess) {
+        currentUser = result.user;
+        enterApp();
+      } else {
+        auth.signOut();
+        $('authError').textContent = 'Access denied. Ask the database owner to approve your email: ' + result.user.email;
+        show('authError');
+      }
+    });
+  }).catch(function(err) {
+    $('authError').textContent = 'Sign-in error: ' + err.message;
+    show('authError');
+  });
+});
+
+// ---- Enter Main App ----
+function enterApp() {
+  $('userName').textContent = currentUser.displayName || currentUser.email.split('@')[0];
+  showScreen('mainApp');
+  setupEventHandlers();
+
+  // Restore selected GP
+  var savedGp = storeGet('gptracker_current_gp');
+  if (savedGp) currentGpId = savedGp;
+
+  loadGuineaPigs();
+}
+
+// ---- Boot ----
+(function boot() {
+  var config = getConfig();
+  if (!config) {
+    showScreen('setupScreen');
+    return;
+  }
+
+  try {
+    initFirebase(config);
+  } catch (err) {
+    toast('Firebase error. Please reconfigure.', true);
+    showScreen('setupScreen');
+    return;
+  }
+
+  showScreen('authScreen');
+
+  // Check if already signed in
+  auth.onAuthStateChanged(function(user) {
+    if (user) {
+      checkAccess(user.email).then(function(hasAccess) {
+        if (hasAccess) {
+          currentUser = user;
+          enterApp();
+        } else {
+          showScreen('authScreen');
+        }
+      });
+    }
+  });
+})();
+
+// ---- Service Worker Registration (for PWA / Add to Home Screen) ----
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('sw.js').catch(function() {
+      // SW registration failed — still works, just no offline caching
+    });
+  });
+}
+</script>
+</body>
+</html>

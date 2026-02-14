@@ -1,0 +1,25 @@
+{
+  "name": "Guinea Pig Care Tracker",
+  "short_name": "GP Tracker",
+  "description": "Track weight, shape, vet visits and daily routines for your guinea pigs",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#4A7C59",
+  "theme_color": "#4A7C59",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
