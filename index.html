@@ -1012,11 +1012,11 @@ const firebaseConfig = {
   </div>
 </div>
 
-<!-- Add Weight Modal -->
+<!-- Add Weight + Shape Modal -->
 <div class="modal-overlay" id="weightModal">
   <div class="modal">
     <div class="modal-handle"></div>
-    <h2 class="modal-title">Add Weight Record</h2>
+    <h2 class="modal-title">Add Weight &amp; Shape</h2>
     <input type="hidden" id="weightEditId">
     <div class="form-row">
       <div class="form-group">
@@ -1032,6 +1032,42 @@ const firebaseConfig = {
       <label>Note</label>
       <input type="text" id="weightNote" placeholder="Optional note...">
     </div>
+
+    <!-- Body Shape section (collapsible) -->
+    <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:8px;" id="shapeToggle">
+        <span style="font-family:'Fredoka',sans-serif;font-size:15px;font-weight:600;color:var(--primary);">
+          <i class="fas fa-shapes" style="margin-right:6px;"></i>Body Shape
+        </span>
+        <span style="font-size:12px;color:var(--text-muted);" id="shapeToggleHint">tap to add ▼</span>
+      </div>
+      <div id="weightShapeFields" style="display:none;">
+        <div class="form-group">
+          <label>Condition</label>
+          <select id="weightShapeCondition">
+            <option value="">— not recording —</option>
+            <option value="underweight">Underweight</option>
+            <option value="ideal">Ideal</option>
+            <option value="slightly_over">Slightly Overweight</option>
+            <option value="overweight">Overweight</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Shape Notes</label>
+          <textarea id="weightShapeNotes" placeholder="Body condition observations..." rows="2"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Shape Photos</label>
+          <div class="upload-area" id="weightShapePhotoUpload">
+            <i class="fas fa-images"></i>
+            <p>Tap to upload photos</p>
+          </div>
+          <input type="file" id="weightShapePhotoInput" accept="image/*" multiple style="display:none;">
+          <div class="uploaded-files" id="weightShapePhotoPreviews"></div>
+        </div>
+      </div>
+    </div>
+
     <div class="modal-actions">
       <button class="btn btn-secondary" id="weightCancelBtn">Cancel</button>
       <button class="btn btn-primary" id="weightSaveBtn"><i class="fas fa-check"></i> Save</button>
@@ -1157,7 +1193,7 @@ var currentGpId = null;
 var guineaPigs = [];
 var weightChart = null;
 var routineDate = new Date();
-var pendingUploadFiles = { profile: null, shape: [], vet: [] };
+var pendingUploadFiles = { profile: null, shape: [], vet: [], weightShape: [] };
 var unsubscribers = [];
 
 // ---- Utility Functions ----
@@ -1882,6 +1918,13 @@ function openWeightModal() {
   $('weightDate').value = todayStr();
   $('weightValue').value = '';
   $('weightNote').value = '';
+  // Reset shape fields
+  $('weightShapeCondition').value = '';
+  $('weightShapeNotes').value = '';
+  $('weightShapePhotoPreviews').innerHTML = '';
+  pendingUploadFiles.weightShape = [];
+  hide('weightShapeFields');
+  $('shapeToggleHint').textContent = 'tap to add ▼';
   openModal('weightModal');
 }
 
@@ -2085,12 +2128,62 @@ function setupEventHandlers() {
     openWeightModal();
   });
   $('weightCancelBtn').addEventListener('click', function() { closeModal('weightModal'); });
+
+  // Shape toggle inside weight modal
+  $('shapeToggle').addEventListener('click', function() {
+    var fields = $('weightShapeFields');
+    if (fields.style.display === 'none') {
+      fields.style.display = '';
+      $('shapeToggleHint').textContent = 'tap to hide ▲';
+    } else {
+      fields.style.display = 'none';
+      $('shapeToggleHint').textContent = 'tap to add ▼';
+    }
+  });
+  $('weightShapePhotoUpload').addEventListener('click', function() { $('weightShapePhotoInput').click(); });
+  $('weightShapePhotoInput').addEventListener('change', function() {
+    var files = Array.from(this.files);
+    files.forEach(function(file) {
+      pendingUploadFiles.weightShape.push(file);
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var thumb = document.createElement('img');
+        thumb.src = e.target.result;
+        thumb.className = 'file-thumb';
+        $('weightShapePhotoPreviews').appendChild(thumb);
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+
   $('weightSaveBtn').addEventListener('click', function() {
     var date = $('weightDate').value;
     var weight = parseInt($('weightValue').value, 10);
     if (!date || isNaN(weight) || weight <= 0) { toast('Please fill in date and weight', true); return; }
+
+    var shapeCondition = $('weightShapeCondition').value;
+    var shapeNotes = $('weightShapeNotes').value.trim();
+    var shapePhotos = pendingUploadFiles.weightShape || [];
+
+    // Save weight first
     saveWeight(currentGpId, { date: date, weight: weight, note: $('weightNote').value.trim() }, $('weightEditId').value || null)
-      .then(function() { closeModal('weightModal'); toast('Weight saved!'); })
+      .then(function() {
+        // Also save body shape if condition selected
+        if (shapeCondition) {
+          var shapeData = { date: date, condition: shapeCondition, notes: shapeNotes };
+          var compressPromises = shapePhotos.map(function(file) {
+            return compressImage(file, 800, 0.7);
+          });
+          return Promise.all(compressPromises).then(function(base64Arr) {
+            shapeData.photoURLs = base64Arr;
+            return saveShape(currentGpId, shapeData, null);
+          });
+        }
+      })
+      .then(function() {
+        closeModal('weightModal');
+        toast(shapeCondition ? 'Weight & shape saved!' : 'Weight saved!');
+      })
       .catch(function(err) { toast('Error: ' + err.message, true); });
   });
 
