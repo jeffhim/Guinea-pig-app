@@ -2352,32 +2352,45 @@ function loadLibraryIndex() {
   $('libraryChapterList').innerHTML = '';
   $('libraryStats').innerHTML = '';
 
-  // Try fetching from the configured base URL
-  var url = DATA_BASE_URL + INDEX_FILE;
-  console.log('[Library] Fetching: ' + url);
+  // Try multiple index filenames: prefixed first, then plain
+  var urls = [
+    DATA_BASE_URL + INDEX_FILE,
+    DATA_BASE_URL + 'index.json'
+  ];
+  var triedUrls = [];
 
-  fetch(url)
-    .then(function(resp) {
-      console.log('[Library] Response status: ' + resp.status);
-      if (!resp.ok) throw new Error('HTTP ' + resp.status);
-      return resp.json();
-    })
-    .then(function(data) {
-      console.log('[Library] Loaded ' + (data.chapters ? data.chapters.length : 0) + ' chapters');
-      libraryIndex = data;
-      hide('libraryLoading');
-      renderChapterList();
-      buildSearchIndex();
-    })
-    .catch(function(err) {
-      console.log('[Library] Error: ' + err.message);
+  function tryNextUrl(i) {
+    if (i >= urls.length) {
       hide('libraryLoading');
       $('libraryEmpty').querySelector('p').innerHTML =
         'Could not load book data.<br>' +
-        '<small style="color:var(--text-muted);">Tried: <code>' + escapeHtml(url) + '</code><br>Error: ' + escapeHtml(err.message) + '</small>' +
-        '<br><br><button class="btn btn-primary btn-sm" onclick="libraryIndex=null;loadLibraryIndex();">Retry</button>';
+        '<small style="color:var(--text-muted);">Tried:<br>' +
+        triedUrls.map(function(u) { return '<code>' + escapeHtml(u) + '</code>'; }).join('<br>') +
+        '</small><br><br><button class="btn btn-primary btn-sm" onclick="libraryIndex=null;loadLibraryIndex();">Retry</button>';
       show('libraryEmpty');
-    });
+      return;
+    }
+    var url = urls[i];
+    triedUrls.push(url);
+    console.log('[Library] Trying: ' + url);
+
+    fetch(url)
+      .then(function(resp) {
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        return resp.json();
+      })
+      .then(function(data) {
+        console.log('[Library] Loaded ' + (data.chapters ? data.chapters.length : 0) + ' chapters');
+        libraryIndex = data;
+        hide('libraryLoading');
+        renderChapterList();
+        buildSearchIndex();
+      })
+      .catch(function() {
+        tryNextUrl(i + 1);
+      });
+  }
+  tryNextUrl(0);
 }
 
 function renderChapterList() {
@@ -2434,16 +2447,42 @@ function openChapter(idx) {
   var tabContent = document.querySelector('.tab-content');
   if (tabContent) tabContent.scrollTop = 0;
 
-  fetch(DATA_BASE_URL + ch.file)
+  // Try the filename from index, then fallback without mnt_book_data_ prefix
+  var primaryUrl = DATA_BASE_URL + ch.file;
+  var fallbackUrl = DATA_BASE_URL + ch.file.replace('mnt_book_data_', '');
+  var triedUrls = [];
+
+  console.log('[Library] Trying: ' + primaryUrl);
+  triedUrls.push(primaryUrl);
+
+  fetch(primaryUrl)
     .then(function(resp) {
-      if (!resp.ok) throw new Error('Not found');
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
       return resp.json();
     })
     .then(function(data) {
       renderChapterContent(data, idx);
     })
-    .catch(function(err) {
-      $('readerBody').innerHTML = '<div class="library-empty"><i class="fas fa-exclamation-triangle"></i><p>Could not load chapter.<br>' + escapeHtml(err.message) + '</p></div>';
+    .catch(function() {
+      // Try fallback URL without prefix
+      console.log('[Library] Fallback: ' + fallbackUrl);
+      triedUrls.push(fallbackUrl);
+      return fetch(fallbackUrl)
+        .then(function(resp) {
+          if (!resp.ok) throw new Error('HTTP ' + resp.status);
+          return resp.json();
+        })
+        .then(function(data) {
+          renderChapterContent(data, idx);
+        })
+        .catch(function(err) {
+          $('readerBody').innerHTML = '<div class="library-empty">' +
+            '<i class="fas fa-exclamation-triangle"></i>' +
+            '<p>Could not load chapter.<br>' +
+            '<small style="color:var(--text-muted);">Tried:<br>' +
+            triedUrls.map(function(u) { return '<code>' + escapeHtml(u) + '</code>'; }).join('<br>') +
+            '<br>Error: ' + escapeHtml(err.message) + '</small></p></div>';
+        });
     });
 }
 
@@ -2453,6 +2492,16 @@ function renderChapterContent(data, chapterIdx) {
 
   // Update title with actual title from data
   if (data.title) $('readerTitle').textContent = data.title;
+
+  // Update index metadata dynamically from actual chapter data
+  if (libraryIndex && libraryIndex.chapters[chapterIdx]) {
+    var ch = libraryIndex.chapters[chapterIdx];
+    if (data.title) ch.title = data.title;
+    if (data.totalPages) ch.pages = data.totalPages;
+    if (data.totalImages !== undefined) ch.images = data.totalImages;
+    // Re-render chapter list so metadata updates appear
+    renderChapterList();
+  }
 
   pages.forEach(function(page) {
     html += '<div class="reader-page">';
