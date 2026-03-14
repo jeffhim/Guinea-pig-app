@@ -1195,7 +1195,7 @@ const firebaseConfig = {
         </div>
         <div id="libraryEmpty" class="library-empty" style="display:none;">
           <i class="fas fa-book-open"></i>
-          <p>No book data found.<br>Place your <code>library/</code> folder with JSON files on your GitHub Pages site.</p>
+          <p>No book data found.<br>Place your <code>data/</code> folder with JSON files on your GitHub Pages site.</p>
         </div>
       </div>
       <!-- Chapter Reader View -->
@@ -2333,7 +2333,7 @@ function openVetModal() {
 var libraryIndex = null;
 var librarySearchData = []; // flat array of {chapterIdx, page, text} for search
 var libraryLoaded = false;
-var DATA_BASE_URL = 'library/'; // folder name on GitHub
+var DATA_BASE_URL = 'data/'; // relative path on GitHub Pages
 
 function loadLibraryIndex() {
   if (libraryLoaded) return;
