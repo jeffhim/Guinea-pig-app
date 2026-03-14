@@ -716,19 +716,266 @@
       gap: 12px;
     }
 
-    /* Image preview modal */
+    /* Image preview modal (pinch-to-zoom) */
     .image-preview-overlay {
       display: none;
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.85);
+      background: rgba(0,0,0,0.92);
       z-index: 300;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
+      overflow: hidden;
+      touch-action: none;
     }
-    .image-preview-overlay.active { display: flex; }
-    .image-preview-overlay img { max-width: 95%; max-height: 90vh; border-radius: var(--radius-sm); }
+    .image-preview-overlay.active { display: block; }
+    .image-preview-overlay .preview-close {
+      position: absolute; top: 12px; right: 16px; z-index: 310;
+      background: rgba(255,255,255,0.15); border: none; color: #fff;
+      width: 40px; height: 40px; border-radius: 50%;
+      font-size: 20px; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; backdrop-filter: blur(4px);
+    }
+    .image-preview-overlay .preview-hint {
+      position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+      color: rgba(255,255,255,0.5); font-size: 12px; z-index: 310;
+      pointer-events: none; transition: opacity 0.5s;
+    }
+    .preview-container {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .preview-container img {
+      max-width: 95%; max-height: 90vh;
+      border-radius: var(--radius-sm);
+      transform-origin: center center;
+      transition: transform 0.1s ease-out;
+      user-select: none; -webkit-user-drag: none;
+    }
+
+    /* ---- Library Tab ---- */
+    .library-search {
+      position: relative;
+      margin-bottom: 16px;
+    }
+    .library-search input {
+      padding-left: 40px;
+      border-radius: var(--radius);
+      background: var(--surface);
+    }
+    .library-search i {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    .chapter-list { list-style: none; }
+    .chapter-item {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px var(--shadow);
+      transition: all 0.2s;
+    }
+    .chapter-item:hover { transform: translateX(4px); box-shadow: 0 4px 16px var(--shadow-lg); }
+    .chapter-item:active { transform: scale(0.98); }
+    .chapter-num {
+      width: 42px; height: 42px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .chapter-num.appendix {
+      background: linear-gradient(135deg, var(--secondary), var(--secondary-light));
+      font-size: 12px;
+    }
+    .chapter-info { flex: 1; min-width: 0; }
+    .chapter-info h4 {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 15px;
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .chapter-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .chapter-arrow {
+      color: var(--text-muted);
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    /* Chapter Reader */
+    .reader-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      position: sticky;
+      top: -16px;
+      background: var(--bg);
+      padding: 16px 0 12px;
+      margin-top: -16px;
+      z-index: 5;
+      border-bottom: 1px solid var(--border);
+    }
+    .reader-back {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--primary);
+      font-size: 16px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+    .reader-back:hover { background: var(--primary); color: #fff; }
+    .reader-title {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 18px;
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .reader-body {
+      font-size: 14px;
+      line-height: 1.8;
+      color: var(--text);
+    }
+    .reader-page {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 20px 18px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px var(--shadow);
+    }
+    .reader-page-num {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed var(--border);
+    }
+    .reader-text {
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+    .reader-images {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .reader-img {
+      border-radius: var(--radius-sm);
+      max-width: 100%;
+      height: auto;
+      cursor: pointer;
+      transition: transform 0.2s;
+      box-shadow: 0 2px 8px var(--shadow);
+    }
+    .reader-img:hover { transform: scale(1.02); }
+    .reader-loading {
+      text-align: center;
+      padding: 40px 0;
+      color: var(--text-muted);
+    }
+    .reader-loading i {
+      font-size: 32px;
+      margin-bottom: 12px;
+      display: block;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Search results highlight */
+    .search-highlight {
+      background: var(--warning);
+      color: var(--text);
+      padding: 1px 3px;
+      border-radius: 3px;
+    }
+    .search-result-item {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px var(--shadow);
+      transition: all 0.2s;
+    }
+    .search-result-item:hover { transform: translateX(4px); }
+    .search-result-chapter {
+      font-size: 11px;
+      color: var(--primary);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    .search-result-snippet {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .library-empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+    .library-empty i {
+      font-size: 48px;
+      margin-bottom: 16px;
+      display: block;
+      opacity: 0.5;
+    }
+    .library-empty p { font-size: 14px; line-height: 1.6; }
+    .library-stats {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .library-stat {
+      background: var(--surface);
+      border-radius: var(--radius-sm);
+      padding: 8px 14px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      box-shadow: 0 1px 4px var(--shadow);
+    }
+    .library-stat strong {
+      color: var(--primary);
+      font-size: 16px;
+      display: block;
+      font-family: 'Fredoka', sans-serif;
+    }
 
     /* Responsive */
     @media (min-width: 600px) {
@@ -746,9 +993,13 @@
 <!-- Toast Container -->
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- Image Preview -->
+<!-- Image Preview (pinch-to-zoom) -->
 <div class="image-preview-overlay" id="imagePreview">
-  <img id="previewImage" src="" alt="Preview">
+  <button class="preview-close" id="previewClose"><i class="fas fa-times"></i></button>
+  <div class="preview-container" id="previewContainer">
+    <img id="previewImage" src="" alt="Preview">
+  </div>
+  <div class="preview-hint" id="previewHint">Pinch to zoom &bull; Double-tap to toggle &bull; Drag to pan</div>
 </div>
 
 <!-- Confirm Dialog -->
@@ -924,6 +1175,39 @@ const firebaseConfig = {
       </div>
     </div>
 
+    <!-- Library Panel -->
+    <div class="tab-panel" id="panelLibrary">
+      <!-- Chapter List View -->
+      <div id="libraryListView">
+        <div class="section-header">
+          <h2 class="section-title"><i class="fas fa-book-medical" style="margin-right:6px;"></i>Library</h2>
+        </div>
+        <div class="library-search">
+          <i class="fas fa-search"></i>
+          <input type="text" id="librarySearchInput" placeholder="Search book content...">
+        </div>
+        <div id="libraryStats" class="library-stats"></div>
+        <div id="librarySearchResults" style="display:none;"></div>
+        <ul id="libraryChapterList" class="chapter-list"></ul>
+        <div id="libraryLoading" class="reader-loading">
+          <i class="fas fa-spinner"></i>
+          <p>Loading book index...</p>
+        </div>
+        <div id="libraryEmpty" class="library-empty" style="display:none;">
+          <i class="fas fa-book-open"></i>
+          <p>No book data found.<br>Place your <code>data/</code> folder with JSON files on your GitHub Pages site.</p>
+        </div>
+      </div>
+      <!-- Chapter Reader View -->
+      <div id="libraryReaderView" style="display:none;">
+        <div class="reader-header">
+          <button class="reader-back" id="readerBackBtn"><i class="fas fa-arrow-left"></i></button>
+          <h2 class="reader-title" id="readerTitle"></h2>
+        </div>
+        <div class="reader-body" id="readerBody"></div>
+      </div>
+    </div>
+
     <!-- Settings Panel (hidden by default) -->
     <div class="tab-panel" id="panelSettings">
       <div class="section-header">
@@ -973,6 +1257,10 @@ const firebaseConfig = {
     <button class="nav-item" data-tab="panelRoutine">
       <i class="fas fa-carrot"></i>
       <span>Routine</span>
+    </button>
+    <button class="nav-item" data-tab="panelLibrary">
+      <i class="fas fa-book-medical"></i>
+      <span>Library</span>
     </button>
   </nav>
 </div>
@@ -1700,10 +1988,98 @@ function renderShapes(shapes) {
   list.innerHTML = html;
 }
 
- 
+
 function previewImage(url) {
-  $('previewImage').src = url;
+  var img = $('previewImage');
+  img.src = url;
+  previewZoom.scale = 1; previewZoom.tx = 0; previewZoom.ty = 0;
+  img.style.transform = 'translate(0px,0px) scale(1)';
   $('imagePreview').classList.add('active');
+  $('previewHint').style.opacity = '1';
+  setTimeout(function() { $('previewHint').style.opacity = '0'; }, 2500);
+}
+
+// ---- Pinch-to-Zoom & Pan for Image Preview ----
+var previewZoom = { scale: 1, tx: 0, ty: 0, startDist: 0, startScale: 1, panning: false, startX: 0, startY: 0, startTx: 0, startTy: 0, lastTap: 0 };
+
+function applyPreviewTransform() {
+  $('previewImage').style.transform = 'translate(' + previewZoom.tx + 'px,' + previewZoom.ty + 'px) scale(' + previewZoom.scale + ')';
+}
+
+function getTouchDist(t1, t2) {
+  var dx = t1.clientX - t2.clientX;
+  var dy = t1.clientY - t2.clientY;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+function setupPreviewZoom() {
+  var container = $('previewContainer');
+
+  container.addEventListener('touchstart', function(e) {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      previewZoom.startDist = getTouchDist(e.touches[0], e.touches[1]);
+      previewZoom.startScale = previewZoom.scale;
+    } else if (e.touches.length === 1) {
+      var now = Date.now();
+      if (now - previewZoom.lastTap < 300) {
+        e.preventDefault();
+        if (previewZoom.scale > 1.1) {
+          previewZoom.scale = 1; previewZoom.tx = 0; previewZoom.ty = 0;
+        } else {
+          previewZoom.scale = 2.5;
+          var rect = container.getBoundingClientRect();
+          var cx = e.touches[0].clientX - rect.left - rect.width / 2;
+          var cy = e.touches[0].clientY - rect.top - rect.height / 2;
+          previewZoom.tx = -cx * 0.6;
+          previewZoom.ty = -cy * 0.6;
+        }
+        applyPreviewTransform();
+        previewZoom.lastTap = 0;
+        return;
+      }
+      previewZoom.lastTap = now;
+      if (previewZoom.scale > 1.05) {
+        previewZoom.panning = true;
+        previewZoom.startX = e.touches[0].clientX;
+        previewZoom.startY = e.touches[0].clientY;
+        previewZoom.startTx = previewZoom.tx;
+        previewZoom.startTy = previewZoom.ty;
+      }
+    }
+  }, { passive: false });
+
+  container.addEventListener('touchmove', function(e) {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      var dist = getTouchDist(e.touches[0], e.touches[1]);
+      previewZoom.scale = Math.max(0.5, Math.min(previewZoom.startScale * (dist / previewZoom.startDist), 6));
+      applyPreviewTransform();
+    } else if (e.touches.length === 1 && previewZoom.panning) {
+      e.preventDefault();
+      previewZoom.tx = previewZoom.startTx + (e.touches[0].clientX - previewZoom.startX);
+      previewZoom.ty = previewZoom.startTy + (e.touches[0].clientY - previewZoom.startY);
+      applyPreviewTransform();
+    }
+  }, { passive: false });
+
+  container.addEventListener('touchend', function(e) {
+    if (e.touches.length < 2) previewZoom.panning = false;
+    if (previewZoom.scale < 1) {
+      previewZoom.scale = 1; previewZoom.tx = 0; previewZoom.ty = 0;
+      $('previewImage').style.transition = 'transform 0.25s ease-out';
+      applyPreviewTransform();
+      setTimeout(function() { $('previewImage').style.transition = 'transform 0.1s ease-out'; }, 260);
+    }
+  });
+
+  container.addEventListener('wheel', function(e) {
+    e.preventDefault();
+    var delta = e.deltaY > 0 ? 0.85 : 1.15;
+    previewZoom.scale = Math.max(0.5, Math.min(previewZoom.scale * delta, 6));
+    if (previewZoom.scale < 1.05) { previewZoom.tx = 0; previewZoom.ty = 0; }
+    applyPreviewTransform();
+  }, { passive: false });
 }
 
  
@@ -1953,6 +2329,252 @@ function openVetModal() {
   openModal('vetModal');
 }
 
+// ---- Library ----
+var libraryIndex = null;
+var librarySearchData = []; // flat array of {chapterIdx, page, text} for search
+var libraryLoaded = false;
+var DATA_BASE_URL = 'data/'; // relative path on GitHub Pages
+
+function loadLibraryIndex() {
+  if (libraryLoaded) return;
+  libraryLoaded = true;
+
+  show('libraryLoading');
+  hide('libraryEmpty');
+  hide('librarySearchResults');
+  $('libraryChapterList').innerHTML = '';
+  $('libraryStats').innerHTML = '';
+
+  fetch(DATA_BASE_URL + 'index.json')
+    .then(function(resp) {
+      if (!resp.ok) throw new Error('Not found');
+      return resp.json();
+    })
+    .then(function(data) {
+      libraryIndex = data;
+      hide('libraryLoading');
+      renderChapterList();
+      buildSearchIndex();
+    })
+    .catch(function() {
+      hide('libraryLoading');
+      show('libraryEmpty');
+    });
+}
+
+function renderChapterList() {
+  if (!libraryIndex || !libraryIndex.chapters) return;
+  var chapters = libraryIndex.chapters;
+  var totalPages = 0;
+  var totalImages = 0;
+  var html = '';
+
+  chapters.forEach(function(ch, idx) {
+    totalPages += ch.pages || 0;
+    totalImages += ch.images || 0;
+    var isAppendix = ch.title.toLowerCase().indexOf('appendix') !== -1;
+    var numLabel = isAppendix ? 'App' : (idx + 1);
+    var numClass = isAppendix ? 'chapter-num appendix' : 'chapter-num';
+    var metaParts = [];
+    if (ch.pages) metaParts.push(ch.pages + ' pages');
+    if (ch.images) metaParts.push(ch.images + ' imgs');
+
+    html += '<li class="chapter-item" onclick="openChapter(' + idx + ')">' +
+      '<div class="' + numClass + '">' + numLabel + '</div>' +
+      '<div class="chapter-info">' +
+        '<h4>' + escapeHtml(ch.title) + '</h4>' +
+        '<span class="chapter-meta">' + metaParts.join(' &bull; ') + '</span>' +
+      '</div>' +
+      '<i class="fas fa-chevron-right chapter-arrow"></i>' +
+    '</li>';
+  });
+
+  $('libraryChapterList').innerHTML = html;
+
+  $('libraryStats').innerHTML =
+    '<div class="library-stat"><strong>' + chapters.length + '</strong>Chapters</div>' +
+    '<div class="library-stat"><strong>' + totalPages + '</strong>Pages</div>' +
+    '<div class="library-stat"><strong>' + totalImages + '</strong>Images</div>';
+}
+
+function buildSearchIndex() {
+  librarySearchData = [];
+  if (!libraryIndex || !libraryIndex.chapters) return;
+  // We'll build search data lazily as chapters are loaded
+}
+
+function openChapter(idx) {
+  if (!libraryIndex || !libraryIndex.chapters[idx]) return;
+  var ch = libraryIndex.chapters[idx];
+
+  $('libraryListView').style.display = 'none';
+  $('libraryReaderView').style.display = 'block';
+  $('readerTitle').textContent = ch.title;
+  $('readerBody').innerHTML = '<div class="reader-loading"><i class="fas fa-spinner"></i><p>Loading chapter...</p></div>';
+
+  // Scroll to top of tab content
+  var tabContent = document.querySelector('.tab-content');
+  if (tabContent) tabContent.scrollTop = 0;
+
+  fetch(DATA_BASE_URL + ch.file)
+    .then(function(resp) {
+      if (!resp.ok) throw new Error('Not found');
+      return resp.json();
+    })
+    .then(function(data) {
+      renderChapterContent(data, idx);
+    })
+    .catch(function(err) {
+      $('readerBody').innerHTML = '<div class="library-empty"><i class="fas fa-exclamation-triangle"></i><p>Could not load chapter.<br>' + escapeHtml(err.message) + '</p></div>';
+    });
+}
+
+function renderChapterContent(data, chapterIdx) {
+  var pages = data.pages || [];
+  var html = '';
+
+  // Update title with actual title from data
+  if (data.title) $('readerTitle').textContent = data.title;
+
+  pages.forEach(function(page) {
+    html += '<div class="reader-page">';
+    html += '<div class="reader-page-num">Page ' + page.page + '</div>';
+
+    if (page.text && page.text.trim()) {
+      html += '<div class="reader-text">' + escapeHtml(page.text) + '</div>';
+    }
+
+    if (page.images && page.images.length > 0) {
+      html += '<div class="reader-images">';
+      page.images.forEach(function(img) {
+        var maxW = Math.min(img.width || 400, 500);
+        html += '<img class="reader-img" src="' + img.dataUrl + '" ' +
+          'style="max-width:' + maxW + 'px;" ' +
+          'onclick="previewImage(this.src)" loading="lazy">';
+      });
+      html += '</div>';
+    }
+
+    html += '</div>';
+  });
+
+  if (!html) {
+    html = '<div class="library-empty"><i class="fas fa-file-alt"></i><p>This chapter has no content.</p></div>';
+  }
+
+  $('readerBody').innerHTML = html;
+
+  // Also index this chapter for search if not already done
+  if (librarySearchData.findIndex(function(d) { return d.chapterIdx === chapterIdx; }) === -1) {
+    pages.forEach(function(page) {
+      if (page.text && page.text.trim()) {
+        librarySearchData.push({
+          chapterIdx: chapterIdx,
+          page: page.page,
+          text: page.text
+        });
+      }
+    });
+  }
+}
+
+function closeChapterReader() {
+  $('libraryReaderView').style.display = 'none';
+  $('libraryListView').style.display = 'block';
+}
+
+var librarySearchTimeout = null;
+function handleLibrarySearch(query) {
+  clearTimeout(librarySearchTimeout);
+  if (!query || query.length < 2) {
+    hide('librarySearchResults');
+    $('libraryChapterList').style.display = '';
+    $('libraryStats').style.display = '';
+    return;
+  }
+
+  librarySearchTimeout = setTimeout(function() {
+    performLibrarySearch(query);
+  }, 300);
+}
+
+function performLibrarySearch(query) {
+  var q = query.toLowerCase();
+
+  // First: search chapter titles from index
+  var titleResults = [];
+  if (libraryIndex && libraryIndex.chapters) {
+    libraryIndex.chapters.forEach(function(ch, idx) {
+      if (ch.title.toLowerCase().indexOf(q) !== -1) {
+        titleResults.push({ chapterIdx: idx, title: ch.title, type: 'title' });
+      }
+    });
+  }
+
+  // Then: search loaded page text
+  var textResults = [];
+  librarySearchData.forEach(function(item) {
+    var pos = item.text.toLowerCase().indexOf(q);
+    if (pos !== -1) {
+      // Extract snippet around match
+      var start = Math.max(0, pos - 60);
+      var end = Math.min(item.text.length, pos + query.length + 60);
+      var snippet = (start > 0 ? '...' : '') +
+        item.text.substring(start, end) +
+        (end < item.text.length ? '...' : '');
+      textResults.push({
+        chapterIdx: item.chapterIdx,
+        page: item.page,
+        snippet: snippet,
+        query: query,
+        type: 'text'
+      });
+    }
+  });
+
+  var html = '';
+  var totalResults = titleResults.length + textResults.length;
+
+  if (totalResults === 0) {
+    if (librarySearchData.length === 0) {
+      html = '<div class="library-empty" style="padding:30px 10px;"><i class="fas fa-info-circle" style="font-size:24px;"></i>' +
+        '<p>Search will work better after you open a few chapters first (content is loaded on demand).</p></div>';
+    } else {
+      html = '<div class="library-empty" style="padding:30px 10px;"><i class="fas fa-search" style="font-size:24px;"></i>' +
+        '<p>No results found for "<strong>' + escapeHtml(query) + '</strong>"</p></div>';
+    }
+  } else {
+    html = '<p style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">' + totalResults + ' result' + (totalResults !== 1 ? 's' : '') + '</p>';
+
+    titleResults.forEach(function(r) {
+      var chTitle = libraryIndex.chapters[r.chapterIdx].title;
+      html += '<div class="search-result-item" onclick="openChapter(' + r.chapterIdx + ')">' +
+        '<div class="search-result-chapter"><i class="fas fa-bookmark" style="margin-right:4px;"></i> ' + escapeHtml(chTitle) + '</div>' +
+        '<div class="search-result-snippet">Chapter title match</div></div>';
+    });
+
+    textResults.forEach(function(r) {
+      var chTitle = libraryIndex.chapters[r.chapterIdx] ? libraryIndex.chapters[r.chapterIdx].title : 'Unknown';
+      var highlighted = highlightSearchResult(r.snippet, r.query);
+      html += '<div class="search-result-item" onclick="openChapter(' + r.chapterIdx + ')">' +
+        '<div class="search-result-chapter"><i class="fas fa-file-alt" style="margin-right:4px;"></i> ' + escapeHtml(chTitle) + ' &bull; Page ' + r.page + '</div>' +
+        '<div class="search-result-snippet">' + highlighted + '</div></div>';
+    });
+  }
+
+  $('librarySearchResults').innerHTML = html;
+  show('librarySearchResults');
+  $('libraryChapterList').style.display = 'none';
+  $('libraryStats').style.display = 'none';
+}
+
+function highlightSearchResult(text, query) {
+  var escaped = escapeHtml(text);
+  var q = escapeHtml(query);
+  var regex = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+  return escaped.replace(regex, '<span class="search-highlight">$1</span>');
+}
+
 // ---- Tab Navigation ----
 function switchTab(tabId) {
   document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
@@ -1967,6 +2589,7 @@ function refreshCurrentTab() {
   var activePanel = document.querySelector('.tab-panel.active');
   if (!activePanel) return;
   var panelId = activePanel.id;
+  if (panelId === 'panelLibrary') { loadLibraryIndex(); return; }
   if (!currentGpId && panelId !== 'panelProfiles' && panelId !== 'panelSettings' && panelId !== 'panelRoutine') {
     if (panelId === 'panelWeight') { show('weightNoGp'); hide('weightContent'); }
     if (panelId === 'panelShape') { show('shapeNoGp'); hide('shapeContent'); }
@@ -2310,10 +2933,17 @@ function setupEventHandlers() {
     });
   });
 
-  // Image preview close
-  $('imagePreview').addEventListener('click', function() {
-    this.classList.remove('active');
+  // Library
+  $('readerBackBtn').addEventListener('click', closeChapterReader);
+  $('librarySearchInput').addEventListener('input', function() {
+    handleLibrarySearch(this.value.trim());
   });
+
+  // Image preview close + zoom init
+  $('previewClose').addEventListener('click', function() {
+    $('imagePreview').classList.remove('active');
+  });
+  setupPreviewZoom();
 
   // Close modals on overlay click
   document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
