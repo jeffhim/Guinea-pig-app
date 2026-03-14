@@ -2447,43 +2447,43 @@ function openChapter(idx) {
   var tabContent = document.querySelector('.tab-content');
   if (tabContent) tabContent.scrollTop = 0;
 
-  // Try the filename from index, then fallback without mnt_book_data_ prefix
-  var primaryUrl = DATA_BASE_URL + ch.file;
-  var fallbackUrl = DATA_BASE_URL + ch.file.replace('mnt_book_data_', '');
+  // Build list of URLs to try: original, with prefix added, with prefix removed
+  var FILE_PREFIX = 'mnt_book_data_';
+  var hasPrefix = ch.file.indexOf(FILE_PREFIX) === 0;
+  var urls = [DATA_BASE_URL + ch.file];
+  if (hasPrefix) {
+    urls.push(DATA_BASE_URL + ch.file.replace(FILE_PREFIX, ''));
+  } else {
+    urls.push(DATA_BASE_URL + FILE_PREFIX + ch.file);
+  }
   var triedUrls = [];
 
-  console.log('[Library] Trying: ' + primaryUrl);
-  triedUrls.push(primaryUrl);
-
-  fetch(primaryUrl)
-    .then(function(resp) {
-      if (!resp.ok) throw new Error('HTTP ' + resp.status);
-      return resp.json();
-    })
-    .then(function(data) {
-      renderChapterContent(data, idx);
-    })
-    .catch(function() {
-      // Try fallback URL without prefix
-      console.log('[Library] Fallback: ' + fallbackUrl);
-      triedUrls.push(fallbackUrl);
-      return fetch(fallbackUrl)
-        .then(function(resp) {
-          if (!resp.ok) throw new Error('HTTP ' + resp.status);
-          return resp.json();
-        })
-        .then(function(data) {
-          renderChapterContent(data, idx);
-        })
-        .catch(function(err) {
-          $('readerBody').innerHTML = '<div class="library-empty">' +
-            '<i class="fas fa-exclamation-triangle"></i>' +
-            '<p>Could not load chapter.<br>' +
-            '<small style="color:var(--text-muted);">Tried:<br>' +
-            triedUrls.map(function(u) { return '<code>' + escapeHtml(u) + '</code>'; }).join('<br>') +
-            '<br>Error: ' + escapeHtml(err.message) + '</small></p></div>';
-        });
-    });
+  function tryChapterUrl(i) {
+    if (i >= urls.length) {
+      $('readerBody').innerHTML = '<div class="library-empty">' +
+        '<i class="fas fa-exclamation-triangle"></i>' +
+        '<p>Could not load chapter.<br>' +
+        '<small style="color:var(--text-muted);">Tried:<br>' +
+        triedUrls.map(function(u) { return '<code>' + escapeHtml(u) + '</code>'; }).join('<br>') +
+        '</small></p></div>';
+      return;
+    }
+    var url = urls[i];
+    triedUrls.push(url);
+    console.log('[Library] Trying: ' + url);
+    fetch(url)
+      .then(function(resp) {
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        return resp.json();
+      })
+      .then(function(data) {
+        renderChapterContent(data, idx);
+      })
+      .catch(function() {
+        tryChapterUrl(i + 1);
+      });
+  }
+  tryChapterUrl(0);
 }
 
 function renderChapterContent(data, chapterIdx) {
