@@ -2336,8 +2336,14 @@ var libraryLoaded = false;
 var DATA_BASE_URL = 'library/'; // folder name on GitHub
 
 function loadLibraryIndex() {
-  if (libraryLoaded) return;
-  libraryLoaded = true;
+  // If already loaded successfully, just show the list
+  if (libraryIndex) {
+    hide('libraryLoading');
+    hide('libraryEmpty');
+    show('libraryChapterList');
+    show('libraryStats');
+    return;
+  }
 
   show('libraryLoading');
   hide('libraryEmpty');
@@ -2345,19 +2351,30 @@ function loadLibraryIndex() {
   $('libraryChapterList').innerHTML = '';
   $('libraryStats').innerHTML = '';
 
-  fetch(DATA_BASE_URL + 'index.json')
+  // Try fetching from the configured base URL
+  var url = DATA_BASE_URL + 'index.json';
+  console.log('[Library] Fetching: ' + url);
+
+  fetch(url)
     .then(function(resp) {
-      if (!resp.ok) throw new Error('Not found');
+      console.log('[Library] Response status: ' + resp.status);
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
       return resp.json();
     })
     .then(function(data) {
+      console.log('[Library] Loaded ' + (data.chapters ? data.chapters.length : 0) + ' chapters');
       libraryIndex = data;
       hide('libraryLoading');
       renderChapterList();
       buildSearchIndex();
     })
-    .catch(function() {
+    .catch(function(err) {
+      console.log('[Library] Error: ' + err.message);
       hide('libraryLoading');
+      $('libraryEmpty').querySelector('p').innerHTML =
+        'Could not load book data.<br>' +
+        '<small style="color:var(--text-muted);">Tried: <code>' + escapeHtml(url) + '</code><br>Error: ' + escapeHtml(err.message) + '</small>' +
+        '<br><br><button class="btn btn-primary btn-sm" onclick="libraryIndex=null;loadLibraryIndex();">Retry</button>';
       show('libraryEmpty');
     });
 }
