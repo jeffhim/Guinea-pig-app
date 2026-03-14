@@ -1195,7 +1195,7 @@ const firebaseConfig = {
         </div>
         <div id="libraryEmpty" class="library-empty" style="display:none;">
           <i class="fas fa-book-open"></i>
-          <p>No book data found.<br>Place your <code>library/</code> folder with JSON files on your GitHub Pages site.</p>
+          <p>No book data found.<br>Place your <code>data/</code> folder with JSON files on your GitHub Pages site.</p>
         </div>
       </div>
       <!-- Chapter Reader View -->
@@ -2333,18 +2333,11 @@ function openVetModal() {
 var libraryIndex = null;
 var librarySearchData = []; // flat array of {chapterIdx, page, text} for search
 var libraryLoaded = false;
-var DATA_BASE_URL = 'library/'; // folder name on GitHub
-var INDEX_FILE = 'mnt_book_data_index.json'; // index filename on GitHub
+var DATA_BASE_URL = 'data/'; // relative path on GitHub Pages
 
 function loadLibraryIndex() {
-  // If already loaded successfully, just show the list
-  if (libraryIndex) {
-    hide('libraryLoading');
-    hide('libraryEmpty');
-    show('libraryChapterList');
-    show('libraryStats');
-    return;
-  }
+  if (libraryLoaded) return;
+  libraryLoaded = true;
 
   show('libraryLoading');
   hide('libraryEmpty');
@@ -2352,30 +2345,19 @@ function loadLibraryIndex() {
   $('libraryChapterList').innerHTML = '';
   $('libraryStats').innerHTML = '';
 
-  // Try fetching from the configured base URL
-  var url = DATA_BASE_URL + INDEX_FILE;
-  console.log('[Library] Fetching: ' + url);
-
-  fetch(url)
+  fetch(DATA_BASE_URL + 'index.json')
     .then(function(resp) {
-      console.log('[Library] Response status: ' + resp.status);
-      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      if (!resp.ok) throw new Error('Not found');
       return resp.json();
     })
     .then(function(data) {
-      console.log('[Library] Loaded ' + (data.chapters ? data.chapters.length : 0) + ' chapters');
       libraryIndex = data;
       hide('libraryLoading');
       renderChapterList();
       buildSearchIndex();
     })
-    .catch(function(err) {
-      console.log('[Library] Error: ' + err.message);
+    .catch(function() {
       hide('libraryLoading');
-      $('libraryEmpty').querySelector('p').innerHTML =
-        'Could not load book data.<br>' +
-        '<small style="color:var(--text-muted);">Tried: <code>' + escapeHtml(url) + '</code><br>Error: ' + escapeHtml(err.message) + '</small>' +
-        '<br><br><button class="btn btn-primary btn-sm" onclick="libraryIndex=null;loadLibraryIndex();">Retry</button>';
       show('libraryEmpty');
     });
 }
