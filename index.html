@@ -799,6 +799,10 @@
       background: linear-gradient(135deg, var(--secondary), var(--secondary-light));
       font-size: 12px;
     }
+    .chapter-num.section-divider {
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      font-size: 13px;
+    }
     .chapter-info { flex: 1; min-width: 0; }
     .chapter-info h4 {
       font-family: 'Fredoka', sans-serif;
@@ -812,138 +816,15 @@
       font-size: 12px;
       color: var(--text-muted);
     }
+    .chapter-meta i { margin-right: 3px; }
     .chapter-arrow {
-      color: var(--text-muted);
+      color: var(--primary);
       font-size: 14px;
       flex-shrink: 0;
+      opacity: 0.6;
+      transition: opacity 0.2s;
     }
-
-    /* Chapter Reader */
-    .reader-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
-      position: sticky;
-      top: -16px;
-      background: var(--bg);
-      padding: 16px 0 12px;
-      margin-top: -16px;
-      z-index: 5;
-      border-bottom: 1px solid var(--border);
-    }
-    .reader-back {
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: center;
-      color: var(--primary);
-      font-size: 16px;
-      cursor: pointer;
-      flex-shrink: 0;
-      transition: all 0.2s;
-    }
-    .reader-back:hover { background: var(--primary); color: #fff; }
-    .reader-title {
-      font-family: 'Fredoka', sans-serif;
-      font-size: 18px;
-      flex: 1;
-      min-width: 0;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .reader-body {
-      font-size: 14px;
-      line-height: 1.8;
-      color: var(--text);
-    }
-    .reader-page {
-      background: var(--surface);
-      border-radius: var(--radius);
-      padding: 20px 18px;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 8px var(--shadow);
-    }
-    .reader-page-num {
-      font-family: 'Fredoka', sans-serif;
-      font-size: 11px;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 12px;
-      padding-bottom: 8px;
-      border-bottom: 1px dashed var(--border);
-    }
-    .reader-text {
-      white-space: pre-wrap;
-      word-break: break-word;
-      font-size: 14px;
-      line-height: 1.8;
-    }
-    .reader-images {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 14px;
-    }
-    .reader-img {
-      border-radius: var(--radius-sm);
-      max-width: 100%;
-      height: auto;
-      cursor: pointer;
-      transition: transform 0.2s;
-      box-shadow: 0 2px 8px var(--shadow);
-    }
-    .reader-img:hover { transform: scale(1.02); }
-    .reader-loading {
-      text-align: center;
-      padding: 40px 0;
-      color: var(--text-muted);
-    }
-    .reader-loading i {
-      font-size: 32px;
-      margin-bottom: 12px;
-      display: block;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* Search results highlight */
-    .search-highlight {
-      background: var(--warning);
-      color: var(--text);
-      padding: 1px 3px;
-      border-radius: 3px;
-    }
-    .search-result-item {
-      background: var(--surface);
-      border-radius: var(--radius);
-      padding: 14px 16px;
-      margin-bottom: 8px;
-      cursor: pointer;
-      box-shadow: 0 2px 8px var(--shadow);
-      transition: all 0.2s;
-    }
-    .search-result-item:hover { transform: translateX(4px); }
-    .search-result-chapter {
-      font-size: 11px;
-      color: var(--primary);
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 4px;
-    }
-    .search-result-snippet {
-      font-size: 13px;
-      color: var(--text-secondary);
-      line-height: 1.6;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
+    .chapter-item:hover .chapter-arrow { opacity: 1; }
     .library-empty {
       text-align: center;
       padding: 60px 20px;
@@ -975,6 +856,18 @@
       font-size: 16px;
       display: block;
       font-family: 'Fredoka', sans-serif;
+    }
+    .library-no-match {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    .library-no-match i {
+      font-size: 32px;
+      margin-bottom: 10px;
+      display: block;
+      opacity: 0.4;
     }
 
     /* Responsive */
@@ -1177,34 +1070,22 @@ const firebaseConfig = {
 
     <!-- Library Panel -->
     <div class="tab-panel" id="panelLibrary">
-      <!-- Chapter List View -->
-      <div id="libraryListView">
-        <div class="section-header">
-          <h2 class="section-title"><i class="fas fa-book-medical" style="margin-right:6px;"></i>Library</h2>
-        </div>
-        <div class="library-search">
-          <i class="fas fa-search"></i>
-          <input type="text" id="librarySearchInput" placeholder="Search book content...">
-        </div>
-        <div id="libraryStats" class="library-stats"></div>
-        <div id="librarySearchResults" style="display:none;"></div>
-        <ul id="libraryChapterList" class="chapter-list"></ul>
-        <div id="libraryLoading" class="reader-loading">
-          <i class="fas fa-spinner"></i>
-          <p>Loading book index...</p>
-        </div>
-        <div id="libraryEmpty" class="library-empty" style="display:none;">
-          <i class="fas fa-book-open"></i>
-          <p>No book data found.<br>Place your <code>library/</code> folder with JSON files on your GitHub Pages site.</p>
-        </div>
+      <div class="section-header">
+        <h2 class="section-title"><i class="fas fa-book-medical" style="margin-right:6px;"></i>Library</h2>
       </div>
-      <!-- Chapter Reader View -->
-      <div id="libraryReaderView" style="display:none;">
-        <div class="reader-header">
-          <button class="reader-back" id="readerBackBtn"><i class="fas fa-arrow-left"></i></button>
-          <h2 class="reader-title" id="readerTitle"></h2>
-        </div>
-        <div class="reader-body" id="readerBody"></div>
+      <div class="library-search">
+        <i class="fas fa-search"></i>
+        <input type="text" id="librarySearchInput" placeholder="Filter chapters...">
+      </div>
+      <div id="libraryStats" class="library-stats"></div>
+      <ul id="libraryChapterList" class="chapter-list"></ul>
+      <div id="libraryNoMatch" class="library-no-match" style="display:none;">
+        <i class="fas fa-search"></i>
+        <p>No matching chapters found.</p>
+      </div>
+      <div id="libraryEmpty" class="library-empty" style="display:none;">
+        <i class="fas fa-book-open"></i>
+        <p>No chapters configured yet.<br>Edit the <code>LIBRARY_CHAPTERS</code> array in the code to add your Google Drive PDF links.</p>
       </div>
     </div>
 
@@ -2329,317 +2210,166 @@ function openVetModal() {
   openModal('vetModal');
 }
 
-// ---- Library ----
-var libraryIndex = null;
-var librarySearchData = []; // flat array of {chapterIdx, page, text} for search
-var libraryLoaded = false;
-var DATA_BASE_URL = 'library/'; // folder name on GitHub
-var INDEX_FILE = 'mnt_book_data_index.json'; // index filename on GitHub
+// ---- Library (Google Drive PDF Launcher) ----
+// =========================================================================
+// CONFIGURE YOUR CHAPTERS HERE
+// For each chapter, set:
+//   title   – Display name shown in the list
+//   driveId – The Google Drive file ID from the sharing link
+//             e.g. https://drive.google.com/file/d/XXXXX/view  →  "XXXXX"
+//   subtitle – (optional) short description shown under the title
+// =========================================================================
+var LIBRARY_CHAPTERS = [
+  // ── Front Matter ──────────────────────────────────────────────────────
+  { title: "Front Matter — Title & Copyright", driveId: "1MuV0ZMnNyABB5iXJkzehY1_fTavw5S-w", subtitle: "Title page & copyright" },
+  { title: "Front Matter — Contributors", driveId: "12-b0A6CFW9hdX1xxmff2s75VNAJsvwqp", subtitle: "Dedication & contributors" },
+  { title: "Front Matter — Foreword & Preface", driveId: "1iF20CuuLmbMVtcMB5kND2bHiFrSry0Vn", subtitle: "Foreword & preface" },
+  { title: "Front Matter — Contents", driveId: "1K6a4ujjgUSCrivj33CRQgWFnNmx2fwR0", subtitle: "Contents & abbreviations" },
+  // ── Chapters ──────────────────────────────────────────────────────────
+  { title: "Chapter 1 — The Guinea Pig as a Pet", driveId: "1UsQ0jgUgnuVrv6ReijYDCZ04w1-7_XKb", subtitle: "Simon Sherlock · pp 1–6" },
+  { title: "Chapter 2 — Biological Overview", driveId: "1xC8pUrXxuj4_zh0ojIZprzTOZTF-b5iG", subtitle: "Simon Sherlock · pp 7–14" },
+  { title: "Chapter 3 — Husbandry", driveId: "15cY9OpPLTDo1vlE2xfODCf8m9xU0uWVC", subtitle: "Simon Mayer · pp 15–25" },
+  { title: "Chapter 4 — Nutrition", driveId: "1IslVFdH541vAD2XqJDC-aJclp8gfT7DD", subtitle: "Claire Sherlock & Simon Sherlock · pp 26–37" },
+  { title: "Chapter 5 — Preventive Healthcare", driveId: "1tCoJ1B5gZsPKae1cAP1HvIXFBMP7epaQ", subtitle: "Claire Sherlock · pp 38–44" },
+  { title: "Chapter 6 — Handling and Clinical Examination", driveId: "1VNhUUfPvVk5qWP0hRwT_mehCiLP8LSHa", subtitle: "Simon Sherlock & Claire Sherlock · pp 45–55" },
+  { title: "Chapter 7 — Diagnostic Sampling and Imaging", driveId: "1NFZamzRZsw2AZUpu9KR21c2HtahVBETj", subtitle: "Simon Sherlock · pp 56–73" },
+  { title: "Chapter 8 — Therapeutics", driveId: "1DXz0vRSDyYbKY0jKsHtPPtbgQzLjSBgF", subtitle: "Simon Sherlock · pp 74–85" },
+  { title: "Chapter 9 — Anaesthesia and Analgesia", driveId: "1szhRh784Rq6W8jhbJzWhnaHP415JKSEd", subtitle: "Joanna Hedley · pp 86–97" },
+  { title: "Chapter 10 — Common Surgical Procedures", driveId: "1X5Zwb63SiiQBrkTdw8EozTfTrBGoD_30", subtitle: "Joanna Hedley · pp 98–116" },
+  { title: "Chapter 11 — Dentistry", driveId: "1tcx2eusXhKNkV8yDlaNgpkuMITOKPU2E", subtitle: "Simon Sherlock · pp 117–138" },
+  { title: "Chapter 12 — Dermatology", driveId: "1fSZyYH-2S4XXmEYPaTutZAoD1nNgHA-n", subtitle: "Fiona Sherlock · pp 139–157" },
+  { title: "Chapter 13 — Respiratory Disorders", driveId: "14i1snpmifmK_flPjV2tewp3RVrnYRdH2", subtitle: "Elisabetta Mancinelli · pp 158–167" },
+  { title: "Chapter 14 — Cardiovascular Disorders", driveId: "1mATqegYBT_desjO0IBK96gNfHN-uY6PO", subtitle: "Elisabetta Mancinelli · pp 168–175" },
+  { title: "Chapter 15 — Gastrointestinal Disorders", driveId: "1QSVjGuzrJnLSlkuWlLgCFCAZ2EW8qkxt", subtitle: "Claire Sherlock & Simon Sherlock · pp 176–186" },
+  { title: "Chapter 16 — Hepatic Disorders", driveId: "1dLrpS8tfpDCK0MGIuvKfflhmxCb9kEZK", subtitle: "Claire Sherlock & Simon Sherlock · pp 187–192" },
+  { title: "Chapter 17 — Urogenital Disorders", driveId: "1SnwFdUWW_dVsrSVhVs1hgxBJ9IL2KTZy", subtitle: "Joanna Hedley · pp 193–207" },
+  { title: "Chapter 18 — Musculoskeletal Disorders", driveId: "1E-RXtnWzSJZJcir3WuCHHYSqBQSbZlJi", subtitle: "Molly Varga Smith · pp 208–215" },
+  { title: "Chapter 19 — Neurological Disorders", driveId: "1rXnN7M2YRzZEMYXDIIwSV6Y3nkOJX-h0", subtitle: "Molly Varga Smith · pp 216–222" },
+  { title: "Chapter 20 — Ocular Disorders", driveId: "1LZ0baJ55Kb9PiQ4g_KMX34sU7skLWF6Q", subtitle: "David Williams · pp 223–241" },
+  { title: "Chapter 21 — Neoplasia", driveId: "1FIw8WMMsWwYKOeexSeKgIqRpFcWlgbg_", subtitle: "Elisabetta Mancinelli · pp 242–249" },
+  { title: "Chapter 22 — Endocrine Disorders", driveId: "14ixdsaHuar8m85X9JNIKzKJmE9dihV6p", subtitle: "Christoph Mans · pp 250–256" },
+  { title: "Chapter 23 — Reproduction", driveId: "17yfmr2rm2zjeNdLLDox4X4Jie7iaOsep", subtitle: "Simon Sherlock & Claire Sherlock · pp 257–272" },
+  { title: "Chapter 24 — Behaviour", driveId: "11uOvPsNuEBzlLtU8E77c_TaBF8PlPCqx", subtitle: "Courtney Andrews · pp 273–282" },
+  // ── Appendices ────────────────────────────────────────────────────────
+  { title: "Appendix 1 — Haematology and Biochemistry", driveId: "1lQA17BR63q-rGOBoksoBh-ChAUKxY94E", subtitle: "Reference ranges · pp 283–284" },
+  { title: "Appendix 2 — Useful Conversion Tables", driveId: "1f0CggZ4ilKLuLTMUMShDpnx8RApFnJxg", subtitle: "pp 285–286" },
+  { title: "Appendix 3 — Formulary", driveId: "1DkmKleg1-qJp3Fmpe-ZSWTZiBsS9RiZY", subtitle: "Simon Sherlock · pp 287–292" },
+  // ── Back Matter ───────────────────────────────────────────────────────
+  { title: "Back Matter — Trade Names", driveId: "1MTmRJeplWZgR0eowb0dqWALEe7NIxOkR", subtitle: "Trade names of drugs · pp 293–294" },
+  { title: "Back Matter — Index", driveId: "1_IeQ7L7R_9iQcfc0aMDx70Yr8WSNlhX-", subtitle: "pp 295–304" },
+];
+
+var libraryRendered = false;
 
 function loadLibraryIndex() {
-  // If already loaded successfully, just show the list
-  if (libraryIndex) {
-    hide('libraryLoading');
-    hide('libraryEmpty');
-    show('libraryChapterList');
-    show('libraryStats');
+  if (LIBRARY_CHAPTERS.length === 0) {
+    $('libraryChapterList').innerHTML = '';
+    $('libraryStats').innerHTML = '';
+    hide('libraryNoMatch');
+    show('libraryEmpty');
     return;
   }
-
-  show('libraryLoading');
   hide('libraryEmpty');
-  hide('librarySearchResults');
-  $('libraryChapterList').innerHTML = '';
-  $('libraryStats').innerHTML = '';
-
-  // Try multiple index filenames: prefixed first, then plain
-  var urls = [
-    DATA_BASE_URL + INDEX_FILE,
-    DATA_BASE_URL + 'index.json'
-  ];
-  var triedUrls = [];
-
-  function tryNextUrl(i) {
-    if (i >= urls.length) {
-      hide('libraryLoading');
-      $('libraryEmpty').querySelector('p').innerHTML =
-        'Could not load book data.<br>' +
-        '<small style="color:var(--text-muted);">Tried:<br>' +
-        triedUrls.map(function(u) { return '<code>' + escapeHtml(u) + '</code>'; }).join('<br>') +
-        '</small><br><br><button class="btn btn-primary btn-sm" onclick="libraryIndex=null;loadLibraryIndex();">Retry</button>';
-      show('libraryEmpty');
-      return;
-    }
-    var url = urls[i];
-    triedUrls.push(url);
-    console.log('[Library] Trying: ' + url);
-
-    fetch(url)
-      .then(function(resp) {
-        if (!resp.ok) throw new Error('HTTP ' + resp.status);
-        return resp.json();
-      })
-      .then(function(data) {
-        console.log('[Library] Loaded ' + (data.chapters ? data.chapters.length : 0) + ' chapters');
-        libraryIndex = data;
-        hide('libraryLoading');
-        renderChapterList();
-        buildSearchIndex();
-      })
-      .catch(function() {
-        tryNextUrl(i + 1);
-      });
+  hide('libraryNoMatch');
+  if (!libraryRendered) {
+    renderChapterList();
+    libraryRendered = true;
   }
-  tryNextUrl(0);
 }
 
-function renderChapterList() {
-  if (!libraryIndex || !libraryIndex.chapters) return;
-  var chapters = libraryIndex.chapters;
-  var totalPages = 0;
-  var totalImages = 0;
+function renderChapterList(filter) {
+  var chapters = LIBRARY_CHAPTERS;
+  var q = (filter || '').toLowerCase().trim();
   var html = '';
+  var visibleCount = 0;
 
   chapters.forEach(function(ch, idx) {
-    totalPages += ch.pages || 0;
-    totalImages += ch.images || 0;
-    var isAppendix = ch.title.toLowerCase().indexOf('appendix') !== -1;
-    var numLabel = isAppendix ? 'App' : (idx + 1);
-    var numClass = isAppendix ? 'chapter-num appendix' : 'chapter-num';
-    var metaParts = [];
-    if (ch.pages) metaParts.push(ch.pages + ' pages');
-    if (ch.images) metaParts.push(ch.images + ' imgs');
+    var matchesFilter = !q ||
+      ch.title.toLowerCase().indexOf(q) !== -1 ||
+      (ch.subtitle && ch.subtitle.toLowerCase().indexOf(q) !== -1);
+    if (!matchesFilter) return;
+    visibleCount++;
 
-    html += '<li class="chapter-item" onclick="openChapter(' + idx + ')">' +
+    var titleLower = ch.title.toLowerCase();
+    var isAppendix = titleLower.indexOf('appendix') !== -1;
+    var isFrontMatter = titleLower.indexOf('front matter') !== -1;
+    var isBackMatter = titleLower.indexOf('back matter') !== -1;
+    var isSection = titleLower.indexOf('section') !== -1 || titleLower.indexOf('part ') !== -1;
+    var numLabel, numClass;
+    if (isAppendix) {
+      var appMatch = ch.title.match(/\d+/);
+      numLabel = appMatch ? 'A' + appMatch[0] : 'App';
+      numClass = 'chapter-num appendix';
+    } else if (isFrontMatter || isBackMatter) {
+      numLabel = '<i class="fas fa-bookmark" style="font-size:14px;"></i>';
+      numClass = 'chapter-num section-divider';
+    } else if (isSection) {
+      numLabel = '<i class="fas fa-layer-group" style="font-size:14px;"></i>';
+      numClass = 'chapter-num section-divider';
+    } else {
+      var chMatch = ch.title.match(/\d+/);
+      numLabel = chMatch ? chMatch[0] : (idx + 1);
+      numClass = 'chapter-num';
+    }
+
+    var meta = ch.subtitle
+      ? escapeHtml(ch.subtitle)
+      : '<i class="fas fa-file-pdf"></i>PDF on Google Drive';
+
+    html += '<li class="chapter-item" onclick="openChapterPdf(' + idx + ')">' +
       '<div class="' + numClass + '">' + numLabel + '</div>' +
       '<div class="chapter-info">' +
         '<h4>' + escapeHtml(ch.title) + '</h4>' +
-        '<span class="chapter-meta">' + metaParts.join(' &bull; ') + '</span>' +
+        '<span class="chapter-meta">' + meta + '</span>' +
       '</div>' +
-      '<i class="fas fa-chevron-right chapter-arrow"></i>' +
+      '<i class="fas fa-external-link-alt chapter-arrow"></i>' +
     '</li>';
   });
 
   $('libraryChapterList').innerHTML = html;
 
-  $('libraryStats').innerHTML =
-    '<div class="library-stat"><strong>' + chapters.length + '</strong>Chapters</div>' +
-    '<div class="library-stat"><strong>' + totalPages + '</strong>Pages</div>' +
-    '<div class="library-stat"><strong>' + totalImages + '</strong>Images</div>';
-}
-
-function buildSearchIndex() {
-  librarySearchData = [];
-  if (!libraryIndex || !libraryIndex.chapters) return;
-  // We'll build search data lazily as chapters are loaded
-}
-
-function openChapter(idx) {
-  if (!libraryIndex || !libraryIndex.chapters[idx]) return;
-  var ch = libraryIndex.chapters[idx];
-
-  $('libraryListView').style.display = 'none';
-  $('libraryReaderView').style.display = 'block';
-  $('readerTitle').textContent = ch.title;
-  $('readerBody').innerHTML = '<div class="reader-loading"><i class="fas fa-spinner"></i><p>Loading chapter...</p></div>';
-
-  // Scroll to top of tab content
-  var tabContent = document.querySelector('.tab-content');
-  if (tabContent) tabContent.scrollTop = 0;
-
-  // Build list of URLs to try: original, with prefix added, with prefix removed
-  var FILE_PREFIX = 'mnt_book_data_';
-  var hasPrefix = ch.file.indexOf(FILE_PREFIX) === 0;
-  var urls = [DATA_BASE_URL + ch.file];
-  if (hasPrefix) {
-    urls.push(DATA_BASE_URL + ch.file.replace(FILE_PREFIX, ''));
+  if (visibleCount === 0 && q) {
+    show('libraryNoMatch');
+    $('libraryChapterList').style.display = 'none';
   } else {
-    urls.push(DATA_BASE_URL + FILE_PREFIX + ch.file);
-  }
-  var triedUrls = [];
-
-  function tryChapterUrl(i) {
-    if (i >= urls.length) {
-      $('readerBody').innerHTML = '<div class="library-empty">' +
-        '<i class="fas fa-exclamation-triangle"></i>' +
-        '<p>Could not load chapter.<br>' +
-        '<small style="color:var(--text-muted);">Tried:<br>' +
-        triedUrls.map(function(u) { return '<code>' + escapeHtml(u) + '</code>'; }).join('<br>') +
-        '</small></p></div>';
-      return;
-    }
-    var url = urls[i];
-    triedUrls.push(url);
-    console.log('[Library] Trying: ' + url);
-    fetch(url)
-      .then(function(resp) {
-        if (!resp.ok) throw new Error('HTTP ' + resp.status);
-        return resp.json();
-      })
-      .then(function(data) {
-        renderChapterContent(data, idx);
-      })
-      .catch(function() {
-        tryChapterUrl(i + 1);
-      });
-  }
-  tryChapterUrl(0);
-}
-
-function renderChapterContent(data, chapterIdx) {
-  var pages = data.pages || [];
-  var html = '';
-
-  // Update title with actual title from data
-  if (data.title) $('readerTitle').textContent = data.title;
-
-  // Update index metadata dynamically from actual chapter data
-  if (libraryIndex && libraryIndex.chapters[chapterIdx]) {
-    var ch = libraryIndex.chapters[chapterIdx];
-    if (data.title) ch.title = data.title;
-    if (data.totalPages) ch.pages = data.totalPages;
-    if (data.totalImages !== undefined) ch.images = data.totalImages;
-    // Re-render chapter list so metadata updates appear
-    renderChapterList();
-  }
-
-  pages.forEach(function(page) {
-    html += '<div class="reader-page">';
-    html += '<div class="reader-page-num">Page ' + page.page + '</div>';
-
-    if (page.text && page.text.trim()) {
-      html += '<div class="reader-text">' + escapeHtml(page.text) + '</div>';
-    }
-
-    if (page.images && page.images.length > 0) {
-      html += '<div class="reader-images">';
-      page.images.forEach(function(img) {
-        var maxW = Math.min(img.width || 400, 500);
-        html += '<img class="reader-img" src="' + img.dataUrl + '" ' +
-          'style="max-width:' + maxW + 'px;" ' +
-          'onclick="previewImage(this.src)" loading="lazy">';
-      });
-      html += '</div>';
-    }
-
-    html += '</div>';
-  });
-
-  if (!html) {
-    html = '<div class="library-empty"><i class="fas fa-file-alt"></i><p>This chapter has no content.</p></div>';
-  }
-
-  $('readerBody').innerHTML = html;
-
-  // Also index this chapter for search if not already done
-  if (librarySearchData.findIndex(function(d) { return d.chapterIdx === chapterIdx; }) === -1) {
-    pages.forEach(function(page) {
-      if (page.text && page.text.trim()) {
-        librarySearchData.push({
-          chapterIdx: chapterIdx,
-          page: page.page,
-          text: page.text
-        });
-      }
-    });
-  }
-}
-
-function closeChapterReader() {
-  $('libraryReaderView').style.display = 'none';
-  $('libraryListView').style.display = 'block';
-}
-
-var librarySearchTimeout = null;
-function handleLibrarySearch(query) {
-  clearTimeout(librarySearchTimeout);
-  if (!query || query.length < 2) {
-    hide('librarySearchResults');
+    hide('libraryNoMatch');
     $('libraryChapterList').style.display = '';
-    $('libraryStats').style.display = '';
+  }
+
+  // Stats
+  if (!q) {
+    var chCount = 0, appCount = 0, otherCount = 0;
+    chapters.forEach(function(c) {
+      var t = c.title.toLowerCase();
+      if (t.indexOf('chapter') !== -1) chCount++;
+      else if (t.indexOf('appendix') !== -1) appCount++;
+      else otherCount++;
+    });
+    var statsHtml = '<div class="library-stat"><strong>' + chCount + '</strong>Chapters</div>';
+    if (appCount) statsHtml += '<div class="library-stat"><strong>' + appCount + '</strong>Appendices</div>';
+    if (otherCount) statsHtml += '<div class="library-stat"><strong>' + otherCount + '</strong>Extras</div>';
+    $('libraryStats').innerHTML = statsHtml;
+  } else {
+    $('libraryStats').innerHTML = '<div class="library-stat"><strong>' + visibleCount + '</strong>Results</div>';
+  }
+}
+
+function openChapterPdf(idx) {
+  var ch = LIBRARY_CHAPTERS[idx];
+  if (!ch) return;
+
+  if (!ch.driveId || ch.driveId.indexOf('PASTE') === 0) {
+    toast('This chapter has no Google Drive link configured yet.', true);
     return;
   }
 
-  librarySearchTimeout = setTimeout(function() {
-    performLibrarySearch(query);
-  }, 300);
+  // Open Google Drive PDF viewer in a new tab
+  var viewUrl = 'https://drive.google.com/file/d/' + ch.driveId + '/view';
+  window.open(viewUrl, '_blank');
 }
 
-function performLibrarySearch(query) {
-  var q = query.toLowerCase();
-
-  // First: search chapter titles from index
-  var titleResults = [];
-  if (libraryIndex && libraryIndex.chapters) {
-    libraryIndex.chapters.forEach(function(ch, idx) {
-      if (ch.title.toLowerCase().indexOf(q) !== -1) {
-        titleResults.push({ chapterIdx: idx, title: ch.title, type: 'title' });
-      }
-    });
-  }
-
-  // Then: search loaded page text
-  var textResults = [];
-  librarySearchData.forEach(function(item) {
-    var pos = item.text.toLowerCase().indexOf(q);
-    if (pos !== -1) {
-      // Extract snippet around match
-      var start = Math.max(0, pos - 60);
-      var end = Math.min(item.text.length, pos + query.length + 60);
-      var snippet = (start > 0 ? '...' : '') +
-        item.text.substring(start, end) +
-        (end < item.text.length ? '...' : '');
-      textResults.push({
-        chapterIdx: item.chapterIdx,
-        page: item.page,
-        snippet: snippet,
-        query: query,
-        type: 'text'
-      });
-    }
-  });
-
-  var html = '';
-  var totalResults = titleResults.length + textResults.length;
-
-  if (totalResults === 0) {
-    if (librarySearchData.length === 0) {
-      html = '<div class="library-empty" style="padding:30px 10px;"><i class="fas fa-info-circle" style="font-size:24px;"></i>' +
-        '<p>Search will work better after you open a few chapters first (content is loaded on demand).</p></div>';
-    } else {
-      html = '<div class="library-empty" style="padding:30px 10px;"><i class="fas fa-search" style="font-size:24px;"></i>' +
-        '<p>No results found for "<strong>' + escapeHtml(query) + '</strong>"</p></div>';
-    }
-  } else {
-    html = '<p style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">' + totalResults + ' result' + (totalResults !== 1 ? 's' : '') + '</p>';
-
-    titleResults.forEach(function(r) {
-      var chTitle = libraryIndex.chapters[r.chapterIdx].title;
-      html += '<div class="search-result-item" onclick="openChapter(' + r.chapterIdx + ')">' +
-        '<div class="search-result-chapter"><i class="fas fa-bookmark" style="margin-right:4px;"></i> ' + escapeHtml(chTitle) + '</div>' +
-        '<div class="search-result-snippet">Chapter title match</div></div>';
-    });
-
-    textResults.forEach(function(r) {
-      var chTitle = libraryIndex.chapters[r.chapterIdx] ? libraryIndex.chapters[r.chapterIdx].title : 'Unknown';
-      var highlighted = highlightSearchResult(r.snippet, r.query);
-      html += '<div class="search-result-item" onclick="openChapter(' + r.chapterIdx + ')">' +
-        '<div class="search-result-chapter"><i class="fas fa-file-alt" style="margin-right:4px;"></i> ' + escapeHtml(chTitle) + ' &bull; Page ' + r.page + '</div>' +
-        '<div class="search-result-snippet">' + highlighted + '</div></div>';
-    });
-  }
-
-  $('librarySearchResults').innerHTML = html;
-  show('librarySearchResults');
-  $('libraryChapterList').style.display = 'none';
-  $('libraryStats').style.display = 'none';
-}
-
-function highlightSearchResult(text, query) {
-  var escaped = escapeHtml(text);
-  var q = escapeHtml(query);
-  var regex = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
-  return escaped.replace(regex, '<span class="search-highlight">$1</span>');
+function handleLibrarySearch(query) {
+  renderChapterList(query);
 }
 
 // ---- Tab Navigation ----
@@ -3001,7 +2731,6 @@ function setupEventHandlers() {
   });
 
   // Library
-  $('readerBackBtn').addEventListener('click', closeChapterReader);
   $('librarySearchInput').addEventListener('input', function() {
     handleLibrarySearch(this.value.trim());
   });
