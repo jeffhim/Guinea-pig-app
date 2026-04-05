@@ -14,7 +14,7 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
-  <meta name="description" content="Track weight, shape, vet visits and daily routines for your guinea pigs">
+  <meta name="description" content="Track weight, vet visits and daily routines for your guinea pigs">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -461,6 +461,46 @@
     }
     .stat-label { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
 
+    /* Weight Date Range */
+    .weight-date-range {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px var(--shadow);
+    }
+    .date-range-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+    }
+    .date-range-field {
+      flex: 1;
+    }
+    .date-range-field label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    .date-range-field input[type="date"] {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      font-family: 'Nunito', sans-serif;
+    }
+    .date-range-clear {
+      padding: 8px 12px !important;
+      flex-shrink: 0;
+    }
+
     /* Routine */
     .routine-date {
       font-family: 'Fredoka', sans-serif;
@@ -556,6 +596,24 @@
       border-radius: var(--radius-sm);
       object-fit: cover;
       cursor: pointer;
+    }
+    .saved-photo-wrap {
+      position: relative;
+      display: inline-block;
+    }
+    .saved-photo-wrap .photo-delete-btn {
+      position: absolute;
+      top: -6px; right: -6px;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: var(--danger);
+      color: #fff;
+      border: 2px solid var(--surface);
+      font-size: 11px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0;
     }
 
     /* Modal */
@@ -1008,25 +1066,25 @@ const firebaseConfig = {
       </div>
       <div id="weightContent" style="display:none;">
         <div class="weight-stat" id="weightStats"></div>
+        <div class="weight-date-range">
+          <div class="date-range-row">
+            <div class="date-range-field">
+              <label>From</label>
+              <input type="date" id="weightDateFrom">
+            </div>
+            <div class="date-range-field">
+              <label>To</label>
+              <input type="date" id="weightDateTo">
+            </div>
+            <button class="btn btn-secondary btn-sm date-range-clear" id="weightDateClear" title="Clear filter">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
         <div class="chart-container">
           <canvas id="weightChart"></canvas>
         </div>
         <div id="weightList"></div>
-      </div>
-    </div>
-
-    <!-- Shape Tab -->
-    <div class="tab-panel" id="panelShape">
-      <div class="section-header">
-        <h2 class="section-title">Body Shape</h2>
-        <button class="btn btn-primary btn-sm" id="addShapeBtn"><i class="fas fa-plus"></i> Add</button>
-      </div>
-      <div id="shapeNoGp" class="empty-state" style="display:none;">
-        <i class="fas fa-hand-pointer"></i>
-        <p>Select a guinea pig first from the Profiles tab.</p>
-      </div>
-      <div id="shapeContent" style="display:none;">
-        <div id="shapeList"></div>
       </div>
     </div>
 
@@ -1062,8 +1120,18 @@ const firebaseConfig = {
           <label>Notes</label>
           <textarea id="routineNotes" placeholder="Any observations today..." rows="2"></textarea>
         </div>
+        <div class="form-group" style="margin-top:12px;">
+          <label><i class="fas fa-camera" style="margin-right:4px;"></i>Photos</label>
+          <div class="upload-area" id="routinePhotoUpload">
+            <i class="fas fa-images"></i>
+            <p>Tap to upload photos</p>
+          </div>
+          <input type="file" id="routinePhotoInput" accept="image/*" multiple style="display:none;">
+          <div class="uploaded-files" id="routinePhotoPreviews"></div>
+          <div class="uploaded-files" id="routineSavedPhotos"></div>
+        </div>
         <button class="btn btn-primary btn-sm" id="saveRoutineNotes" style="margin-top:8px;">
-          <i class="fas fa-save"></i> Save Notes
+          <i class="fas fa-save"></i> Save
         </button>
       </div>
     </div>
@@ -1127,10 +1195,6 @@ const firebaseConfig = {
       <i class="fas fa-weight-scale"></i>
       <span>Weight</span>
     </button>
-    <button class="nav-item" data-tab="panelShape">
-      <i class="fas fa-shapes"></i>
-      <span>Shape</span>
-    </button>
     <button class="nav-item" data-tab="panelVet">
       <i class="fas fa-stethoscope"></i>
       <span>Vet</span>
@@ -1181,11 +1245,11 @@ const firebaseConfig = {
   </div>
 </div>
 
-<!-- Add Weight + Shape Modal -->
+<!-- Add Weight Modal -->
 <div class="modal-overlay" id="weightModal">
   <div class="modal">
     <div class="modal-handle"></div>
-    <h2 class="modal-title">Add Weight &amp; Shape</h2>
+    <h2 class="modal-title">Add Weight</h2>
     <input type="hidden" id="weightEditId">
     <div class="form-row">
       <div class="form-group">
@@ -1201,86 +1265,9 @@ const firebaseConfig = {
       <label>Note</label>
       <input type="text" id="weightNote" placeholder="Optional note...">
     </div>
-
-    <!-- Body Shape section (collapsible) -->
-    <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:14px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:8px;" id="shapeToggle">
-        <span style="font-family:'Fredoka',sans-serif;font-size:15px;font-weight:600;color:var(--primary);">
-          <i class="fas fa-shapes" style="margin-right:6px;"></i>Body Shape
-        </span>
-        <span style="font-size:12px;color:var(--text-muted);" id="shapeToggleHint">tap to add ▼</span>
-      </div>
-      <div id="weightShapeFields" style="display:none;">
-        <div class="form-group">
-          <label>Condition</label>
-          <select id="weightShapeCondition">
-            <option value="">— not recording —</option>
-            <option value="underweight">Underweight</option>
-            <option value="ideal">Ideal</option>
-            <option value="slightly_over">Slightly Overweight</option>
-            <option value="overweight">Overweight</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Shape Notes</label>
-          <textarea id="weightShapeNotes" placeholder="Body condition observations..." rows="2"></textarea>
-        </div>
-        <div class="form-group">
-          <label>Shape Photos</label>
-          <div class="upload-area" id="weightShapePhotoUpload">
-            <i class="fas fa-images"></i>
-            <p>Tap to upload photos</p>
-          </div>
-          <input type="file" id="weightShapePhotoInput" accept="image/*" multiple style="display:none;">
-          <div class="uploaded-files" id="weightShapePhotoPreviews"></div>
-        </div>
-      </div>
-    </div>
-
     <div class="modal-actions">
       <button class="btn btn-secondary" id="weightCancelBtn">Cancel</button>
       <button class="btn btn-primary" id="weightSaveBtn"><i class="fas fa-check"></i> Save</button>
-    </div>
-  </div>
-</div>
-
-<!-- Add Shape Modal -->
-<div class="modal-overlay" id="shapeModal">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <h2 class="modal-title">Body Shape Record</h2>
-    <input type="hidden" id="shapeEditId">
-    <div class="form-row">
-      <div class="form-group">
-        <label>Date *</label>
-        <input type="date" id="shapeDate">
-      </div>
-      <div class="form-group">
-        <label>Condition</label>
-        <select id="shapeCondition">
-          <option value="underweight">Underweight</option>
-          <option value="ideal" selected>Ideal</option>
-          <option value="slightly_over">Slightly Overweight</option>
-          <option value="overweight">Overweight</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Notes</label>
-      <textarea id="shapeNotes" placeholder="Body condition observations..."></textarea>
-    </div>
-    <div class="form-group">
-      <label>Photos</label>
-      <div class="upload-area" id="shapePhotoUpload">
-        <i class="fas fa-images"></i>
-        <p>Tap to upload photos</p>
-      </div>
-      <input type="file" id="shapePhotoInput" accept="image/*" multiple style="display:none;">
-      <div class="uploaded-files" id="shapePhotoPreviews"></div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-secondary" id="shapeCancelBtn">Cancel</button>
-      <button class="btn btn-primary" id="shapeSaveBtn"><i class="fas fa-check"></i> Save</button>
     </div>
   </div>
 </div>
@@ -1362,7 +1349,7 @@ var currentGpId = null;
 var guineaPigs = [];
 var weightChart = null;
 var routineDate = new Date();
-var pendingUploadFiles = { profile: null, shape: [], vet: [], weightShape: [] };
+var pendingUploadFiles = { profile: null, vet: [], routine: [] };
 var unsubscribers = [];
 
 // ---- Utility Functions ----
@@ -1569,6 +1556,8 @@ function deleteGuineaPig(id) {
 }
 
 // ---- Weight CRUD ----
+var allWeights = []; // Store all weights for date range filtering
+
 function loadWeights(gpId) {
   var unsub = db.collection('guineaPigs').doc(gpId).collection('weights')
     .orderBy('date', 'asc').onSnapshot(function(snapshot) {
@@ -1576,9 +1565,21 @@ function loadWeights(gpId) {
       snapshot.forEach(function(doc) {
         weights.push(Object.assign({ id: doc.id }, doc.data()));
       });
+      allWeights = weights;
       renderWeights(weights);
     });
   unsubscribers.push(unsub);
+}
+
+function getFilteredWeights() {
+  var fromDate = $('weightDateFrom').value;
+  var toDate = $('weightDateTo').value;
+  if (!fromDate && !toDate) return allWeights;
+  return allWeights.filter(function(w) {
+    if (fromDate && w.date < fromDate) return false;
+    if (toDate && w.date > toDate) return false;
+    return true;
+  });
 }
 
 function saveWeight(gpId, data, id) {
@@ -1590,30 +1591,6 @@ function saveWeight(gpId, data, id) {
 
 function deleteWeight(gpId, id) {
   return db.collection('guineaPigs').doc(gpId).collection('weights').doc(id).delete();
-}
-
-// ---- Body Shape CRUD ----
-function loadShapes(gpId) {
-  var unsub = db.collection('guineaPigs').doc(gpId).collection('bodyShapes')
-    .orderBy('date', 'desc').onSnapshot(function(snapshot) {
-      var shapes = [];
-      snapshot.forEach(function(doc) {
-        shapes.push(Object.assign({ id: doc.id }, doc.data()));
-      });
-      renderShapes(shapes);
-    });
-  unsubscribers.push(unsub);
-}
-
-function saveShape(gpId, data, id) {
-  var col = db.collection('guineaPigs').doc(gpId).collection('bodyShapes');
-  if (id) return col.doc(id).update(data);
-  data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-  return col.add(data);
-}
-
-function deleteShape(gpId, id) {
-  return db.collection('guineaPigs').doc(gpId).collection('bodyShapes').doc(id).delete();
 }
 
 // ---- Vet Visit CRUD ----
@@ -1825,51 +1802,6 @@ function deleteWeightItem(wid) {
   });
 }
 
-// ---- Render: Body Shapes ----
-function renderShapes(shapes) {
-  if (!currentGpId) {
-    show('shapeNoGp'); hide('shapeContent');
-    return;
-  }
-  hide('shapeNoGp'); show('shapeContent');
-
-  var conditionLabels = {
-    underweight: '🔻 Underweight',
-    ideal: '✅ Ideal',
-    slightly_over: '⚠️ Slightly Over',
-    overweight: '🔺 Overweight'
-  };
-
-  var list = $('shapeList');
-  var html = '';
-  shapes.forEach(function(s) {
-    var photos = '';
-    if (s.photoURLs && s.photoURLs.length > 0) {
-      photos = '<div class="uploaded-files" style="margin-top:8px;">';
-      s.photoURLs.forEach(function(url) {
-        photos += '<img src="' + escapeHtml(url) + '" class="file-thumb" onclick="previewImage(\'' + escapeHtml(url) + '\')">';
-      });
-      photos += '</div>';
-    }
-    html += '<div class="card">' +
-      '<div class="card-header">' +
-        '<span class="card-title">' + (conditionLabels[s.condition] || s.condition) + '</span>' +
-        '<span class="card-date">' + formatDate(s.date) + '</span>' +
-      '</div>' +
-      (s.notes ? '<div class="card-body">' + escapeHtml(s.notes) + '</div>' : '') +
-      photos +
-      '<div class="card-actions">' +
-        '<button class="btn btn-secondary btn-sm" onclick="deleteShapeItem(\'' + s.id + '\')"><i class="fas fa-trash"></i></button>' +
-      '</div>' +
-    '</div>';
-  });
-  if (shapes.length === 0) {
-    html = '<div class="empty-state"><i class="fas fa-shapes"></i><p>No body shape records yet. Tap "Add" to start tracking.</p></div>';
-  }
-  list.innerHTML = html;
-}
-
-
 function previewImage(url) {
   var img = $('previewImage');
   img.src = url;
@@ -1964,14 +1896,6 @@ function setupPreviewZoom() {
 }
 
  
-function deleteShapeItem(sid) {
-  showConfirmDialog('Delete this body shape record?', function() {
-    deleteShape(currentGpId, sid).then(function() {
-      toast('Shape record deleted');
-    });
-  });
-}
-
 // ---- Render: Vet Visits ----
 function renderVetVisits(visits) {
   if (!currentGpId) {
@@ -2087,6 +2011,10 @@ function removeRoutineException(itemKey, name) {
 function renderRoutine() {
   show('routineContent');
 
+  // Clear pending photo uploads when navigating dates
+  pendingUploadFiles.routine = [];
+  $('routinePhotoPreviews').innerHTML = '';
+
   var dateKey = dateStr(routineDate);
   var isToday = dateKey === todayStr();
   $('routineDate').textContent = isToday ? '📅 Today' : formatDate(dateKey);
@@ -2121,6 +2049,18 @@ function renderRoutine() {
 
     $('routineNotes').value = (data && data.notes) || '';
 
+    // Show saved photos
+    var savedContainer = $('routineSavedPhotos');
+    var photos = (data && data.photoURLs) || [];
+    var photosHtml = '';
+    photos.forEach(function(url, i) {
+      photosHtml += '<div class="saved-photo-wrap">' +
+        '<img src="' + escapeHtml(url) + '" class="file-thumb" onclick="previewImage(\'' + escapeHtml(url) + '\')">' +
+        '<button class="photo-delete-btn" onclick="deleteRoutinePhoto(' + i + ')" title="Remove">×</button>' +
+      '</div>';
+    });
+    savedContainer.innerHTML = photosHtml;
+
     // Attach click events to checklist items only
     checklist.querySelectorAll('.checklist-item').forEach(function(li) {
       li.addEventListener('click', function() {
@@ -2140,6 +2080,18 @@ function renderRoutine() {
           renderRoutine();
         });
       });
+    });
+  });
+}
+
+function deleteRoutinePhoto(index) {
+  var dateKey = dateStr(routineDate);
+  loadRoutine(dateKey).then(function(data) {
+    var photos = (data && data.photoURLs) || [];
+    photos.splice(index, 1);
+    saveRoutine(dateKey, { photoURLs: photos }).then(function() {
+      toast('Photo removed');
+      renderRoutine();
     });
   });
 }
@@ -2175,25 +2127,7 @@ function openWeightModal() {
   $('weightDate').value = todayStr();
   $('weightValue').value = '';
   $('weightNote').value = '';
-  // Reset shape fields
-  $('weightShapeCondition').value = '';
-  $('weightShapeNotes').value = '';
-  $('weightShapePhotoPreviews').innerHTML = '';
-  pendingUploadFiles.weightShape = [];
-  hide('weightShapeFields');
-  $('shapeToggleHint').textContent = 'tap to add ▼';
   openModal('weightModal');
-}
-
-// ---- Modal: Shape ----
-function openShapeModal() {
-  $('shapeEditId').value = '';
-  $('shapeDate').value = todayStr();
-  $('shapeCondition').value = 'ideal';
-  $('shapeNotes').value = '';
-  $('shapePhotoPreviews').innerHTML = '';
-  pendingUploadFiles.shape = [];
-  openModal('shapeModal');
 }
 
 // ---- Modal: Vet ----
@@ -2221,42 +2155,42 @@ function openVetModal() {
 // =========================================================================
 var LIBRARY_CHAPTERS = [
   // ── Front Matter ──────────────────────────────────────────────────────
-  { title: "Front Matter — Title & Copyright", driveId: "1MuV0ZMnNyABB5iXJkzehY1_fTavw5S-w", subtitle: "Title page & copyright" },
-  { title: "Front Matter — Contributors", driveId: "12-b0A6CFW9hdX1xxmff2s75VNAJsvwqp", subtitle: "Dedication & contributors" },
-  { title: "Front Matter — Foreword & Preface", driveId: "1iF20CuuLmbMVtcMB5kND2bHiFrSry0Vn", subtitle: "Foreword & preface" },
-  { title: "Front Matter — Contents", driveId: "1K6a4ujjgUSCrivj33CRQgWFnNmx2fwR0", subtitle: "Contents & abbreviations" },
+  { title: "Front Matter — Title Information", driveId: "1MuV0ZMnNyABB5iXJkzehY1_fTavw5S-w", subtitle: "Title page & copyright" },
+  { title: "Front Matter — List of Contributors", driveId: "12-b0A6CFW9hdX1xxmff2s75VNAJsvwqp", subtitle: "Contributors" },
+  { title: "Front Matter — Foreword", driveId: "1iF20CuuLmbMVtcMB5kND2bHiFrSry0Vn", subtitle: "Foreword" },
+  { title: "Front Matter — Preface", driveId: "1K6a4ujjgUSCrivj33CRQgWFnNmx2fwR0", subtitle: "Preface" },
   // ── Chapters ──────────────────────────────────────────────────────────
-  { title: "Chapter 1 — The Guinea Pig as a Pet", driveId: "1UsQ0jgUgnuVrv6ReijYDCZ04w1-7_XKb", subtitle: "Simon Sherlock · pp 1–6" },
-  { title: "Chapter 2 — Biological Overview", driveId: "1xC8pUrXxuj4_zh0ojIZprzTOZTF-b5iG", subtitle: "Simon Sherlock · pp 7–14" },
-  { title: "Chapter 3 — Husbandry", driveId: "15cY9OpPLTDo1vlE2xfODCf8m9xU0uWVC", subtitle: "Simon Mayer · pp 15–25" },
-  { title: "Chapter 4 — Nutrition", driveId: "1IslVFdH541vAD2XqJDC-aJclp8gfT7DD", subtitle: "Claire Sherlock & Simon Sherlock · pp 26–37" },
-  { title: "Chapter 5 — Preventive Healthcare", driveId: "1tCoJ1B5gZsPKae1cAP1HvIXFBMP7epaQ", subtitle: "Claire Sherlock · pp 38–44" },
-  { title: "Chapter 6 — Handling and Clinical Examination", driveId: "1VNhUUfPvVk5qWP0hRwT_mehCiLP8LSHa", subtitle: "Simon Sherlock & Claire Sherlock · pp 45–55" },
-  { title: "Chapter 7 — Diagnostic Sampling and Imaging", driveId: "1NFZamzRZsw2AZUpu9KR21c2HtahVBETj", subtitle: "Simon Sherlock · pp 56–73" },
-  { title: "Chapter 8 — Therapeutics", driveId: "1DXz0vRSDyYbKY0jKsHtPPtbgQzLjSBgF", subtitle: "Simon Sherlock · pp 74–85" },
-  { title: "Chapter 9 — Anaesthesia and Analgesia", driveId: "1szhRh784Rq6W8jhbJzWhnaHP415JKSEd", subtitle: "Joanna Hedley · pp 86–97" },
-  { title: "Chapter 10 — Common Surgical Procedures", driveId: "1X5Zwb63SiiQBrkTdw8EozTfTrBGoD_30", subtitle: "Joanna Hedley · pp 98–116" },
-  { title: "Chapter 11 — Dentistry", driveId: "1tcx2eusXhKNkV8yDlaNgpkuMITOKPU2E", subtitle: "Simon Sherlock · pp 117–138" },
-  { title: "Chapter 12 — Dermatology", driveId: "1fSZyYH-2S4XXmEYPaTutZAoD1nNgHA-n", subtitle: "Fiona Sherlock · pp 139–157" },
-  { title: "Chapter 13 — Respiratory Disorders", driveId: "14i1snpmifmK_flPjV2tewp3RVrnYRdH2", subtitle: "Elisabetta Mancinelli · pp 158–167" },
-  { title: "Chapter 14 — Cardiovascular Disorders", driveId: "1mATqegYBT_desjO0IBK96gNfHN-uY6PO", subtitle: "Elisabetta Mancinelli · pp 168–175" },
-  { title: "Chapter 15 — Gastrointestinal Disorders", driveId: "1QSVjGuzrJnLSlkuWlLgCFCAZ2EW8qkxt", subtitle: "Claire Sherlock & Simon Sherlock · pp 176–186" },
-  { title: "Chapter 16 — Hepatic Disorders", driveId: "1dLrpS8tfpDCK0MGIuvKfflhmxCb9kEZK", subtitle: "Claire Sherlock & Simon Sherlock · pp 187–192" },
-  { title: "Chapter 17 — Urogenital Disorders", driveId: "1SnwFdUWW_dVsrSVhVs1hgxBJ9IL2KTZy", subtitle: "Joanna Hedley · pp 193–207" },
-  { title: "Chapter 18 — Musculoskeletal Disorders", driveId: "1E-RXtnWzSJZJcir3WuCHHYSqBQSbZlJi", subtitle: "Molly Varga Smith · pp 208–215" },
-  { title: "Chapter 19 — Neurological Disorders", driveId: "1rXnN7M2YRzZEMYXDIIwSV6Y3nkOJX-h0", subtitle: "Molly Varga Smith · pp 216–222" },
-  { title: "Chapter 20 — Ocular Disorders", driveId: "1LZ0baJ55Kb9PiQ4g_KMX34sU7skLWF6Q", subtitle: "David Williams · pp 223–241" },
-  { title: "Chapter 21 — Neoplasia", driveId: "1FIw8WMMsWwYKOeexSeKgIqRpFcWlgbg_", subtitle: "Elisabetta Mancinelli · pp 242–249" },
-  { title: "Chapter 22 — Endocrine Disorders", driveId: "14ixdsaHuar8m85X9JNIKzKJmE9dihV6p", subtitle: "Christoph Mans · pp 250–256" },
-  { title: "Chapter 23 — Reproduction", driveId: "17yfmr2rm2zjeNdLLDox4X4Jie7iaOsep", subtitle: "Simon Sherlock & Claire Sherlock · pp 257–272" },
-  { title: "Chapter 24 — Behaviour", driveId: "11uOvPsNuEBzlLtU8E77c_TaBF8PlPCqx", subtitle: "Courtney Andrews · pp 273–282" },
+  { title: "Chapter 1 — Biology, Behaviour and Husbandry", driveId: "1UsQ0jgUgnuVrv6ReijYDCZ04w1-7_XKb", subtitle: "pp 1–18" },
+  { title: "Chapter 2 — Nutrition", driveId: "1xC8pUrXxuj4_zh0ojIZprzTOZTF-b5iG", subtitle: "pp 19–24" },
+  { title: "Chapter 3 — History Taking and Examination", driveId: "15cY9OpPLTDo1vlE2xfODCf8m9xU0uWVC", subtitle: "pp 25–32" },
+  { title: "Chapter 4 — Basic Techniques", driveId: "1IslVFdH541vAD2XqJDC-aJclp8gfT7DD", subtitle: "pp 33–39" },
+  { title: "Chapter 5 — Diagnostic Procedures", driveId: "1tCoJ1B5gZsPKae1cAP1HvIXFBMP7epaQ", subtitle: "pp 40–52" },
+  { title: "Chapter 6 — Clinical Pathology", driveId: "1VNhUUfPvVk5qWP0hRwT_mehCiLP8LSHa", subtitle: "pp 53–61" },
+  { title: "Chapter 7 — Anaesthesia and Analgesia", driveId: "1NFZamzRZsw2AZUpu9KR21c2HtahVBETj", subtitle: "pp 62–72" },
+  { title: "Chapter 8 — Nursing Care and Hospital Management", driveId: "1DXz0vRSDyYbKY0jKsHtPPtbgQzLjSBgF", subtitle: "pp 73–87" },
+  { title: "Chapter 9 — Diagnostic Imaging", driveId: "1szhRh784Rq6W8jhbJzWhnaHP415JKSEd", subtitle: "pp 88–102" },
+  { title: "Chapter 10 — Dental Imaging", driveId: "1X5Zwb63SiiQBrkTdw8EozTfTrBGoD_30", subtitle: "pp 103–110" },
+  { title: "Chapter 11 — Dental Disease", driveId: "1tcx2eusXhKNkV8yDlaNgpkuMITOKPU2E", subtitle: "pp 111–132" },
+  { title: "Chapter 12 — Soft Tissue Surgery", driveId: "1fSZyYH-2S4XXmEYPaTutZAoD1nNgHA-n", subtitle: "pp 133–151" },
+  { title: "Chapter 13 — Hard Tissue Surgery", driveId: "14i1snpmifmK_flPjV2tewp3RVrnYRdH2", subtitle: "pp 152–164" },
+  { title: "Chapter 14 — Skin Disease", driveId: "1mATqegYBT_desjO0IBK96gNfHN-uY6PO", subtitle: "pp 165–170" },
+  { title: "Chapter 15 — Gastrointestinal Disease", driveId: "1QSVjGuzrJnLSlkuWlLgCFCAZ2EW8qkxt", subtitle: "pp 171–187" },
+  { title: "Chapter 16 — Cardiorespiratory Disease", driveId: "1dLrpS8tfpDCK0MGIuvKfflhmxCb9kEZK", subtitle: "pp 188–204" },
+  { title: "Chapter 17 — Urinary Tract Disease", driveId: "1SnwFdUWW_dVsrSVhVs1hgxBJ9IL2KTZy", subtitle: "pp 205–215" },
+  { title: "Chapter 18 — Reproductive Disease", driveId: "1E-RXtnWzSJZJcir3WuCHHYSqBQSbZlJi", subtitle: "pp 216–224" },
+  { title: "Chapter 19 — Neoplastic Disease", driveId: "1rXnN7M2YRzZEMYXDIIwSV6Y3nkOJX-h0", subtitle: "pp 225–234" },
+  { title: "Chapter 20 — Neurological and Ophthalmological Disease", driveId: "1LZ0baJ55Kb9PiQ4g_KMX34sU7skLWF6Q", subtitle: "pp 235–256" },
+  { title: "Chapter 21 — Ear Disease", driveId: "1FIw8WMMsWwYKOeexSeKgIqRpFcWlgbg_", subtitle: "pp 257–263" },
+  { title: "Chapter 22 — Endocrine and Multisystemic Disease", driveId: "14ixdsaHuar8m85X9JNIKzKJmE9dihV6p", subtitle: "pp 264–274" },
+  { title: "Chapter 23 — Musculoskeletal Disease", driveId: "17yfmr2rm2zjeNdLLDox4X4Jie7iaOsep", subtitle: "pp 275–282" },
+  { title: "Chapter 24 — Geriatric Guinea Pigs", driveId: "11uOvPsNuEBzlLtU8E77c_TaBF8PlPCqx", subtitle: "pp 283–292" },
   // ── Appendices ────────────────────────────────────────────────────────
-  { title: "Appendix 1 — Haematology and Biochemistry", driveId: "1lQA17BR63q-rGOBoksoBh-ChAUKxY94E", subtitle: "Reference ranges · pp 283–284" },
-  { title: "Appendix 2 — Useful Conversion Tables", driveId: "1f0CggZ4ilKLuLTMUMShDpnx8RApFnJxg", subtitle: "pp 285–286" },
-  { title: "Appendix 3 — Formulary", driveId: "1DkmKleg1-qJp3Fmpe-ZSWTZiBsS9RiZY", subtitle: "Simon Sherlock · pp 287–292" },
+  { title: "Appendix 1 — Investigating Thin and Anorexic Guinea Pigs", driveId: "1lQA17BR63q-rGOBoksoBh-ChAUKxY94E", subtitle: "pp 293–295" },
+  { title: "Appendix 2 — Formulary", driveId: "1f0CggZ4ilKLuLTMUMShDpnx8RApFnJxg", subtitle: "pp 296–302" },
+  { title: "Appendix 3 — Toxic Plants and Substances", driveId: "1DkmKleg1-qJp3Fmpe-ZSWTZiBsS9RiZY", subtitle: "pp 303–305" },
   // ── Back Matter ───────────────────────────────────────────────────────
-  { title: "Back Matter — Trade Names", driveId: "1MTmRJeplWZgR0eowb0dqWALEe7NIxOkR", subtitle: "Trade names of drugs · pp 293–294" },
-  { title: "Back Matter — Index", driveId: "1_IeQ7L7R_9iQcfc0aMDx70Yr8WSNlhX-", subtitle: "pp 295–304" },
+  { title: "Back Matter — Index", driveId: "1MTmRJeplWZgR0eowb0dqWALEe7NIxOkR", subtitle: "pp 308–316" },
+  { title: "Back Matter — Back Cover", driveId: "1_IeQ7L7R_9iQcfc0aMDx70Yr8WSNlhX-", subtitle: "" },
 ];
 
 var libraryRendered = false;
@@ -2389,7 +2323,6 @@ function refreshCurrentTab() {
   if (panelId === 'panelLibrary') { loadLibraryIndex(); return; }
   if (!currentGpId && panelId !== 'panelProfiles' && panelId !== 'panelSettings' && panelId !== 'panelRoutine') {
     if (panelId === 'panelWeight') { show('weightNoGp'); hide('weightContent'); }
-    if (panelId === 'panelShape') { show('shapeNoGp'); hide('shapeContent'); }
     if (panelId === 'panelVet') { show('vetNoGp'); hide('vetContent'); }
     return;
   }
@@ -2401,7 +2334,6 @@ function refreshCurrentTab() {
   }
 
   if (panelId === 'panelWeight' && currentGpId) loadWeights(currentGpId);
-  if (panelId === 'panelShape' && currentGpId) loadShapes(currentGpId);
   if (panelId === 'panelVet' && currentGpId) loadVetVisits(currentGpId);
   if (panelId === 'panelRoutine') renderRoutine();
   if (panelId === 'panelSettings') loadSettings();
@@ -2549,107 +2481,30 @@ function setupEventHandlers() {
   });
   $('weightCancelBtn').addEventListener('click', function() { closeModal('weightModal'); });
 
-  // Shape toggle inside weight modal
-  $('shapeToggle').addEventListener('click', function() {
-    var fields = $('weightShapeFields');
-    if (fields.style.display === 'none') {
-      fields.style.display = '';
-      $('shapeToggleHint').textContent = 'tap to hide ▲';
-    } else {
-      fields.style.display = 'none';
-      $('shapeToggleHint').textContent = 'tap to add ▼';
-    }
-  });
-  $('weightShapePhotoUpload').addEventListener('click', function() { $('weightShapePhotoInput').click(); });
-  $('weightShapePhotoInput').addEventListener('change', function() {
-    var files = Array.from(this.files);
-    files.forEach(function(file) {
-      pendingUploadFiles.weightShape.push(file);
-      var reader = new FileReader();
-      reader.onload = function(e) {
-        var thumb = document.createElement('img');
-        thumb.src = e.target.result;
-        thumb.className = 'file-thumb';
-        $('weightShapePhotoPreviews').appendChild(thumb);
-      };
-      reader.readAsDataURL(file);
-    });
-  });
-
   $('weightSaveBtn').addEventListener('click', function() {
     var date = $('weightDate').value;
     var weight = parseInt($('weightValue').value, 10);
     if (!date || isNaN(weight) || weight <= 0) { toast('Please fill in date and weight', true); return; }
 
-    var shapeCondition = $('weightShapeCondition').value;
-    var shapeNotes = $('weightShapeNotes').value.trim();
-    var shapePhotos = pendingUploadFiles.weightShape || [];
-
-    // Save weight first
     saveWeight(currentGpId, { date: date, weight: weight, note: $('weightNote').value.trim() }, $('weightEditId').value || null)
       .then(function() {
-        // Also save body shape if condition selected
-        if (shapeCondition) {
-          var shapeData = { date: date, condition: shapeCondition, notes: shapeNotes };
-          var compressPromises = shapePhotos.map(function(file) {
-            return compressImage(file, 800, 0.7);
-          });
-          return Promise.all(compressPromises).then(function(base64Arr) {
-            shapeData.photoURLs = base64Arr;
-            return saveShape(currentGpId, shapeData, null);
-          });
-        }
-      })
-      .then(function() {
         closeModal('weightModal');
-        toast(shapeCondition ? 'Weight & shape saved!' : 'Weight saved!');
+        toast('Weight saved!');
       })
       .catch(function(err) { toast('Error: ' + err.message, true); });
   });
 
-  // Shape Modal
-  $('addShapeBtn').addEventListener('click', function() {
-    if (!currentGpId) { toast('Select a guinea pig first', true); return; }
-    openShapeModal();
+  // Weight date range filter
+  $('weightDateFrom').addEventListener('change', function() {
+    renderWeights(getFilteredWeights());
   });
-  $('shapePhotoUpload').addEventListener('click', function() { $('shapePhotoInput').click(); });
-  $('shapePhotoInput').addEventListener('change', function() {
-    var files = Array.from(this.files);
-    files.forEach(function(file) {
-      pendingUploadFiles.shape.push(file);
-      var reader = new FileReader();
-      reader.onload = function(e) {
-        var thumb = document.createElement('img');
-        thumb.src = e.target.result;
-        thumb.className = 'file-thumb';
-        $('shapePhotoPreviews').appendChild(thumb);
-      };
-      reader.readAsDataURL(file);
-    });
+  $('weightDateTo').addEventListener('change', function() {
+    renderWeights(getFilteredWeights());
   });
-  $('shapeCancelBtn').addEventListener('click', function() { closeModal('shapeModal'); });
-  $('shapeSaveBtn').addEventListener('click', function() {
-    var date = $('shapeDate').value;
-    if (!date) { toast('Please select a date', true); return; }
-    var data = {
-      date: date,
-      condition: $('shapeCondition').value,
-      notes: $('shapeNotes').value.trim()
-    };
-
-    var compressPromises = pendingUploadFiles.shape.map(function(file) {
-      return compressImage(file, 800, 0.7);
-    });
-
-    Promise.all(compressPromises).then(function(base64Arr) {
-      data.photoURLs = base64Arr;
-      return saveShape(currentGpId, data, $('shapeEditId').value || null);
-    }).then(function() {
-      closeModal('shapeModal');
-      toast('Shape record saved!');
-    }).catch(function(err) {
-      toast('Error: ' + err.message, true);
-    });
+  $('weightDateClear').addEventListener('click', function() {
+    $('weightDateFrom').value = '';
+    $('weightDateTo').value = '';
+    renderWeights(allWeights);
   });
 
   // Vet Modal
@@ -2709,10 +2564,54 @@ function setupEventHandlers() {
     routineDate.setDate(routineDate.getDate() + 1);
     renderRoutine();
   });
+  $('routinePhotoUpload').addEventListener('click', function() { $('routinePhotoInput').click(); });
+  $('routinePhotoInput').addEventListener('change', function() {
+    var files = Array.from(this.files);
+    files.forEach(function(file) {
+      pendingUploadFiles.routine.push(file);
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var thumb = document.createElement('img');
+        thumb.src = e.target.result;
+        thumb.className = 'file-thumb';
+        $('routinePhotoPreviews').appendChild(thumb);
+      };
+      reader.readAsDataURL(file);
+    });
+  });
   $('saveRoutineNotes').addEventListener('click', function() {
     var dateKey = dateStr(routineDate);
-    saveRoutine(dateKey, { notes: $('routineNotes').value.trim() }).then(function() {
-      toast('Notes saved!');
+    var btn = $('saveRoutineNotes');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+    var newPhotos = pendingUploadFiles.routine || [];
+    var compressPromises = newPhotos.map(function(file) {
+      return compressImage(file, 800, 0.7);
+    });
+
+    Promise.all(compressPromises).then(function(base64Arr) {
+      if (base64Arr.length > 0) {
+        // Merge new photos with existing saved photos
+        return loadRoutine(dateKey).then(function(data) {
+          var existing = (data && data.photoURLs) || [];
+          var merged = existing.concat(base64Arr);
+          return saveRoutine(dateKey, { notes: $('routineNotes').value.trim(), photoURLs: merged });
+        });
+      } else {
+        return saveRoutine(dateKey, { notes: $('routineNotes').value.trim() });
+      }
+    }).then(function() {
+      pendingUploadFiles.routine = [];
+      $('routinePhotoPreviews').innerHTML = '';
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-save"></i> Save';
+      toast('Saved!');
+      renderRoutine();
+    }).catch(function(err) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-save"></i> Save';
+      toast('Error: ' + err.message, true);
     });
   });
 
