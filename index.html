@@ -1117,6 +1117,10 @@ const firebaseConfig = {
         <p class="routine-subtitle">Applies to all piggies — tap ✕ to mark exceptions</p>
         <ul class="checklist" id="routineChecklist"></ul>
         <div class="form-group" style="margin-top:16px;">
+          <label><i class="fas fa-cookie-bite" style="margin-right:4px;"></i>Snacks</label>
+          <input type="text" id="routineSnacks" placeholder="e.g. dried cranberries, banana chips..." style="font-size:16px;">
+        </div>
+        <div class="form-group" style="margin-top:12px;">
           <label>Notes</label>
           <textarea id="routineNotes" placeholder="Any observations today..." rows="2"></textarea>
         </div>
@@ -1957,6 +1961,7 @@ var routineItems = [
   { key: 'cucumber', label: 'Cucumber', icon: '🥒' },
   { key: 'lettuce', label: 'Lettuce', icon: '🥬' },
   { key: 'bellPepper', label: 'Bell Pepper', icon: '🫑' },
+  { key: 'cornSilk', label: 'Corn Silk', icon: '🌽' },
   { key: 'hayPowder', label: 'Hay Powder', icon: '🌾' },
   { key: 'hay', label: 'Hay', icon: '🌿' },
   { key: 'water', label: 'Fresh Water', icon: '💧' }
@@ -2047,6 +2052,7 @@ function renderRoutine() {
     });
     checklist.innerHTML = html;
 
+    $('routineSnacks').value = (data && data.snacks) || '';
     $('routineNotes').value = (data && data.notes) || '';
 
     // Show saved photos
@@ -2596,10 +2602,10 @@ function setupEventHandlers() {
         return loadRoutine(dateKey).then(function(data) {
           var existing = (data && data.photoURLs) || [];
           var merged = existing.concat(base64Arr);
-          return saveRoutine(dateKey, { notes: $('routineNotes').value.trim(), photoURLs: merged });
+          return saveRoutine(dateKey, { notes: $('routineNotes').value.trim(), snacks: $('routineSnacks').value.trim(), photoURLs: merged });
         });
       } else {
-        return saveRoutine(dateKey, { notes: $('routineNotes').value.trim() });
+        return saveRoutine(dateKey, { notes: $('routineNotes').value.trim(), snacks: $('routineSnacks').value.trim() });
       }
     }).then(function() {
       pendingUploadFiles.routine = [];
