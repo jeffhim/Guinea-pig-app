@@ -1916,7 +1916,8 @@ function loadMedications() {
     });
     renderMedications();
   });
-  unsubscribers.push(function() { if (medUnsub) { medUnsub(); medUnsub = null; } });
+  // NOTE: Do NOT push into unsubscribers — medications are global and must
+  // survive the guinea-pig-specific listener cleanup in refreshCurrentTab/loadGuineaPigs.
 }
 
 function saveMedication(data, id) {
