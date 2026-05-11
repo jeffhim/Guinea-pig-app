@@ -2799,12 +2799,13 @@ function deleteMedicationItem(medId) {
 
 // ---- Library (Google Drive PDFs) ----
 var libraryChapters = [
-  // Front Matter
-  { section: 'Front Matter', label: 'FM', type: 'frontmatter', title: 'Title Page', url: 'https://drive.google.com/file/d/1MuV0ZMnNyABB5iXJkzehY1_fTavw5S-w/view?usp=drive_link' },
-  { section: 'Front Matter', label: 'FM', type: 'frontmatter', title: 'Copyright', url: 'https://drive.google.com/file/d/12-b0A6CFW9hdX1xxmff2s75VNAJsvwqp/view?usp=drive_link' },
-  { section: 'Front Matter', label: 'FM', type: 'frontmatter', title: 'Contents', url: 'https://drive.google.com/file/d/1iF20CuuLmbMVtcMB5kND2bHiFrSry0Vn/view?usp=drive_link' },
-  { section: 'Front Matter', label: 'FM', type: 'frontmatter', title: 'Contributors', url: 'https://drive.google.com/file/d/1K6a4ujjgUSCrivj33CRQgWFnNmx2fwR0/view?usp=drive_link' },
-  // Chapters (shifted +1 to fix off-by-one mapping)
+  // Front Matter (URLs 35,34,33,32 from user list)
+  { section: 'Front Matter', label: 'FM', type: 'frontmatter', title: 'Front Matter 1', url: 'https://drive.google.com/file/d/1MuV0ZMnNyABB5iXJkzehY1_fTavw5S-w/view?usp=drive_link' },
+  { section: 'Front Matter', label: 'FM', type: 'frontmatter', title: 'Front Matter 2', url: 'https://drive.google.com/file/d/12-b0A6CFW9hdX1xxmff2s75VNAJsvwqp/view?usp=drive_link' },
+  { section: 'Front Matter', label: 'FM', type: 'frontmatter', title: 'Front Matter 3', url: 'https://drive.google.com/file/d/1iF20CuuLmbMVtcMB5kND2bHiFrSry0Vn/view?usp=drive_link' },
+  { section: 'Front Matter', label: 'FM', type: 'frontmatter', title: 'Front Matter 4', url: 'https://drive.google.com/file/d/1K6a4ujjgUSCrivj33CRQgWFnNmx2fwR0/view?usp=drive_link' },
+  { section: 'Front Matter', label: 'FM', type: 'frontmatter', title: 'Front Matter 5', url: 'https://drive.google.com/file/d/1tcx2eusXhKNkV8yDlaNgpkuMITOKPU2E/view?usp=drive_link' },
+  // Chapters 1-10: titles confirmed from PDF content, URLs shifted +1
   { section: 'Chapters', label: '1', type: 'chapter', title: 'Ch 1 \u2013 Biology, Behaviour and Husbandry', url: 'https://drive.google.com/file/d/1UsQ0jgUgnuVrv6ReijYDCZ04w1-7_XKb/view?usp=drive_link' },
   { section: 'Chapters', label: '2', type: 'chapter', title: 'Ch 2 \u2013 Nutrition', url: 'https://drive.google.com/file/d/1xC8pUrXxuj4_zh0ojIZprzTOZTF-b5iG/view?usp=drive_link' },
   { section: 'Chapters', label: '3', type: 'chapter', title: 'Ch 3 \u2013 History Taking and Examination', url: 'https://drive.google.com/file/d/15cY9OpPLTDo1vlE2xfODCf8m9xU0uWVC/view?usp=drive_link' },
@@ -2815,28 +2816,30 @@ var libraryChapters = [
   { section: 'Chapters', label: '8', type: 'chapter', title: 'Ch 8 \u2013 Nursing Care and Hospital Management', url: 'https://drive.google.com/file/d/1DXz0vRSDyYbKY0jKsHtPPtbgQzLjSBgF/view?usp=drive_link' },
   { section: 'Chapters', label: '9', type: 'chapter', title: 'Ch 9 \u2013 Diagnostic Imaging', url: 'https://drive.google.com/file/d/1szhRh784Rq6W8jhbJzWhnaHP415JKSEd/view?usp=drive_link' },
   { section: 'Chapters', label: '10', type: 'chapter', title: 'Ch 10 \u2013 Dental Imaging', url: 'https://drive.google.com/file/d/1X5Zwb63SiiQBrkTdw8EozTfTrBGoD_30/view?usp=drive_link' },
-  { section: 'Chapters', label: '11', type: 'chapter', title: 'Ch 11 \u2013 Soft Tissue Surgery', url: 'https://drive.google.com/file/d/1tcx2eusXhKNkV8yDlaNgpkuMITOKPU2E/view?usp=drive_link' },
-  { section: 'Chapters', label: '12', type: 'chapter', title: 'Ch 12 \u2013 Hard Tissue Surgery', url: 'https://drive.google.com/file/d/1fSZyYH-2S4XXmEYPaTutZAoD1nNgHA-n/view?usp=drive_link' },
-  { section: 'Chapters', label: '13', type: 'chapter', title: 'Ch 13 \u2013 Dental Disease', url: 'https://drive.google.com/file/d/14i1snpmifmK_flPjV2tewp3RVrnYRdH2/view?usp=drive_link' },
-  { section: 'Chapters', label: '14', type: 'chapter', title: 'Ch 14 \u2013 Respiratory Disease', url: 'https://drive.google.com/file/d/1mATqegYBT_desjO0IBK96gNfHN-uY6PO/view?usp=drive_link' },
-  { section: 'Chapters', label: '15', type: 'chapter', title: 'Ch 15 \u2013 Gastrointestinal Disease', url: 'https://drive.google.com/file/d/1QSVjGuzrJnLSlkuWlLgCFCAZ2EW8qkxt/view?usp=drive_link' },
-  { section: 'Chapters', label: '16', type: 'chapter', title: 'Ch 16 \u2013 Skin Disease', url: 'https://drive.google.com/file/d/1dLrpS8tfpDCK0MGIuvKfflhmxCb9kEZK/view?usp=drive_link' },
-  { section: 'Chapters', label: '17', type: 'chapter', title: 'Ch 17 \u2013 Urinary Tract Disease', url: 'https://drive.google.com/file/d/1SnwFdUWW_dVsrSVhVs1hgxBJ9IL2KTZy/view?usp=drive_link' },
-  { section: 'Chapters', label: '18', type: 'chapter', title: 'Ch 18 \u2013 Reproductive Disease', url: 'https://drive.google.com/file/d/1E-RXtnWzSJZJcir3WuCHHYSqBQSbZlJi/view?usp=drive_link' },
-  { section: 'Chapters', label: '19', type: 'chapter', title: 'Ch 19 \u2013 Neoplastic Disease', url: 'https://drive.google.com/file/d/1rXnN7M2YRzZEMYXDIIwSV6Y3nkOJX-h0/view?usp=drive_link' },
-  { section: 'Chapters', label: '20', type: 'chapter', title: 'Ch 20 \u2013 Neurological and Ophthalmological Disease', url: 'https://drive.google.com/file/d/1LZ0baJ55Kb9PiQ4g_KMX34sU7skLWF6Q/view?usp=drive_link' },
-  { section: 'Chapters', label: '21', type: 'chapter', title: 'Ch 21 \u2013 Ear Disease', url: 'https://drive.google.com/file/d/10gd2HHBswfXmriB9TifBLlk4VDsgpp6p/view?usp=drive_link' },
-  { section: 'Chapters', label: '22', type: 'chapter', title: 'Ch 22 \u2013 Endocrine and Multisystemic Disease', url: 'https://drive.google.com/file/d/1FIw8WMMsWwYKOeexSeKgIqRpFcWlgbg_/view?usp=drive_link' },
-  { section: 'Chapters', label: '23', type: 'chapter', title: 'Ch 23 \u2013 Musculoskeletal Disease', url: 'https://drive.google.com/file/d/14ixdsaHuar8m85X9JNIKzKJmE9dihV6p/view?usp=drive_link' },
-  { section: 'Chapters', label: '24', type: 'chapter', title: 'Ch 24 \u2013 Geriatric Guinea Pigs', url: 'https://drive.google.com/file/d/17yfmr2rm2zjeNdLLDox4X4Jie7iaOsep/view?usp=drive_link' },
-  // Appendices
-  { section: 'Appendices', label: 'A1', type: 'appendix', title: 'Appendix 1 \u2013 Investigating Thin and Anorexic Guinea Pigs', url: 'https://drive.google.com/file/d/11uOvPsNuEBzlLtU8E77c_TaBF8PlPCqx/view?usp=drive_link' },
-  { section: 'Appendices', label: 'A2', type: 'appendix', title: 'Appendix 2 \u2013 Formulary', url: 'https://drive.google.com/file/d/1lQA17BR63q-rGOBoksoBh-ChAUKxY94E/view?usp=drive_link' },
-  { section: 'Appendices', label: 'A3', type: 'appendix', title: 'Appendix 3 \u2013 Toxic Plants and Substances', url: 'https://drive.google.com/file/d/1f0CggZ4ilKLuLTMUMShDpnx8RApFnJxg/view?usp=drive_link' },
-  // Back Matter
-  { section: 'Back Matter', label: 'Idx', type: 'backmatter', title: 'Index (Part 1)', url: 'https://drive.google.com/file/d/1DkmKleg1-qJp3Fmpe-ZSWTZiBsS9RiZY/view?usp=drive_link' },
-  { section: 'Back Matter', label: 'Idx', type: 'backmatter', title: 'Index (Part 2)', url: 'https://drive.google.com/file/d/1MTmRJeplWZgR0eowb0dqWALEe7NIxOkR/view?usp=drive_link' },
-  { section: 'Back Matter', label: 'Idx', type: 'backmatter', title: 'Index (Part 3)', url: 'https://drive.google.com/file/d/1_IeQ7L7R_9iQcfc0aMDx70Yr8WSNlhX-/view?usp=drive_link' }
+  // Chapters 11-16: titles unknown (original URLs, no shift)
+  { section: 'Chapters', label: '11', type: 'chapter', title: 'Chapter 11', url: 'https://drive.google.com/file/d/1fSZyYH-2S4XXmEYPaTutZAoD1nNgHA-n/view?usp=drive_link' },
+  { section: 'Chapters', label: '12', type: 'chapter', title: 'Chapter 12', url: 'https://drive.google.com/file/d/14i1snpmifmK_flPjV2tewp3RVrnYRdH2/view?usp=drive_link' },
+  { section: 'Chapters', label: '13', type: 'chapter', title: 'Chapter 13', url: 'https://drive.google.com/file/d/1mATqegYBT_desjO0IBK96gNfHN-uY6PO/view?usp=drive_link' },
+  { section: 'Chapters', label: '14', type: 'chapter', title: 'Chapter 14', url: 'https://drive.google.com/file/d/1QSVjGuzrJnLSlkuWlLgCFCAZ2EW8qkxt/view?usp=drive_link' },
+  { section: 'Chapters', label: '15', type: 'chapter', title: 'Chapter 15', url: 'https://drive.google.com/file/d/1dLrpS8tfpDCK0MGIuvKfflhmxCb9kEZK/view?usp=drive_link' },
+  { section: 'Chapters', label: '16', type: 'chapter', title: 'Chapter 16', url: 'https://drive.google.com/file/d/1SnwFdUWW_dVsrSVhVs1hgxBJ9IL2KTZy/view?usp=drive_link' },
+  // Chapters 17-20: titles confirmed from PDF content, original URLs
+  { section: 'Chapters', label: '17', type: 'chapter', title: 'Ch 17 \u2013 Urinary Tract Disease', url: 'https://drive.google.com/file/d/1E-RXtnWzSJZJcir3WuCHHYSqBQSbZlJi/view?usp=drive_link' },
+  { section: 'Chapters', label: '18', type: 'chapter', title: 'Ch 18 \u2013 Reproductive Disease', url: 'https://drive.google.com/file/d/1rXnN7M2YRzZEMYXDIIwSV6Y3nkOJX-h0/view?usp=drive_link' },
+  { section: 'Chapters', label: '19', type: 'chapter', title: 'Ch 19 \u2013 Neoplastic Disease', url: 'https://drive.google.com/file/d/1LZ0baJ55Kb9PiQ4g_KMX34sU7skLWF6Q/view?usp=drive_link' },
+  { section: 'Chapters', label: '20', type: 'chapter', title: 'Ch 20 \u2013 Neurological and Ophthalmological Disease', url: 'https://drive.google.com/file/d/10gd2HHBswfXmriB9TifBLlk4VDsgpp6p/view?usp=drive_link' },
+  // Chapters 21-24: titles and URLs confirmed from PDF filenames
+  { section: 'Chapters', label: '21', type: 'chapter', title: 'Ch 21 \u2013 Ear Disease', url: 'https://drive.google.com/file/d/1FIw8WMMsWwYKOeexSeKgIqRpFcWlgbg_/view?usp=drive_link' },
+  { section: 'Chapters', label: '22', type: 'chapter', title: 'Ch 22 \u2013 Endocrine and Multisystemic Disease', url: 'https://drive.google.com/file/d/14ixdsaHuar8m85X9JNIKzKJmE9dihV6p/view?usp=drive_link' },
+  { section: 'Chapters', label: '23', type: 'chapter', title: 'Ch 23 \u2013 Musculoskeletal Disease', url: 'https://drive.google.com/file/d/17yfmr2rm2zjeNdLLDox4X4Jie7iaOsep/view?usp=drive_link' },
+  { section: 'Chapters', label: '24', type: 'chapter', title: 'Ch 24 \u2013 Geriatric Guinea Pigs', url: 'https://drive.google.com/file/d/11uOvPsNuEBzlLtU8E77c_TaBF8PlPCqx/view?usp=drive_link' },
+  // Appendices: confirmed from PDF filenames
+  { section: 'Appendices', label: 'A1', type: 'appendix', title: 'Appendix 1 \u2013 Investigating Thin and Anorexic Guinea Pigs', url: 'https://drive.google.com/file/d/1lQA17BR63q-rGOBoksoBh-ChAUKxY94E/view?usp=drive_link' },
+  { section: 'Appendices', label: 'A2', type: 'appendix', title: 'Appendix 2 \u2013 Formulary', url: 'https://drive.google.com/file/d/1f0CggZ4ilKLuLTMUMShDpnx8RApFnJxg/view?usp=drive_link' },
+  { section: 'Appendices', label: 'A3', type: 'appendix', title: 'Appendix 3 \u2013 Toxic Plants and Substances', url: 'https://drive.google.com/file/d/1DkmKleg1-qJp3Fmpe-ZSWTZiBsS9RiZY/view?usp=drive_link' },
+  // Back Matter: confirmed from PDF filenames
+  { section: 'Back Matter', label: 'Idx', type: 'backmatter', title: 'Index (Part 1)', url: 'https://drive.google.com/file/d/1MTmRJeplWZgR0eowb0dqWALEe7NIxOkR/view?usp=drive_link' },
+  { section: 'Back Matter', label: 'Idx', type: 'backmatter', title: 'Index (Part 2)', url: 'https://drive.google.com/file/d/1_IeQ7L7R_9iQcfc0aMDx70Yr8WSNlhX-/view?usp=drive_link' }
 ];
 
 var libraryRendered = false;
