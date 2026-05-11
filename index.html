@@ -14,7 +14,7 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
-  <meta name="description" content="Track weight, vet visits and daily routines for your guinea pigs">
+  <meta name="description" content="Track weight, shape, vet visits and daily routines for your guinea pigs">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -461,46 +461,6 @@
     }
     .stat-label { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
 
-    /* Weight Date Range */
-    .weight-date-range {
-      background: var(--surface);
-      border-radius: var(--radius);
-      padding: 12px 14px;
-      margin-bottom: 12px;
-      box-shadow: 0 2px 8px var(--shadow);
-    }
-    .date-range-row {
-      display: flex;
-      align-items: flex-end;
-      gap: 10px;
-    }
-    .date-range-field {
-      flex: 1;
-    }
-    .date-range-field label {
-      display: block;
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 4px;
-    }
-    .date-range-field input[type="date"] {
-      width: 100%;
-      padding: 8px 10px;
-      border-radius: 8px;
-      border: 1.5px solid var(--border);
-      background: var(--bg);
-      color: var(--text);
-      font-size: 14px;
-      font-family: 'Nunito', sans-serif;
-    }
-    .date-range-clear {
-      padding: 8px 12px !important;
-      flex-shrink: 0;
-    }
-
     /* Routine */
     .routine-date {
       font-family: 'Fredoka', sans-serif;
@@ -560,6 +520,102 @@
       font-size: 12px; color: var(--text-muted); text-align: center;
       margin-bottom: 14px; font-style: italic;
     }
+    .check-time-input {
+      width: 70px;
+      padding: 2px 6px;
+      font-size: 13px;
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface);
+      color: var(--text);
+      text-align: center;
+      cursor: pointer;
+      font-family: 'Nunito', sans-serif;
+    }
+    .check-time-input:focus { border-color: var(--primary); }
+    .checklist-item .check-time-input { margin-left: auto; flex-shrink: 0; }
+
+    /* Medication Schedule */
+    .med-section {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 2px dashed var(--border);
+    }
+    .med-section-title {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 16px;
+      color: var(--accent);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .med-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 8px var(--shadow);
+      border-left: 4px solid var(--accent);
+    }
+    .med-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .med-card-header h4 {
+      flex: 1;
+      font-size: 15px;
+      font-family: 'Fredoka', sans-serif;
+    }
+    .med-card-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .med-card-meta span { margin-right: 12px; }
+    .med-check-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 0;
+    }
+    .med-check-row label {
+      font-size: 13px;
+      color: var(--text-secondary);
+      flex: 1;
+      cursor: pointer;
+    }
+    .med-check-row input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--primary);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .med-check-time {
+      font-size: 11px;
+      color: var(--text-muted);
+      min-width: 40px;
+      text-align: right;
+    }
+    .med-card-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+      justify-content: flex-end;
+    }
+    .med-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .med-badge.active { background: var(--success); color: #fff; }
+    .med-badge.expired { background: var(--text-muted); color: #fff; }
+    .med-badge.upcoming { background: var(--warning); color: var(--text); }
 
     /* File upload area */
     .upload-area {
@@ -596,24 +652,6 @@
       border-radius: var(--radius-sm);
       object-fit: cover;
       cursor: pointer;
-    }
-    .saved-photo-wrap {
-      position: relative;
-      display: inline-block;
-    }
-    .saved-photo-wrap .photo-delete-btn {
-      position: absolute;
-      top: -6px; right: -6px;
-      width: 22px; height: 22px;
-      border-radius: 50%;
-      background: var(--danger);
-      color: #fff;
-      border: 2px solid var(--surface);
-      font-size: 11px;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer;
-      line-height: 1;
-      padding: 0;
     }
 
     /* Modal */
@@ -857,10 +895,6 @@
       background: linear-gradient(135deg, var(--secondary), var(--secondary-light));
       font-size: 12px;
     }
-    .chapter-num.section-divider {
-      background: linear-gradient(135deg, var(--accent), var(--accent-light));
-      font-size: 13px;
-    }
     .chapter-info { flex: 1; min-width: 0; }
     .chapter-info h4 {
       font-family: 'Fredoka', sans-serif;
@@ -874,15 +908,138 @@
       font-size: 12px;
       color: var(--text-muted);
     }
-    .chapter-meta i { margin-right: 3px; }
     .chapter-arrow {
-      color: var(--primary);
+      color: var(--text-muted);
       font-size: 14px;
       flex-shrink: 0;
-      opacity: 0.6;
-      transition: opacity 0.2s;
     }
-    .chapter-item:hover .chapter-arrow { opacity: 1; }
+
+    /* Chapter Reader */
+    .reader-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      position: sticky;
+      top: -16px;
+      background: var(--bg);
+      padding: 16px 0 12px;
+      margin-top: -16px;
+      z-index: 5;
+      border-bottom: 1px solid var(--border);
+    }
+    .reader-back {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--primary);
+      font-size: 16px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+    .reader-back:hover { background: var(--primary); color: #fff; }
+    .reader-title {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 18px;
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .reader-body {
+      font-size: 14px;
+      line-height: 1.8;
+      color: var(--text);
+    }
+    .reader-page {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 20px 18px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px var(--shadow);
+    }
+    .reader-page-num {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed var(--border);
+    }
+    .reader-text {
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+    .reader-images {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .reader-img {
+      border-radius: var(--radius-sm);
+      max-width: 100%;
+      height: auto;
+      cursor: pointer;
+      transition: transform 0.2s;
+      box-shadow: 0 2px 8px var(--shadow);
+    }
+    .reader-img:hover { transform: scale(1.02); }
+    .reader-loading {
+      text-align: center;
+      padding: 40px 0;
+      color: var(--text-muted);
+    }
+    .reader-loading i {
+      font-size: 32px;
+      margin-bottom: 12px;
+      display: block;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Search results highlight */
+    .search-highlight {
+      background: var(--warning);
+      color: var(--text);
+      padding: 1px 3px;
+      border-radius: 3px;
+    }
+    .search-result-item {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px var(--shadow);
+      transition: all 0.2s;
+    }
+    .search-result-item:hover { transform: translateX(4px); }
+    .search-result-chapter {
+      font-size: 11px;
+      color: var(--primary);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    .search-result-snippet {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
     .library-empty {
       text-align: center;
       padding: 60px 20px;
@@ -914,18 +1071,6 @@
       font-size: 16px;
       display: block;
       font-family: 'Fredoka', sans-serif;
-    }
-    .library-no-match {
-      text-align: center;
-      padding: 40px 20px;
-      color: var(--text-muted);
-      font-size: 14px;
-    }
-    .library-no-match i {
-      font-size: 32px;
-      margin-bottom: 10px;
-      display: block;
-      opacity: 0.4;
     }
 
     /* Responsive */
@@ -1066,25 +1211,25 @@ const firebaseConfig = {
       </div>
       <div id="weightContent" style="display:none;">
         <div class="weight-stat" id="weightStats"></div>
-        <div class="weight-date-range">
-          <div class="date-range-row">
-            <div class="date-range-field">
-              <label>From</label>
-              <input type="date" id="weightDateFrom">
-            </div>
-            <div class="date-range-field">
-              <label>To</label>
-              <input type="date" id="weightDateTo">
-            </div>
-            <button class="btn btn-secondary btn-sm date-range-clear" id="weightDateClear" title="Clear filter">
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
-        </div>
         <div class="chart-container">
           <canvas id="weightChart"></canvas>
         </div>
         <div id="weightList"></div>
+      </div>
+    </div>
+
+    <!-- Shape Tab -->
+    <div class="tab-panel" id="panelShape">
+      <div class="section-header">
+        <h2 class="section-title">Body Shape</h2>
+        <button class="btn btn-primary btn-sm" id="addShapeBtn"><i class="fas fa-plus"></i> Add</button>
+      </div>
+      <div id="shapeNoGp" class="empty-state" style="display:none;">
+        <i class="fas fa-hand-pointer"></i>
+        <p>Select a guinea pig first from the Profiles tab.</p>
+      </div>
+      <div id="shapeContent" style="display:none;">
+        <div id="shapeList"></div>
       </div>
     </div>
 
@@ -1117,47 +1262,58 @@ const firebaseConfig = {
         <p class="routine-subtitle">Applies to all piggies — tap ✕ to mark exceptions</p>
         <ul class="checklist" id="routineChecklist"></ul>
         <div class="form-group" style="margin-top:16px;">
-          <label><i class="fas fa-cookie-bite" style="margin-right:4px;"></i>Snacks</label>
-          <input type="text" id="routineSnacks" placeholder="e.g. dried cranberries, banana chips..." style="font-size:16px;">
-        </div>
-        <div class="form-group" style="margin-top:12px;">
           <label>Notes</label>
           <textarea id="routineNotes" placeholder="Any observations today..." rows="2"></textarea>
         </div>
-        <div class="form-group" style="margin-top:12px;">
-          <label><i class="fas fa-camera" style="margin-right:4px;"></i>Photos</label>
-          <div class="upload-area" id="routinePhotoUpload">
-            <i class="fas fa-images"></i>
-            <p>Tap to upload photos</p>
-          </div>
-          <input type="file" id="routinePhotoInput" accept="image/*" multiple style="display:none;">
-          <div class="uploaded-files" id="routinePhotoPreviews"></div>
-          <div class="uploaded-files" id="routineSavedPhotos"></div>
-        </div>
         <button class="btn btn-primary btn-sm" id="saveRoutineNotes" style="margin-top:8px;">
-          <i class="fas fa-save"></i> Save
+          <i class="fas fa-save"></i> Save Notes
         </button>
+
+        <!-- Medication Schedule -->
+        <div class="med-section">
+          <div class="med-section-title">
+            <i class="fas fa-pills"></i> Medication Schedule
+            <button class="btn btn-primary btn-sm" style="margin-left:auto;" id="addMedBtn"><i class="fas fa-plus"></i> Add</button>
+          </div>
+          <div id="medList"></div>
+          <div id="medEmpty" class="empty-state" style="display:none;padding:20px 10px;">
+            <i class="fas fa-prescription-bottle-medical" style="font-size:28px;"></i>
+            <p style="font-size:13px;">No medications scheduled.<br>Tap "Add" to set up a medication course.</p>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- Library Panel -->
     <div class="tab-panel" id="panelLibrary">
-      <div class="section-header">
-        <h2 class="section-title"><i class="fas fa-book-medical" style="margin-right:6px;"></i>Library</h2>
+      <!-- Chapter List View -->
+      <div id="libraryListView">
+        <div class="section-header">
+          <h2 class="section-title"><i class="fas fa-book-medical" style="margin-right:6px;"></i>Library</h2>
+        </div>
+        <div class="library-search">
+          <i class="fas fa-search"></i>
+          <input type="text" id="librarySearchInput" placeholder="Search book content...">
+        </div>
+        <div id="libraryStats" class="library-stats"></div>
+        <div id="librarySearchResults" style="display:none;"></div>
+        <ul id="libraryChapterList" class="chapter-list"></ul>
+        <div id="libraryLoading" class="reader-loading">
+          <i class="fas fa-spinner"></i>
+          <p>Loading book index...</p>
+        </div>
+        <div id="libraryEmpty" class="library-empty" style="display:none;">
+          <i class="fas fa-book-open"></i>
+          <p>No book data found.<br>Place your <code>library/</code> folder with JSON files on your GitHub Pages site.</p>
+        </div>
       </div>
-      <div class="library-search">
-        <i class="fas fa-search"></i>
-        <input type="text" id="librarySearchInput" placeholder="Filter chapters...">
-      </div>
-      <div id="libraryStats" class="library-stats"></div>
-      <ul id="libraryChapterList" class="chapter-list"></ul>
-      <div id="libraryNoMatch" class="library-no-match" style="display:none;">
-        <i class="fas fa-search"></i>
-        <p>No matching chapters found.</p>
-      </div>
-      <div id="libraryEmpty" class="library-empty" style="display:none;">
-        <i class="fas fa-book-open"></i>
-        <p>No chapters configured yet.<br>Edit the <code>LIBRARY_CHAPTERS</code> array in the code to add your Google Drive PDF links.</p>
+      <!-- Chapter Reader View -->
+      <div id="libraryReaderView" style="display:none;">
+        <div class="reader-header">
+          <button class="reader-back" id="readerBackBtn"><i class="fas fa-arrow-left"></i></button>
+          <h2 class="reader-title" id="readerTitle"></h2>
+        </div>
+        <div class="reader-body" id="readerBody"></div>
       </div>
     </div>
 
@@ -1198,6 +1354,10 @@ const firebaseConfig = {
     <button class="nav-item" data-tab="panelWeight">
       <i class="fas fa-weight-scale"></i>
       <span>Weight</span>
+    </button>
+    <button class="nav-item" data-tab="panelShape">
+      <i class="fas fa-shapes"></i>
+      <span>Shape</span>
     </button>
     <button class="nav-item" data-tab="panelVet">
       <i class="fas fa-stethoscope"></i>
@@ -1249,11 +1409,11 @@ const firebaseConfig = {
   </div>
 </div>
 
-<!-- Add Weight Modal -->
+<!-- Add Weight + Shape Modal -->
 <div class="modal-overlay" id="weightModal">
   <div class="modal">
     <div class="modal-handle"></div>
-    <h2 class="modal-title">Add Weight</h2>
+    <h2 class="modal-title">Add Weight &amp; Shape</h2>
     <input type="hidden" id="weightEditId">
     <div class="form-row">
       <div class="form-group">
@@ -1269,9 +1429,86 @@ const firebaseConfig = {
       <label>Note</label>
       <input type="text" id="weightNote" placeholder="Optional note...">
     </div>
+
+    <!-- Body Shape section (collapsible) -->
+    <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:8px;" id="shapeToggle">
+        <span style="font-family:'Fredoka',sans-serif;font-size:15px;font-weight:600;color:var(--primary);">
+          <i class="fas fa-shapes" style="margin-right:6px;"></i>Body Shape
+        </span>
+        <span style="font-size:12px;color:var(--text-muted);" id="shapeToggleHint">tap to add ▼</span>
+      </div>
+      <div id="weightShapeFields" style="display:none;">
+        <div class="form-group">
+          <label>Condition</label>
+          <select id="weightShapeCondition">
+            <option value="">— not recording —</option>
+            <option value="underweight">Underweight</option>
+            <option value="ideal">Ideal</option>
+            <option value="slightly_over">Slightly Overweight</option>
+            <option value="overweight">Overweight</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Shape Notes</label>
+          <textarea id="weightShapeNotes" placeholder="Body condition observations..." rows="2"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Shape Photos</label>
+          <div class="upload-area" id="weightShapePhotoUpload">
+            <i class="fas fa-images"></i>
+            <p>Tap to upload photos</p>
+          </div>
+          <input type="file" id="weightShapePhotoInput" accept="image/*" multiple style="display:none;">
+          <div class="uploaded-files" id="weightShapePhotoPreviews"></div>
+        </div>
+      </div>
+    </div>
+
     <div class="modal-actions">
       <button class="btn btn-secondary" id="weightCancelBtn">Cancel</button>
       <button class="btn btn-primary" id="weightSaveBtn"><i class="fas fa-check"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Shape Modal -->
+<div class="modal-overlay" id="shapeModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2 class="modal-title">Body Shape Record</h2>
+    <input type="hidden" id="shapeEditId">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Date *</label>
+        <input type="date" id="shapeDate">
+      </div>
+      <div class="form-group">
+        <label>Condition</label>
+        <select id="shapeCondition">
+          <option value="underweight">Underweight</option>
+          <option value="ideal" selected>Ideal</option>
+          <option value="slightly_over">Slightly Overweight</option>
+          <option value="overweight">Overweight</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Notes</label>
+      <textarea id="shapeNotes" placeholder="Body condition observations..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Photos</label>
+      <div class="upload-area" id="shapePhotoUpload">
+        <i class="fas fa-images"></i>
+        <p>Tap to upload photos</p>
+      </div>
+      <input type="file" id="shapePhotoInput" accept="image/*" multiple style="display:none;">
+      <div class="uploaded-files" id="shapePhotoPreviews"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="shapeCancelBtn">Cancel</button>
+      <button class="btn btn-primary" id="shapeSaveBtn"><i class="fas fa-check"></i> Save</button>
     </div>
   </div>
 </div>
@@ -1322,6 +1559,49 @@ const firebaseConfig = {
   </div>
 </div>
 
+<!-- Medication Modal -->
+<div class="modal-overlay" id="medModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2 class="modal-title">Medication Course</h2>
+    <input type="hidden" id="medEditId">
+    <div class="form-group">
+      <label>Medication Name *</label>
+      <input type="text" id="medName" placeholder="e.g. Baytril, Metacam">
+    </div>
+    <div class="form-group">
+      <label>For Which Piggy</label>
+      <select id="medPiggy">
+        <option value="all">All piggies</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Start Date *</label>
+      <input type="date" id="medStart">
+    </div>
+    <div class="form-group">
+      <label>End Date *</label>
+      <input type="date" id="medEnd">
+    </div>
+    <div class="form-group">
+      <label>Frequency</label>
+      <select id="medFreq">
+        <option value="once">Once daily</option>
+        <option value="twice">Twice daily (AM/PM)</option>
+        <option value="thrice">Three times daily</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Dosage / Notes</label>
+      <textarea id="medNotes" placeholder="e.g. 0.3ml oral syringe, give with food" rows="2"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="medCancelBtn">Cancel</button>
+      <button class="btn btn-primary" id="medSaveBtn"><i class="fas fa-check"></i> Save</button>
+    </div>
+  </div>
+</div>
+
 <!-- Firebase SDK via jsdelivr -->
 <script src="https://cdn.jsdelivr.net/npm/firebase@10.7.1/firebase-app-compat.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/firebase@10.7.1/firebase-auth-compat.min.js"></script>
@@ -1353,7 +1633,7 @@ var currentGpId = null;
 var guineaPigs = [];
 var weightChart = null;
 var routineDate = new Date();
-var pendingUploadFiles = { profile: null, vet: [], routine: [] };
+var pendingUploadFiles = { profile: null, shape: [], vet: [], weightShape: [] };
 var unsubscribers = [];
 
 // ---- Utility Functions ----
@@ -1560,8 +1840,6 @@ function deleteGuineaPig(id) {
 }
 
 // ---- Weight CRUD ----
-var allWeights = []; // Store all weights for date range filtering
-
 function loadWeights(gpId) {
   var unsub = db.collection('guineaPigs').doc(gpId).collection('weights')
     .orderBy('date', 'asc').onSnapshot(function(snapshot) {
@@ -1569,21 +1847,9 @@ function loadWeights(gpId) {
       snapshot.forEach(function(doc) {
         weights.push(Object.assign({ id: doc.id }, doc.data()));
       });
-      allWeights = weights;
       renderWeights(weights);
     });
   unsubscribers.push(unsub);
-}
-
-function getFilteredWeights() {
-  var fromDate = $('weightDateFrom').value;
-  var toDate = $('weightDateTo').value;
-  if (!fromDate && !toDate) return allWeights;
-  return allWeights.filter(function(w) {
-    if (fromDate && w.date < fromDate) return false;
-    if (toDate && w.date > toDate) return false;
-    return true;
-  });
 }
 
 function saveWeight(gpId, data, id) {
@@ -1595,6 +1861,30 @@ function saveWeight(gpId, data, id) {
 
 function deleteWeight(gpId, id) {
   return db.collection('guineaPigs').doc(gpId).collection('weights').doc(id).delete();
+}
+
+// ---- Body Shape CRUD ----
+function loadShapes(gpId) {
+  var unsub = db.collection('guineaPigs').doc(gpId).collection('bodyShapes')
+    .orderBy('date', 'desc').onSnapshot(function(snapshot) {
+      var shapes = [];
+      snapshot.forEach(function(doc) {
+        shapes.push(Object.assign({ id: doc.id }, doc.data()));
+      });
+      renderShapes(shapes);
+    });
+  unsubscribers.push(unsub);
+}
+
+function saveShape(gpId, data, id) {
+  var col = db.collection('guineaPigs').doc(gpId).collection('bodyShapes');
+  if (id) return col.doc(id).update(data);
+  data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+  return col.add(data);
+}
+
+function deleteShape(gpId, id) {
+  return db.collection('guineaPigs').doc(gpId).collection('bodyShapes').doc(id).delete();
 }
 
 // ---- Vet Visit CRUD ----
@@ -1632,6 +1922,39 @@ function loadRoutine(dateKey) {
 
 function saveRoutine(dateKey, data) {
   return db.collection('routines').doc(dateKey).set(data, { merge: true });
+}
+
+// ---- Medications CRUD ----
+var medicationsCache = [];
+var medUnsub = null;
+
+function loadMedications() {
+  if (medUnsub) medUnsub();
+  medUnsub = db.collection('medications').orderBy('startDate', 'desc').onSnapshot(function(snapshot) {
+    medicationsCache = [];
+    snapshot.forEach(function(doc) {
+      medicationsCache.push(Object.assign({ id: doc.id }, doc.data()));
+    });
+    renderMedications();
+  });
+  unsubscribers.push(function() { if (medUnsub) { medUnsub(); medUnsub = null; } });
+}
+
+function saveMedication(data, id) {
+  var col = db.collection('medications');
+  if (id) return col.doc(id).update(data);
+  data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+  return col.add(data);
+}
+
+function deleteMedication(id) {
+  return db.collection('medications').doc(id).delete();
+}
+
+function toggleMedCheck(medId, checkKey, checked) {
+  var update = {};
+  update['checks.' + checkKey] = checked ? true : firebase.firestore.FieldValue.delete();
+  return db.collection('medications').doc(medId).update(update);
 }
 
 // ---- Render: Profiles ----
@@ -1806,6 +2129,51 @@ function deleteWeightItem(wid) {
   });
 }
 
+// ---- Render: Body Shapes ----
+function renderShapes(shapes) {
+  if (!currentGpId) {
+    show('shapeNoGp'); hide('shapeContent');
+    return;
+  }
+  hide('shapeNoGp'); show('shapeContent');
+
+  var conditionLabels = {
+    underweight: '🔻 Underweight',
+    ideal: '✅ Ideal',
+    slightly_over: '⚠️ Slightly Over',
+    overweight: '🔺 Overweight'
+  };
+
+  var list = $('shapeList');
+  var html = '';
+  shapes.forEach(function(s) {
+    var photos = '';
+    if (s.photoURLs && s.photoURLs.length > 0) {
+      photos = '<div class="uploaded-files" style="margin-top:8px;">';
+      s.photoURLs.forEach(function(url) {
+        photos += '<img src="' + escapeHtml(url) + '" class="file-thumb" onclick="previewImage(\'' + escapeHtml(url) + '\')">';
+      });
+      photos += '</div>';
+    }
+    html += '<div class="card">' +
+      '<div class="card-header">' +
+        '<span class="card-title">' + (conditionLabels[s.condition] || s.condition) + '</span>' +
+        '<span class="card-date">' + formatDate(s.date) + '</span>' +
+      '</div>' +
+      (s.notes ? '<div class="card-body">' + escapeHtml(s.notes) + '</div>' : '') +
+      photos +
+      '<div class="card-actions">' +
+        '<button class="btn btn-secondary btn-sm" onclick="deleteShapeItem(\'' + s.id + '\')"><i class="fas fa-trash"></i></button>' +
+      '</div>' +
+    '</div>';
+  });
+  if (shapes.length === 0) {
+    html = '<div class="empty-state"><i class="fas fa-shapes"></i><p>No body shape records yet. Tap "Add" to start tracking.</p></div>';
+  }
+  list.innerHTML = html;
+}
+
+
 function previewImage(url) {
   var img = $('previewImage');
   img.src = url;
@@ -1900,6 +2268,14 @@ function setupPreviewZoom() {
 }
 
  
+function deleteShapeItem(sid) {
+  showConfirmDialog('Delete this body shape record?', function() {
+    deleteShape(currentGpId, sid).then(function() {
+      toast('Shape record deleted');
+    });
+  });
+}
+
 // ---- Render: Vet Visits ----
 function renderVetVisits(visits) {
   if (!currentGpId) {
@@ -1937,6 +2313,7 @@ function renderVetVisits(visits) {
       '</div>' +
       docs +
       '<div class="card-actions">' +
+        '<button class="btn btn-secondary btn-sm" onclick="editVetItem(\'' + v.id + '\')"><i class="fas fa-pen"></i></button>' +
         '<button class="btn btn-secondary btn-sm" onclick="deleteVetItem(\'' + v.id + '\')"><i class="fas fa-trash"></i></button>' +
       '</div>' +
     '</div>';
@@ -1956,12 +2333,64 @@ function deleteVetItem(vid) {
   });
 }
 
+function editVetItem(vid) {
+  // Load the vet visit doc from Firestore and pre-fill the modal
+  db.collection('guineaPigs').doc(currentGpId).collection('vetVisits').doc(vid).get().then(function(doc) {
+    if (!doc.exists) { toast('Record not found', true); return; }
+    var v = doc.data();
+    $('vetEditId').value = vid;
+    $('vetDate').value = v.date || '';
+    $('vetClinic').value = v.clinic || '';
+    $('vetReason').value = v.reason || '';
+    $('vetAdvice').value = v.advice || '';
+    $('vetMedication').value = v.medication || '';
+    $('vetFollowUp').value = v.followUp || '';
+    pendingUploadFiles.vet = [];
+
+    // Show existing documents/photos
+    var previews = $('vetDocPreviews');
+    previews.innerHTML = '';
+    if (v.documentURLs && v.documentURLs.length > 0) {
+      v.documentURLs.forEach(function(docItem, i) {
+        var el = document.createElement('span');
+        el.className = 'uploaded-file';
+        var isImage = docItem.type && docItem.type.indexOf('image') !== -1;
+        if (isImage) {
+          el.innerHTML = '<img src="' + escapeHtml(docItem.url) + '" style="width:48px;height:48px;object-fit:cover;border-radius:6px;">' +
+            '<button class="btn-icon" style="font-size:11px;color:var(--danger);margin-left:2px;" data-rmidx="' + i + '" title="Remove">×</button>';
+        } else {
+          el.innerHTML = '<i class="fas fa-file"></i> ' + escapeHtml(docItem.name) +
+            '<button class="btn-icon" style="font-size:11px;color:var(--danger);margin-left:4px;" data-rmidx="' + i + '" title="Remove">×</button>';
+        }
+        previews.appendChild(el);
+      });
+      // Store existing docs so save handler can merge
+      pendingUploadFiles.vetExisting = v.documentURLs.slice();
+      // Attach remove listeners
+      previews.querySelectorAll('[data-rmidx]').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          var idx = parseInt(this.dataset.rmidx);
+          pendingUploadFiles.vetExisting.splice(idx, 1);
+          // Re-render existing previews
+          editVetItem(vid);
+        });
+      });
+    } else {
+      pendingUploadFiles.vetExisting = [];
+    }
+
+    openModal('vetModal');
+  }).catch(function(err) {
+    toast('Error loading visit: ' + err.message, true);
+  });
+}
+
 // ---- Render: Daily Routine ----
 var routineItems = [
   { key: 'cucumber', label: 'Cucumber', icon: '🥒' },
   { key: 'lettuce', label: 'Lettuce', icon: '🥬' },
   { key: 'bellPepper', label: 'Bell Pepper', icon: '🫑' },
-  { key: 'cornSilk', label: 'Corn Silk', icon: '🌽' },
   { key: 'hayPowder', label: 'Hay Powder', icon: '🌾' },
   { key: 'hay', label: 'Hay', icon: '🌿' },
   { key: 'water', label: 'Fresh Water', icon: '💧' }
@@ -2016,10 +2445,6 @@ function removeRoutineException(itemKey, name) {
 function renderRoutine() {
   show('routineContent');
 
-  // Clear pending photo uploads when navigating dates
-  pendingUploadFiles.routine = [];
-  $('routinePhotoPreviews').innerHTML = '';
-
   var dateKey = dateStr(routineDate);
   var isToday = dateKey === todayStr();
   $('routineDate').textContent = isToday ? '📅 Today' : formatDate(dateKey);
@@ -2036,7 +2461,7 @@ function renderRoutine() {
         '<div class="check-box">' + (checked ? '<i class="fas fa-check" style="font-size:13px;"></i>' : '') + '</div>' +
         '<span class="check-icon">' + item.icon + '</span>' +
         '<span class="check-label">' + item.label + '</span>' +
-        (time ? '<span class="check-time">' + time + '</span>' : '') +
+        (checked ? '<input type="time" class="check-time-input" data-timekey="' + item.key + '" value="' + (time || '') + '">' : '') +
       '</li>';
 
       // Exception chips row
@@ -2052,24 +2477,13 @@ function renderRoutine() {
     });
     checklist.innerHTML = html;
 
-    $('routineSnacks').value = (data && data.snacks) || '';
     $('routineNotes').value = (data && data.notes) || '';
-
-    // Show saved photos
-    var savedContainer = $('routineSavedPhotos');
-    var photos = (data && data.photoURLs) || [];
-    var photosHtml = '';
-    photos.forEach(function(url, i) {
-      photosHtml += '<div class="saved-photo-wrap">' +
-        '<img src="' + escapeHtml(url) + '" class="file-thumb" onclick="previewImage(\'' + escapeHtml(url) + '\')">' +
-        '<button class="photo-delete-btn" onclick="deleteRoutinePhoto(' + i + ')" title="Remove">×</button>' +
-      '</div>';
-    });
-    savedContainer.innerHTML = photosHtml;
 
     // Attach click events to checklist items only
     checklist.querySelectorAll('.checklist-item').forEach(function(li) {
-      li.addEventListener('click', function() {
+      li.addEventListener('click', function(e) {
+        // Don't toggle check when clicking the time input
+        if (e.target.classList.contains('check-time-input')) return;
         var key = this.dataset.key;
         var isChecked = this.classList.contains('checked');
         var update = {};
@@ -2087,17 +2501,18 @@ function renderRoutine() {
         });
       });
     });
-  });
-}
 
-function deleteRoutinePhoto(index) {
-  var dateKey = dateStr(routineDate);
-  loadRoutine(dateKey).then(function(data) {
-    var photos = (data && data.photoURLs) || [];
-    photos.splice(index, 1);
-    saveRoutine(dateKey, { photoURLs: photos }).then(function() {
-      toast('Photo removed');
-      renderRoutine();
+    // Attach change events to time inputs for retrospective editing
+    checklist.querySelectorAll('.check-time-input').forEach(function(input) {
+      input.addEventListener('click', function(e) { e.stopPropagation(); });
+      input.addEventListener('change', function() {
+        var key = this.dataset.timekey;
+        var update = {};
+        update[key + '_time'] = this.value;
+        saveRoutine(dateKey, update).then(function() {
+          toast('Time updated');
+        });
+      });
     });
   });
 }
@@ -2133,7 +2548,25 @@ function openWeightModal() {
   $('weightDate').value = todayStr();
   $('weightValue').value = '';
   $('weightNote').value = '';
+  // Reset shape fields
+  $('weightShapeCondition').value = '';
+  $('weightShapeNotes').value = '';
+  $('weightShapePhotoPreviews').innerHTML = '';
+  pendingUploadFiles.weightShape = [];
+  hide('weightShapeFields');
+  $('shapeToggleHint').textContent = 'tap to add ▼';
   openModal('weightModal');
+}
+
+// ---- Modal: Shape ----
+function openShapeModal() {
+  $('shapeEditId').value = '';
+  $('shapeDate').value = todayStr();
+  $('shapeCondition').value = 'ideal';
+  $('shapeNotes').value = '';
+  $('shapePhotoPreviews').innerHTML = '';
+  pendingUploadFiles.shape = [];
+  openModal('shapeModal');
 }
 
 // ---- Modal: Vet ----
@@ -2147,169 +2580,474 @@ function openVetModal() {
   $('vetFollowUp').value = '';
   $('vetDocPreviews').innerHTML = '';
   pendingUploadFiles.vet = [];
+  pendingUploadFiles.vetExisting = [];
   openModal('vetModal');
 }
 
-// ---- Library (Google Drive PDF Launcher) ----
-// =========================================================================
-// CONFIGURE YOUR CHAPTERS HERE
-// For each chapter, set:
-//   title   – Display name shown in the list
-//   driveId – The Google Drive file ID from the sharing link
-//             e.g. https://drive.google.com/file/d/XXXXX/view  →  "XXXXX"
-//   subtitle – (optional) short description shown under the title
-// =========================================================================
-var LIBRARY_CHAPTERS = [
-  // ── Front Matter ──────────────────────────────────────────────────────
-  { title: "Front Matter — Title Information", driveId: "1MuV0ZMnNyABB5iXJkzehY1_fTavw5S-w", subtitle: "Title page & copyright" },
-  { title: "Front Matter — List of Contributors", driveId: "12-b0A6CFW9hdX1xxmff2s75VNAJsvwqp", subtitle: "Contributors" },
-  { title: "Front Matter — Foreword", driveId: "1iF20CuuLmbMVtcMB5kND2bHiFrSry0Vn", subtitle: "Foreword" },
-  { title: "Front Matter — Preface", driveId: "1K6a4ujjgUSCrivj33CRQgWFnNmx2fwR0", subtitle: "Preface" },
-  // ── Chapters ──────────────────────────────────────────────────────────
-  { title: "Chapter 1 — Biology, Behaviour and Husbandry", driveId: "1UsQ0jgUgnuVrv6ReijYDCZ04w1-7_XKb", subtitle: "pp 1–18" },
-  { title: "Chapter 2 — Nutrition", driveId: "1xC8pUrXxuj4_zh0ojIZprzTOZTF-b5iG", subtitle: "pp 19–24" },
-  { title: "Chapter 3 — History Taking and Examination", driveId: "15cY9OpPLTDo1vlE2xfODCf8m9xU0uWVC", subtitle: "pp 25–32" },
-  { title: "Chapter 4 — Basic Techniques", driveId: "1IslVFdH541vAD2XqJDC-aJclp8gfT7DD", subtitle: "pp 33–39" },
-  { title: "Chapter 5 — Diagnostic Procedures", driveId: "1tCoJ1B5gZsPKae1cAP1HvIXFBMP7epaQ", subtitle: "pp 40–52" },
-  { title: "Chapter 6 — Clinical Pathology", driveId: "1VNhUUfPvVk5qWP0hRwT_mehCiLP8LSHa", subtitle: "pp 53–61" },
-  { title: "Chapter 7 — Anaesthesia and Analgesia", driveId: "1NFZamzRZsw2AZUpu9KR21c2HtahVBETj", subtitle: "pp 62–72" },
-  { title: "Chapter 8 — Nursing Care and Hospital Management", driveId: "1DXz0vRSDyYbKY0jKsHtPPtbgQzLjSBgF", subtitle: "pp 73–87" },
-  { title: "Chapter 9 — Diagnostic Imaging", driveId: "1szhRh784Rq6W8jhbJzWhnaHP415JKSEd", subtitle: "pp 88–102" },
-  { title: "Chapter 10 — Dental Imaging", driveId: "1X5Zwb63SiiQBrkTdw8EozTfTrBGoD_30", subtitle: "pp 103–110" },
-  { title: "Chapter 11 — Dental Disease", driveId: "1tcx2eusXhKNkV8yDlaNgpkuMITOKPU2E", subtitle: "pp 111–132" },
-  { title: "Chapter 12 — Soft Tissue Surgery", driveId: "1fSZyYH-2S4XXmEYPaTutZAoD1nNgHA-n", subtitle: "pp 133–151" },
-  { title: "Chapter 13 — Hard Tissue Surgery", driveId: "14i1snpmifmK_flPjV2tewp3RVrnYRdH2", subtitle: "pp 152–164" },
-  { title: "Chapter 14 — Skin Disease", driveId: "1mATqegYBT_desjO0IBK96gNfHN-uY6PO", subtitle: "pp 165–170" },
-  { title: "Chapter 15 — Gastrointestinal Disease", driveId: "1QSVjGuzrJnLSlkuWlLgCFCAZ2EW8qkxt", subtitle: "pp 171–187" },
-  { title: "Chapter 16 — Cardiorespiratory Disease", driveId: "1dLrpS8tfpDCK0MGIuvKfflhmxCb9kEZK", subtitle: "pp 188–204" },
-  { title: "Chapter 17 — Urinary Tract Disease", driveId: "1SnwFdUWW_dVsrSVhVs1hgxBJ9IL2KTZy", subtitle: "pp 205–215" },
-  { title: "Chapter 18 — Reproductive Disease", driveId: "1E-RXtnWzSJZJcir3WuCHHYSqBQSbZlJi", subtitle: "pp 216–224" },
-  { title: "Chapter 19 — Neoplastic Disease", driveId: "1rXnN7M2YRzZEMYXDIIwSV6Y3nkOJX-h0", subtitle: "pp 225–234" },
-  { title: "Chapter 20 — Neurological and Ophthalmological Disease", driveId: "1LZ0baJ55Kb9PiQ4g_KMX34sU7skLWF6Q", subtitle: "pp 235–256" },
-  { title: "Chapter 21 — Ear Disease", driveId: "1FIw8WMMsWwYKOeexSeKgIqRpFcWlgbg_", subtitle: "pp 257–263" },
-  { title: "Chapter 22 — Endocrine and Multisystemic Disease", driveId: "14ixdsaHuar8m85X9JNIKzKJmE9dihV6p", subtitle: "pp 264–274" },
-  { title: "Chapter 23 — Musculoskeletal Disease", driveId: "17yfmr2rm2zjeNdLLDox4X4Jie7iaOsep", subtitle: "pp 275–282" },
-  { title: "Chapter 24 — Geriatric Guinea Pigs", driveId: "11uOvPsNuEBzlLtU8E77c_TaBF8PlPCqx", subtitle: "pp 283–292" },
-  // ── Appendices ────────────────────────────────────────────────────────
-  { title: "Appendix 1 — Investigating Thin and Anorexic Guinea Pigs", driveId: "1lQA17BR63q-rGOBoksoBh-ChAUKxY94E", subtitle: "pp 293–295" },
-  { title: "Appendix 2 — Formulary", driveId: "1f0CggZ4ilKLuLTMUMShDpnx8RApFnJxg", subtitle: "pp 296–302" },
-  { title: "Appendix 3 — Toxic Plants and Substances", driveId: "1DkmKleg1-qJp3Fmpe-ZSWTZiBsS9RiZY", subtitle: "pp 303–305" },
-  // ── Back Matter ───────────────────────────────────────────────────────
-  { title: "Back Matter — Index", driveId: "1MTmRJeplWZgR0eowb0dqWALEe7NIxOkR", subtitle: "pp 308–316" },
-  { title: "Back Matter — Back Cover", driveId: "1_IeQ7L7R_9iQcfc0aMDx70Yr8WSNlhX-", subtitle: "" },
-];
+// ---- Render: Medications ----
+function renderMedications() {
+  var list = $('medList');
+  var empty = $('medEmpty');
+  var dateKey = dateStr(routineDate);
 
-var libraryRendered = false;
-
-function loadLibraryIndex() {
-  if (LIBRARY_CHAPTERS.length === 0) {
-    $('libraryChapterList').innerHTML = '';
-    $('libraryStats').innerHTML = '';
-    hide('libraryNoMatch');
-    show('libraryEmpty');
+  if (medicationsCache.length === 0) {
+    list.innerHTML = '';
+    show(empty);
     return;
   }
-  hide('libraryEmpty');
-  hide('libraryNoMatch');
-  if (!libraryRendered) {
-    renderChapterList();
-    libraryRendered = true;
-  }
-}
+  hide(empty);
 
-function renderChapterList(filter) {
-  var chapters = LIBRARY_CHAPTERS;
-  var q = (filter || '').toLowerCase().trim();
+  var today = dateKey;
+  var freqLabels = { once: ['Dose'], twice: ['Morning', 'Evening'], thrice: ['Morning', 'Midday', 'Evening'] };
+  var freqKeys = { once: ['dose'], twice: ['am', 'pm'], thrice: ['am', 'mid', 'pm'] };
+
   var html = '';
-  var visibleCount = 0;
+  medicationsCache.forEach(function(med) {
+    var start = med.startDate || '';
+    var end = med.endDate || '';
+    var freq = med.frequency || 'once';
+    var checks = med.checks || {};
 
-  chapters.forEach(function(ch, idx) {
-    var matchesFilter = !q ||
-      ch.title.toLowerCase().indexOf(q) !== -1 ||
-      (ch.subtitle && ch.subtitle.toLowerCase().indexOf(q) !== -1);
-    if (!matchesFilter) return;
-    visibleCount++;
-
-    var titleLower = ch.title.toLowerCase();
-    var isAppendix = titleLower.indexOf('appendix') !== -1;
-    var isFrontMatter = titleLower.indexOf('front matter') !== -1;
-    var isBackMatter = titleLower.indexOf('back matter') !== -1;
-    var isSection = titleLower.indexOf('section') !== -1 || titleLower.indexOf('part ') !== -1;
-    var numLabel, numClass;
-    if (isAppendix) {
-      var appMatch = ch.title.match(/\d+/);
-      numLabel = appMatch ? 'A' + appMatch[0] : 'App';
-      numClass = 'chapter-num appendix';
-    } else if (isFrontMatter || isBackMatter) {
-      numLabel = '<i class="fas fa-bookmark" style="font-size:14px;"></i>';
-      numClass = 'chapter-num section-divider';
-    } else if (isSection) {
-      numLabel = '<i class="fas fa-layer-group" style="font-size:14px;"></i>';
-      numClass = 'chapter-num section-divider';
+    // Determine status badge
+    var badge = '';
+    if (today < start) {
+      badge = '<span class="med-badge upcoming">Upcoming</span>';
+    } else if (today > end) {
+      badge = '<span class="med-badge expired">Completed</span>';
     } else {
-      var chMatch = ch.title.match(/\d+/);
-      numLabel = chMatch ? chMatch[0] : (idx + 1);
-      numClass = 'chapter-num';
+      badge = '<span class="med-badge active">Active</span>';
     }
 
-    var meta = ch.subtitle
-      ? escapeHtml(ch.subtitle)
-      : '<i class="fas fa-file-pdf"></i>PDF on Google Drive';
+    var piggyLabel = med.piggy === 'all' ? 'All piggies' : escapeHtml(med.piggy || 'All piggies');
 
-    html += '<li class="chapter-item" onclick="openChapterPdf(' + idx + ')">' +
+    html += '<div class="med-card">';
+    html += '<div class="med-card-header">';
+    html += '<h4>💊 ' + escapeHtml(med.name || 'Unnamed') + '</h4>' + badge;
+    html += '</div>';
+    html += '<div class="med-card-meta">';
+    html += '<span><i class="fas fa-calendar"></i> ' + formatDate(start) + ' → ' + formatDate(end) + '</span>';
+    html += '<span><i class="fas fa-hamster" style="font-size:10px;"></i> ' + piggyLabel + '</span>';
+    html += '</div>';
+
+    if (med.notes) {
+      html += '<div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;"><i class="fas fa-info-circle" style="margin-right:4px;"></i>' + escapeHtml(med.notes) + '</div>';
+    }
+
+    // Show checkboxes for today's date (only if within range)
+    if (dateKey >= start && dateKey <= end) {
+      var labels = freqLabels[freq] || freqLabels.once;
+      var keys = freqKeys[freq] || freqKeys.once;
+      labels.forEach(function(label, i) {
+        var checkKey = dateKey + '_' + keys[i];
+        var isChecked = !!checks[checkKey];
+        var checkTime = checks[checkKey + '_time'] || '';
+        html += '<div class="med-check-row">';
+        html += '<input type="checkbox" ' + (isChecked ? 'checked' : '') +
+          ' data-medid="' + med.id + '" data-checkkey="' + checkKey + '">';
+        html += '<label>' + label + '</label>';
+        if (isChecked && checkTime) {
+          html += '<span class="med-check-time">' + checkTime + '</span>';
+        }
+        html += '</div>';
+      });
+    } else if (dateKey < start) {
+      html += '<div style="font-size:12px;color:var(--text-muted);font-style:italic;padding:4px 0;">Starts ' + formatDate(start) + '</div>';
+    } else {
+      html += '<div style="font-size:12px;color:var(--text-muted);font-style:italic;padding:4px 0;">Course completed</div>';
+    }
+
+    html += '<div class="med-card-actions">';
+    html += '<button class="btn btn-secondary btn-sm" onclick="editMedication(\'' + med.id + '\')"><i class="fas fa-pen"></i></button>';
+    html += '<button class="btn btn-secondary btn-sm" onclick="deleteMedicationItem(\'' + med.id + '\')"><i class="fas fa-trash"></i></button>';
+    html += '</div>';
+    html += '</div>';
+  });
+
+  list.innerHTML = html;
+
+  // Attach checkbox handlers
+  list.querySelectorAll('input[data-medid]').forEach(function(cb) {
+    cb.addEventListener('change', function() {
+      var medId = this.dataset.medid;
+      var checkKey = this.dataset.checkkey;
+      var isChecked = this.checked;
+
+      // Save check + timestamp
+      var update = {};
+      if (isChecked) {
+        var now = new Date();
+        var timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+        update['checks.' + checkKey] = true;
+        update['checks.' + checkKey + '_time'] = timeStr;
+      } else {
+        update['checks.' + checkKey] = firebase.firestore.FieldValue.delete();
+        update['checks.' + checkKey + '_time'] = firebase.firestore.FieldValue.delete();
+      }
+      db.collection('medications').doc(medId).update(update);
+    });
+  });
+}
+
+function openMedModal() {
+  $('medEditId').value = '';
+  $('medName').value = '';
+  $('medStart').value = todayStr();
+  $('medEnd').value = '';
+  $('medFreq').value = 'once';
+  $('medNotes').value = '';
+
+  // Populate piggy dropdown
+  var sel = $('medPiggy');
+  sel.innerHTML = '<option value="all">All piggies</option>';
+  guineaPigs.forEach(function(gp) {
+    sel.innerHTML += '<option value="' + escapeHtml(gp.name) + '">' + escapeHtml(gp.name) + '</option>';
+  });
+  sel.value = 'all';
+
+  openModal('medModal');
+}
+
+function editMedication(medId) {
+  var med = medicationsCache.find(function(m) { return m.id === medId; });
+  if (!med) { toast('Medication not found', true); return; }
+
+  $('medEditId').value = medId;
+  $('medName').value = med.name || '';
+  $('medStart').value = med.startDate || '';
+  $('medEnd').value = med.endDate || '';
+  $('medFreq').value = med.frequency || 'once';
+  $('medNotes').value = med.notes || '';
+
+  // Populate piggy dropdown
+  var sel = $('medPiggy');
+  sel.innerHTML = '<option value="all">All piggies</option>';
+  guineaPigs.forEach(function(gp) {
+    sel.innerHTML += '<option value="' + escapeHtml(gp.name) + '">' + escapeHtml(gp.name) + '</option>';
+  });
+  sel.value = med.piggy || 'all';
+
+  openModal('medModal');
+}
+
+function deleteMedicationItem(medId) {
+  showConfirmDialog('Delete this medication course?', function() {
+    deleteMedication(medId).then(function() {
+      toast('Medication deleted');
+    });
+  });
+}
+
+// ---- Library ----
+var libraryIndex = null;
+var librarySearchData = []; // flat array of {chapterIdx, page, text} for search
+var libraryLoaded = false;
+var DATA_BASE_URL = 'library/'; // folder name on GitHub
+var INDEX_FILE = 'mnt_book_data_index.json'; // index filename on GitHub
+
+function loadLibraryIndex() {
+  // If already loaded successfully, just show the list
+  if (libraryIndex) {
+    hide('libraryLoading');
+    hide('libraryEmpty');
+    show('libraryChapterList');
+    show('libraryStats');
+    return;
+  }
+
+  show('libraryLoading');
+  hide('libraryEmpty');
+  hide('librarySearchResults');
+  $('libraryChapterList').innerHTML = '';
+  $('libraryStats').innerHTML = '';
+
+  // Try multiple index filenames: prefixed first, then plain
+  var urls = [
+    DATA_BASE_URL + INDEX_FILE,
+    DATA_BASE_URL + 'index.json'
+  ];
+  var triedUrls = [];
+
+  function tryNextUrl(i) {
+    if (i >= urls.length) {
+      hide('libraryLoading');
+      $('libraryEmpty').querySelector('p').innerHTML =
+        'Could not load book data.<br>' +
+        '<small style="color:var(--text-muted);">Tried:<br>' +
+        triedUrls.map(function(u) { return '<code>' + escapeHtml(u) + '</code>'; }).join('<br>') +
+        '</small><br><br><button class="btn btn-primary btn-sm" onclick="libraryIndex=null;loadLibraryIndex();">Retry</button>';
+      show('libraryEmpty');
+      return;
+    }
+    var url = urls[i];
+    triedUrls.push(url);
+    console.log('[Library] Trying: ' + url);
+
+    fetch(url)
+      .then(function(resp) {
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        return resp.json();
+      })
+      .then(function(data) {
+        console.log('[Library] Loaded ' + (data.chapters ? data.chapters.length : 0) + ' chapters');
+        libraryIndex = data;
+        hide('libraryLoading');
+        renderChapterList();
+        buildSearchIndex();
+      })
+      .catch(function() {
+        tryNextUrl(i + 1);
+      });
+  }
+  tryNextUrl(0);
+}
+
+function renderChapterList() {
+  if (!libraryIndex || !libraryIndex.chapters) return;
+  var chapters = libraryIndex.chapters;
+  var totalPages = 0;
+  var totalImages = 0;
+  var html = '';
+
+  chapters.forEach(function(ch, idx) {
+    totalPages += ch.pages || 0;
+    totalImages += ch.images || 0;
+    var isAppendix = ch.title.toLowerCase().indexOf('appendix') !== -1;
+    var numLabel = isAppendix ? 'App' : (idx + 1);
+    var numClass = isAppendix ? 'chapter-num appendix' : 'chapter-num';
+    var metaParts = [];
+    if (ch.pages) metaParts.push(ch.pages + ' pages');
+    if (ch.images) metaParts.push(ch.images + ' imgs');
+
+    html += '<li class="chapter-item" onclick="openChapter(' + idx + ')">' +
       '<div class="' + numClass + '">' + numLabel + '</div>' +
       '<div class="chapter-info">' +
         '<h4>' + escapeHtml(ch.title) + '</h4>' +
-        '<span class="chapter-meta">' + meta + '</span>' +
+        '<span class="chapter-meta">' + metaParts.join(' &bull; ') + '</span>' +
       '</div>' +
-      '<i class="fas fa-external-link-alt chapter-arrow"></i>' +
+      '<i class="fas fa-chevron-right chapter-arrow"></i>' +
     '</li>';
   });
 
   $('libraryChapterList').innerHTML = html;
 
-  if (visibleCount === 0 && q) {
-    show('libraryNoMatch');
-    $('libraryChapterList').style.display = 'none';
+  $('libraryStats').innerHTML =
+    '<div class="library-stat"><strong>' + chapters.length + '</strong>Chapters</div>' +
+    '<div class="library-stat"><strong>' + totalPages + '</strong>Pages</div>' +
+    '<div class="library-stat"><strong>' + totalImages + '</strong>Images</div>';
+}
+
+function buildSearchIndex() {
+  librarySearchData = [];
+  if (!libraryIndex || !libraryIndex.chapters) return;
+  // We'll build search data lazily as chapters are loaded
+}
+
+function openChapter(idx) {
+  if (!libraryIndex || !libraryIndex.chapters[idx]) return;
+  var ch = libraryIndex.chapters[idx];
+
+  $('libraryListView').style.display = 'none';
+  $('libraryReaderView').style.display = 'block';
+  $('readerTitle').textContent = ch.title;
+  $('readerBody').innerHTML = '<div class="reader-loading"><i class="fas fa-spinner"></i><p>Loading chapter...</p></div>';
+
+  // Scroll to top of tab content
+  var tabContent = document.querySelector('.tab-content');
+  if (tabContent) tabContent.scrollTop = 0;
+
+  // Build list of URLs to try: original, with prefix added, with prefix removed
+  var FILE_PREFIX = 'mnt_book_data_';
+  var hasPrefix = ch.file.indexOf(FILE_PREFIX) === 0;
+  var urls = [DATA_BASE_URL + ch.file];
+  if (hasPrefix) {
+    urls.push(DATA_BASE_URL + ch.file.replace(FILE_PREFIX, ''));
   } else {
-    hide('libraryNoMatch');
-    $('libraryChapterList').style.display = '';
+    urls.push(DATA_BASE_URL + FILE_PREFIX + ch.file);
+  }
+  var triedUrls = [];
+
+  function tryChapterUrl(i) {
+    if (i >= urls.length) {
+      $('readerBody').innerHTML = '<div class="library-empty">' +
+        '<i class="fas fa-exclamation-triangle"></i>' +
+        '<p>Could not load chapter.<br>' +
+        '<small style="color:var(--text-muted);">Tried:<br>' +
+        triedUrls.map(function(u) { return '<code>' + escapeHtml(u) + '</code>'; }).join('<br>') +
+        '</small></p></div>';
+      return;
+    }
+    var url = urls[i];
+    triedUrls.push(url);
+    console.log('[Library] Trying: ' + url);
+    fetch(url)
+      .then(function(resp) {
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        return resp.json();
+      })
+      .then(function(data) {
+        renderChapterContent(data, idx);
+      })
+      .catch(function() {
+        tryChapterUrl(i + 1);
+      });
+  }
+  tryChapterUrl(0);
+}
+
+function renderChapterContent(data, chapterIdx) {
+  var pages = data.pages || [];
+  var html = '';
+
+  // Update title with actual title from data
+  if (data.title) $('readerTitle').textContent = data.title;
+
+  // Update index metadata dynamically from actual chapter data
+  if (libraryIndex && libraryIndex.chapters[chapterIdx]) {
+    var ch = libraryIndex.chapters[chapterIdx];
+    if (data.title) ch.title = data.title;
+    if (data.totalPages) ch.pages = data.totalPages;
+    if (data.totalImages !== undefined) ch.images = data.totalImages;
+    // Re-render chapter list so metadata updates appear
+    renderChapterList();
   }
 
-  // Stats
-  if (!q) {
-    var chCount = 0, appCount = 0, otherCount = 0;
-    chapters.forEach(function(c) {
-      var t = c.title.toLowerCase();
-      if (t.indexOf('chapter') !== -1) chCount++;
-      else if (t.indexOf('appendix') !== -1) appCount++;
-      else otherCount++;
+  pages.forEach(function(page) {
+    html += '<div class="reader-page">';
+    html += '<div class="reader-page-num">Page ' + page.page + '</div>';
+
+    if (page.text && page.text.trim()) {
+      html += '<div class="reader-text">' + escapeHtml(page.text) + '</div>';
+    }
+
+    if (page.images && page.images.length > 0) {
+      html += '<div class="reader-images">';
+      page.images.forEach(function(img) {
+        var maxW = Math.min(img.width || 400, 500);
+        html += '<img class="reader-img" src="' + img.dataUrl + '" ' +
+          'style="max-width:' + maxW + 'px;" ' +
+          'onclick="previewImage(this.src)" loading="lazy">';
+      });
+      html += '</div>';
+    }
+
+    html += '</div>';
+  });
+
+  if (!html) {
+    html = '<div class="library-empty"><i class="fas fa-file-alt"></i><p>This chapter has no content.</p></div>';
+  }
+
+  $('readerBody').innerHTML = html;
+
+  // Also index this chapter for search if not already done
+  if (librarySearchData.findIndex(function(d) { return d.chapterIdx === chapterIdx; }) === -1) {
+    pages.forEach(function(page) {
+      if (page.text && page.text.trim()) {
+        librarySearchData.push({
+          chapterIdx: chapterIdx,
+          page: page.page,
+          text: page.text
+        });
+      }
     });
-    var statsHtml = '<div class="library-stat"><strong>' + chCount + '</strong>Chapters</div>';
-    if (appCount) statsHtml += '<div class="library-stat"><strong>' + appCount + '</strong>Appendices</div>';
-    if (otherCount) statsHtml += '<div class="library-stat"><strong>' + otherCount + '</strong>Extras</div>';
-    $('libraryStats').innerHTML = statsHtml;
-  } else {
-    $('libraryStats').innerHTML = '<div class="library-stat"><strong>' + visibleCount + '</strong>Results</div>';
   }
 }
 
-function openChapterPdf(idx) {
-  var ch = LIBRARY_CHAPTERS[idx];
-  if (!ch) return;
+function closeChapterReader() {
+  $('libraryReaderView').style.display = 'none';
+  $('libraryListView').style.display = 'block';
+}
 
-  if (!ch.driveId || ch.driveId.indexOf('PASTE') === 0) {
-    toast('This chapter has no Google Drive link configured yet.', true);
+var librarySearchTimeout = null;
+function handleLibrarySearch(query) {
+  clearTimeout(librarySearchTimeout);
+  if (!query || query.length < 2) {
+    hide('librarySearchResults');
+    $('libraryChapterList').style.display = '';
+    $('libraryStats').style.display = '';
     return;
   }
 
-  // Open Google Drive PDF viewer in a new tab
-  var viewUrl = 'https://drive.google.com/file/d/' + ch.driveId + '/view';
-  window.open(viewUrl, '_blank');
+  librarySearchTimeout = setTimeout(function() {
+    performLibrarySearch(query);
+  }, 300);
 }
 
-function handleLibrarySearch(query) {
-  renderChapterList(query);
+function performLibrarySearch(query) {
+  var q = query.toLowerCase();
+
+  // First: search chapter titles from index
+  var titleResults = [];
+  if (libraryIndex && libraryIndex.chapters) {
+    libraryIndex.chapters.forEach(function(ch, idx) {
+      if (ch.title.toLowerCase().indexOf(q) !== -1) {
+        titleResults.push({ chapterIdx: idx, title: ch.title, type: 'title' });
+      }
+    });
+  }
+
+  // Then: search loaded page text
+  var textResults = [];
+  librarySearchData.forEach(function(item) {
+    var pos = item.text.toLowerCase().indexOf(q);
+    if (pos !== -1) {
+      // Extract snippet around match
+      var start = Math.max(0, pos - 60);
+      var end = Math.min(item.text.length, pos + query.length + 60);
+      var snippet = (start > 0 ? '...' : '') +
+        item.text.substring(start, end) +
+        (end < item.text.length ? '...' : '');
+      textResults.push({
+        chapterIdx: item.chapterIdx,
+        page: item.page,
+        snippet: snippet,
+        query: query,
+        type: 'text'
+      });
+    }
+  });
+
+  var html = '';
+  var totalResults = titleResults.length + textResults.length;
+
+  if (totalResults === 0) {
+    if (librarySearchData.length === 0) {
+      html = '<div class="library-empty" style="padding:30px 10px;"><i class="fas fa-info-circle" style="font-size:24px;"></i>' +
+        '<p>Search will work better after you open a few chapters first (content is loaded on demand).</p></div>';
+    } else {
+      html = '<div class="library-empty" style="padding:30px 10px;"><i class="fas fa-search" style="font-size:24px;"></i>' +
+        '<p>No results found for "<strong>' + escapeHtml(query) + '</strong>"</p></div>';
+    }
+  } else {
+    html = '<p style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">' + totalResults + ' result' + (totalResults !== 1 ? 's' : '') + '</p>';
+
+    titleResults.forEach(function(r) {
+      var chTitle = libraryIndex.chapters[r.chapterIdx].title;
+      html += '<div class="search-result-item" onclick="openChapter(' + r.chapterIdx + ')">' +
+        '<div class="search-result-chapter"><i class="fas fa-bookmark" style="margin-right:4px;"></i> ' + escapeHtml(chTitle) + '</div>' +
+        '<div class="search-result-snippet">Chapter title match</div></div>';
+    });
+
+    textResults.forEach(function(r) {
+      var chTitle = libraryIndex.chapters[r.chapterIdx] ? libraryIndex.chapters[r.chapterIdx].title : 'Unknown';
+      var highlighted = highlightSearchResult(r.snippet, r.query);
+      html += '<div class="search-result-item" onclick="openChapter(' + r.chapterIdx + ')">' +
+        '<div class="search-result-chapter"><i class="fas fa-file-alt" style="margin-right:4px;"></i> ' + escapeHtml(chTitle) + ' &bull; Page ' + r.page + '</div>' +
+        '<div class="search-result-snippet">' + highlighted + '</div></div>';
+    });
+  }
+
+  $('librarySearchResults').innerHTML = html;
+  show('librarySearchResults');
+  $('libraryChapterList').style.display = 'none';
+  $('libraryStats').style.display = 'none';
+}
+
+function highlightSearchResult(text, query) {
+  var escaped = escapeHtml(text);
+  var q = escapeHtml(query);
+  var regex = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+  return escaped.replace(regex, '<span class="search-highlight">$1</span>');
 }
 
 // ---- Tab Navigation ----
@@ -2329,6 +3067,7 @@ function refreshCurrentTab() {
   if (panelId === 'panelLibrary') { loadLibraryIndex(); return; }
   if (!currentGpId && panelId !== 'panelProfiles' && panelId !== 'panelSettings' && panelId !== 'panelRoutine') {
     if (panelId === 'panelWeight') { show('weightNoGp'); hide('weightContent'); }
+    if (panelId === 'panelShape') { show('shapeNoGp'); hide('shapeContent'); }
     if (panelId === 'panelVet') { show('vetNoGp'); hide('vetContent'); }
     return;
   }
@@ -2340,6 +3079,7 @@ function refreshCurrentTab() {
   }
 
   if (panelId === 'panelWeight' && currentGpId) loadWeights(currentGpId);
+  if (panelId === 'panelShape' && currentGpId) loadShapes(currentGpId);
   if (panelId === 'panelVet' && currentGpId) loadVetVisits(currentGpId);
   if (panelId === 'panelRoutine') renderRoutine();
   if (panelId === 'panelSettings') loadSettings();
@@ -2487,30 +3227,107 @@ function setupEventHandlers() {
   });
   $('weightCancelBtn').addEventListener('click', function() { closeModal('weightModal'); });
 
+  // Shape toggle inside weight modal
+  $('shapeToggle').addEventListener('click', function() {
+    var fields = $('weightShapeFields');
+    if (fields.style.display === 'none') {
+      fields.style.display = '';
+      $('shapeToggleHint').textContent = 'tap to hide ▲';
+    } else {
+      fields.style.display = 'none';
+      $('shapeToggleHint').textContent = 'tap to add ▼';
+    }
+  });
+  $('weightShapePhotoUpload').addEventListener('click', function() { $('weightShapePhotoInput').click(); });
+  $('weightShapePhotoInput').addEventListener('change', function() {
+    var files = Array.from(this.files);
+    files.forEach(function(file) {
+      pendingUploadFiles.weightShape.push(file);
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var thumb = document.createElement('img');
+        thumb.src = e.target.result;
+        thumb.className = 'file-thumb';
+        $('weightShapePhotoPreviews').appendChild(thumb);
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+
   $('weightSaveBtn').addEventListener('click', function() {
     var date = $('weightDate').value;
     var weight = parseInt($('weightValue').value, 10);
     if (!date || isNaN(weight) || weight <= 0) { toast('Please fill in date and weight', true); return; }
 
+    var shapeCondition = $('weightShapeCondition').value;
+    var shapeNotes = $('weightShapeNotes').value.trim();
+    var shapePhotos = pendingUploadFiles.weightShape || [];
+
+    // Save weight first
     saveWeight(currentGpId, { date: date, weight: weight, note: $('weightNote').value.trim() }, $('weightEditId').value || null)
       .then(function() {
+        // Also save body shape if condition selected
+        if (shapeCondition) {
+          var shapeData = { date: date, condition: shapeCondition, notes: shapeNotes };
+          var compressPromises = shapePhotos.map(function(file) {
+            return compressImage(file, 800, 0.7);
+          });
+          return Promise.all(compressPromises).then(function(base64Arr) {
+            shapeData.photoURLs = base64Arr;
+            return saveShape(currentGpId, shapeData, null);
+          });
+        }
+      })
+      .then(function() {
         closeModal('weightModal');
-        toast('Weight saved!');
+        toast(shapeCondition ? 'Weight & shape saved!' : 'Weight saved!');
       })
       .catch(function(err) { toast('Error: ' + err.message, true); });
   });
 
-  // Weight date range filter
-  $('weightDateFrom').addEventListener('change', function() {
-    renderWeights(getFilteredWeights());
+  // Shape Modal
+  $('addShapeBtn').addEventListener('click', function() {
+    if (!currentGpId) { toast('Select a guinea pig first', true); return; }
+    openShapeModal();
   });
-  $('weightDateTo').addEventListener('change', function() {
-    renderWeights(getFilteredWeights());
+  $('shapePhotoUpload').addEventListener('click', function() { $('shapePhotoInput').click(); });
+  $('shapePhotoInput').addEventListener('change', function() {
+    var files = Array.from(this.files);
+    files.forEach(function(file) {
+      pendingUploadFiles.shape.push(file);
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var thumb = document.createElement('img');
+        thumb.src = e.target.result;
+        thumb.className = 'file-thumb';
+        $('shapePhotoPreviews').appendChild(thumb);
+      };
+      reader.readAsDataURL(file);
+    });
   });
-  $('weightDateClear').addEventListener('click', function() {
-    $('weightDateFrom').value = '';
-    $('weightDateTo').value = '';
-    renderWeights(allWeights);
+  $('shapeCancelBtn').addEventListener('click', function() { closeModal('shapeModal'); });
+  $('shapeSaveBtn').addEventListener('click', function() {
+    var date = $('shapeDate').value;
+    if (!date) { toast('Please select a date', true); return; }
+    var data = {
+      date: date,
+      condition: $('shapeCondition').value,
+      notes: $('shapeNotes').value.trim()
+    };
+
+    var compressPromises = pendingUploadFiles.shape.map(function(file) {
+      return compressImage(file, 800, 0.7);
+    });
+
+    Promise.all(compressPromises).then(function(base64Arr) {
+      data.photoURLs = base64Arr;
+      return saveShape(currentGpId, data, $('shapeEditId').value || null);
+    }).then(function() {
+      closeModal('shapeModal');
+      toast('Shape record saved!');
+    }).catch(function(err) {
+      toast('Error: ' + err.message, true);
+    });
   });
 
   // Vet Modal
@@ -2549,9 +3366,12 @@ function setupEventHandlers() {
     });
 
     Promise.all(compressPromises).then(function(base64Arr) {
-      data.documentURLs = base64Arr.map(function(b64, i) {
+      var newDocs = base64Arr.map(function(b64, i) {
         return { url: b64, name: pendingUploadFiles.vet[i].name, type: pendingUploadFiles.vet[i].type };
       });
+      // Merge existing docs (from edit mode) with newly uploaded ones
+      var existingDocs = pendingUploadFiles.vetExisting || [];
+      data.documentURLs = existingDocs.concat(newDocs);
       return saveVetVisit(currentGpId, data, $('vetEditId').value || null);
     }).then(function() {
       closeModal('vetModal');
@@ -2565,58 +3385,45 @@ function setupEventHandlers() {
   $('routinePrev').addEventListener('click', function() {
     routineDate.setDate(routineDate.getDate() - 1);
     renderRoutine();
+    renderMedications();
   });
   $('routineNext').addEventListener('click', function() {
     routineDate.setDate(routineDate.getDate() + 1);
     renderRoutine();
-  });
-  $('routinePhotoUpload').addEventListener('click', function() { $('routinePhotoInput').click(); });
-  $('routinePhotoInput').addEventListener('change', function() {
-    var files = Array.from(this.files);
-    files.forEach(function(file) {
-      pendingUploadFiles.routine.push(file);
-      var reader = new FileReader();
-      reader.onload = function(e) {
-        var thumb = document.createElement('img');
-        thumb.src = e.target.result;
-        thumb.className = 'file-thumb';
-        $('routinePhotoPreviews').appendChild(thumb);
-      };
-      reader.readAsDataURL(file);
-    });
+    renderMedications();
   });
   $('saveRoutineNotes').addEventListener('click', function() {
     var dateKey = dateStr(routineDate);
-    var btn = $('saveRoutineNotes');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-
-    var newPhotos = pendingUploadFiles.routine || [];
-    var compressPromises = newPhotos.map(function(file) {
-      return compressImage(file, 800, 0.7);
+    saveRoutine(dateKey, { notes: $('routineNotes').value.trim() }).then(function() {
+      toast('Notes saved!');
     });
+  });
 
-    Promise.all(compressPromises).then(function(base64Arr) {
-      if (base64Arr.length > 0) {
-        // Merge new photos with existing saved photos
-        return loadRoutine(dateKey).then(function(data) {
-          var existing = (data && data.photoURLs) || [];
-          var merged = existing.concat(base64Arr);
-          return saveRoutine(dateKey, { notes: $('routineNotes').value.trim(), snacks: $('routineSnacks').value.trim(), photoURLs: merged });
-        });
-      } else {
-        return saveRoutine(dateKey, { notes: $('routineNotes').value.trim(), snacks: $('routineSnacks').value.trim() });
-      }
-    }).then(function() {
-      pendingUploadFiles.routine = [];
-      $('routinePhotoPreviews').innerHTML = '';
-      btn.disabled = false;
-      btn.innerHTML = '<i class="fas fa-save"></i> Save';
-      toast('Saved!');
-      renderRoutine();
+  // Medication
+  $('addMedBtn').addEventListener('click', function() { openMedModal(); });
+  $('medCancelBtn').addEventListener('click', function() { closeModal('medModal'); });
+  $('medSaveBtn').addEventListener('click', function() {
+    var name = $('medName').value.trim();
+    var startDate = $('medStart').value;
+    var endDate = $('medEnd').value;
+    if (!name) { toast('Please enter medication name', true); return; }
+    if (!startDate || !endDate) { toast('Please set start and end dates', true); return; }
+    if (endDate < startDate) { toast('End date must be after start date', true); return; }
+
+    var data = {
+      name: name,
+      piggy: $('medPiggy').value,
+      startDate: startDate,
+      endDate: endDate,
+      frequency: $('medFreq').value,
+      notes: $('medNotes').value.trim()
+    };
+
+    var editId = $('medEditId').value;
+    saveMedication(data, editId || null).then(function() {
+      closeModal('medModal');
+      toast('Medication saved!');
     }).catch(function(err) {
-      btn.disabled = false;
-      btn.innerHTML = '<i class="fas fa-save"></i> Save';
       toast('Error: ' + err.message, true);
     });
   });
@@ -2636,6 +3443,7 @@ function setupEventHandlers() {
   });
 
   // Library
+  $('readerBackBtn').addEventListener('click', closeChapterReader);
   $('librarySearchInput').addEventListener('input', function() {
     handleLibrarySearch(this.value.trim());
   });
@@ -2732,6 +3540,7 @@ function enterApp() {
   if (savedGp) currentGpId = savedGp;
 
   loadGuineaPigs();
+  loadMedications();
 }
 
 // ---- Boot ----
