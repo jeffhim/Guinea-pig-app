@@ -1,4 +1,4 @@
-var CACHE_NAME = 'gp-tracker-v1';
+var CACHE_NAME = 'gp-tracker-v2';
 var URLS_TO_CACHE = [
   './',
   './index.html',
