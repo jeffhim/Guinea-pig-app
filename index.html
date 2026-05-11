@@ -591,6 +591,24 @@
       line-height: 1;
     }
     .custom-item-del:hover { color: var(--danger); }
+    .pig-add-time {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      border: 1.5px dashed var(--border);
+      background: none;
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      padding: 0;
+      transition: all 0.15s;
+    }
+    .pig-add-time:hover { border-color: var(--primary); color: var(--primary); }
+    .pig-time-row { flex-wrap: wrap; }
 
     /* Medication Schedule */
     .med-section {
@@ -2365,9 +2383,19 @@ function getNowTimeStr() {
 
  
 function getPigTimesForItem(data, itemKey) {
-  // New model: key_times = { "PigName": "HH:MM", ... }
+  // Returns { "PigName": ["HH:MM", "HH:MM"], ... }
   if (data && data[itemKey + '_times'] && typeof data[itemKey + '_times'] === 'object') {
-    return data[itemKey + '_times'];
+    var raw = data[itemKey + '_times'];
+    var result = {};
+    Object.keys(raw).forEach(function(pig) {
+      // Normalize: string → array, array stays array
+      if (typeof raw[pig] === 'string') {
+        result[pig] = [raw[pig]];
+      } else if (Array.isArray(raw[pig])) {
+        result[pig] = raw[pig];
+      }
+    });
+    return result;
   }
   // Backward compat: old model with single key_time and exceptions
   if (data && data[itemKey + '_time']) {
@@ -2375,7 +2403,7 @@ function getPigTimesForItem(data, itemKey) {
     var exceptions = (data[itemKey + '_exceptions']) || [];
     guineaPigs.forEach(function(gp) {
       if (exceptions.indexOf(gp.name) === -1) {
-        times[gp.name] = data[itemKey + '_time'];
+        times[gp.name] = [data[itemKey + '_time']];
       }
     });
     return times;
@@ -2388,13 +2416,14 @@ function togglePigForItem(itemKey, pigName) {
   loadRoutine(dateKey).then(function(data) {
     var times = getPigTimesForItem(data, itemKey);
     var update = {};
-    if (times[pigName]) {
-      // Remove this pig
+    if (times[pigName] && times[pigName].length > 0) {
+      // Remove this pig entirely
       delete times[pigName];
     } else {
       // Add this pig with current time
-      times[pigName] = getNowTimeStr();
+      times[pigName] = [getNowTimeStr()];
     }
+    // Convert back for Firestore storage
     update[itemKey + '_times'] = times;
     // If no pigs left, uncheck the item entirely
     if (Object.keys(times).length === 0) {
@@ -2405,11 +2434,48 @@ function togglePigForItem(itemKey, pigName) {
   });
 }
 
-function updatePigTime(itemKey, pigName, newTime) {
+function addPigTime(itemKey, pigName) {
   var dateKey = dateStr(routineDate);
-  var update = {};
-  update[itemKey + '_times.' + pigName] = newTime;
-  saveRoutine(dateKey, update);
+  loadRoutine(dateKey).then(function(data) {
+    var times = getPigTimesForItem(data, itemKey);
+    if (!times[pigName]) times[pigName] = [];
+    times[pigName].push(getNowTimeStr());
+    var update = {};
+    update[itemKey + '_times'] = times;
+    saveRoutine(dateKey, update).then(function() { renderRoutine(); });
+  });
+}
+
+function removePigTimeEntry(itemKey, pigName, timeIdx) {
+  var dateKey = dateStr(routineDate);
+  loadRoutine(dateKey).then(function(data) {
+    var times = getPigTimesForItem(data, itemKey);
+    if (times[pigName]) {
+      times[pigName].splice(timeIdx, 1);
+      if (times[pigName].length === 0) delete times[pigName];
+    }
+    var update = {};
+    if (Object.keys(times).length === 0) {
+      update[itemKey] = false;
+      update[itemKey + '_times'] = firebase.firestore.FieldValue.delete();
+    } else {
+      update[itemKey + '_times'] = times;
+    }
+    saveRoutine(dateKey, update).then(function() { renderRoutine(); });
+  });
+}
+
+function updatePigTime(itemKey, pigName, timeIdx, newTime) {
+  var dateKey = dateStr(routineDate);
+  loadRoutine(dateKey).then(function(data) {
+    var times = getPigTimesForItem(data, itemKey);
+    if (times[pigName] && times[pigName][timeIdx] !== undefined) {
+      times[pigName][timeIdx] = newTime;
+    }
+    var update = {};
+    update[itemKey + '_times'] = times;
+    saveRoutine(dateKey, update);
+  });
 }
 
 function deleteCustomItem(key) {
@@ -2454,17 +2520,22 @@ function renderRoutine() {
       if (checked && hasPigs) {
         html += '<div class="pig-times-wrap" data-ptkey="' + item.key + '">';
         guineaPigs.forEach(function(gp) {
-          var pigTime = pigTimes[gp.name] || '';
-          var isFed = !!pigTime;
+          var pigTimeArr = pigTimes[gp.name] || [];
+          var isFed = pigTimeArr.length > 0;
           var avatarHtml = gp.photoURL
             ? '<img class="pig-avatar-sm" src="' + escapeHtml(gp.photoURL) + '">'
             : '<span style="font-size:16px;">🐹</span>';
-          html += '<div class="pig-time-row' + (isFed ? '' : ' skipped') + '" data-pig="' + escapeHtml(gp.name) + '" data-itemkey="' + item.key + '">';
+          html += '<div class="pig-time-row' + (isFed ? '' : ' skipped') + '">';
           html += avatarHtml;
           html += '<span class="pig-time-name"' + (isFed ? '' : ' style="text-decoration:line-through;opacity:0.5;"') + '>' + escapeHtml(gp.name) + '</span>';
           if (isFed) {
-            html += '<input type="time" class="check-time-input pig-time-edit" value="' + pigTime + '" data-itemkey="' + item.key + '" data-pig="' + escapeHtml(gp.name) + '">';
-            html += '<button class="custom-item-del pig-skip-btn" data-itemkey="' + item.key + '" data-pig="' + escapeHtml(gp.name) + '" title="Skip">✕</button>';
+            // Show each time entry with its own input + remove button
+            pigTimeArr.forEach(function(t, ti) {
+              html += '<input type="time" class="check-time-input pig-time-edit" value="' + t + '" data-itemkey="' + item.key + '" data-pig="' + escapeHtml(gp.name) + '" data-tidx="' + ti + '">';
+              html += '<button class="custom-item-del pig-rm-time" data-itemkey="' + item.key + '" data-pig="' + escapeHtml(gp.name) + '" data-tidx="' + ti + '" title="Remove this time">✕</button>';
+            });
+            // "+ time" button to add another feeding time
+            html += '<button class="pig-add-time" data-itemkey="' + item.key + '" data-pig="' + escapeHtml(gp.name) + '" title="Add another time">+</button>';
           } else {
             html += '<button class="btn btn-secondary btn-sm" style="padding:3px 10px;font-size:11px;" data-itemkey="' + item.key + '" data-pig="' + escapeHtml(gp.name) + '" data-action="readd">+ add</button>';
           }
@@ -2486,10 +2557,10 @@ function renderRoutine() {
         var update = {};
         update[key] = !isChecked;
         if (!isChecked) {
-          // Check: set times for ALL pigs
+          // Check: set times for ALL pigs (array with one entry each)
           var times = {};
           var nowStr = getNowTimeStr();
-          guineaPigs.forEach(function(gp) { times[gp.name] = nowStr; });
+          guineaPigs.forEach(function(gp) { times[gp.name] = [nowStr]; });
           update[key + '_times'] = times;
         } else {
           // Uncheck: clear everything
@@ -2501,23 +2572,31 @@ function renderRoutine() {
       });
     });
 
-    // Per-pig time edits
+    // Per-pig time edits (each has a tidx for which entry in the array)
     checklist.querySelectorAll('.pig-time-edit').forEach(function(input) {
       input.addEventListener('click', function(e) { e.stopPropagation(); });
       input.addEventListener('change', function() {
-        updatePigTime(this.dataset.itemkey, this.dataset.pig, this.value);
+        updatePigTime(this.dataset.itemkey, this.dataset.pig, parseInt(this.dataset.tidx), this.value);
       });
     });
 
-    // Per-pig skip buttons
-    checklist.querySelectorAll('.pig-skip-btn').forEach(function(btn) {
+    // Per-pig remove single time entry
+    checklist.querySelectorAll('.pig-rm-time').forEach(function(btn) {
       btn.addEventListener('click', function(e) {
         e.stopPropagation();
-        togglePigForItem(this.dataset.itemkey, this.dataset.pig);
+        removePigTimeEntry(this.dataset.itemkey, this.dataset.pig, parseInt(this.dataset.tidx));
       });
     });
 
-    // Per-pig re-add buttons
+    // Per-pig add another time entry
+    checklist.querySelectorAll('.pig-add-time').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        addPigTime(this.dataset.itemkey, this.dataset.pig);
+      });
+    });
+
+    // Per-pig re-add buttons (for skipped pigs)
     checklist.querySelectorAll('[data-action="readd"]').forEach(function(btn) {
       btn.addEventListener('click', function(e) {
         e.stopPropagation();
@@ -2760,11 +2839,15 @@ function loadLibraryIndex() {
   $('libraryChapterList').innerHTML = '';
   $('libraryStats').innerHTML = '';
 
-  // Try multiple index filenames: prefixed first, then plain
-  var urls = [
-    DATA_BASE_URL + INDEX_FILE,
-    DATA_BASE_URL + 'index.json'
-  ];
+  // Try multiple folder paths and index filenames
+  var folders = ['library/', 'book_data/', 'data/', ''];
+  var indexNames = [INDEX_FILE, 'index.json'];
+  var urls = [];
+  folders.forEach(function(f) {
+    indexNames.forEach(function(n) {
+      urls.push(f + n);
+    });
+  });
   var triedUrls = [];
 
   function tryNextUrl(i) {
@@ -2788,7 +2871,11 @@ function loadLibraryIndex() {
         return resp.json();
       })
       .then(function(data) {
-        console.log('[Library] Loaded ' + (data.chapters ? data.chapters.length : 0) + ' chapters');
+        console.log('[Library] Loaded ' + (data.chapters ? data.chapters.length : 0) + ' chapters from ' + url);
+        // Remember the working folder for chapter loading
+        var lastSlash = url.lastIndexOf('/');
+        DATA_BASE_URL = lastSlash >= 0 ? url.substring(0, lastSlash + 1) : '';
+        console.log('[Library] Base URL set to: ' + DATA_BASE_URL);
         libraryIndex = data;
         hide('libraryLoading');
         renderChapterList();
