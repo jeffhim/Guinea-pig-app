@@ -1,4 +1,4 @@
-var CACHE_NAME = 'gp-tracker-v4';
+var CACHE_NAME = 'gp-tracker-v3';
 var URLS_TO_CACHE = [
   './',
   './index.html',
@@ -19,7 +19,7 @@ self.addEventListener('install', function(event) {
   self.skipWaiting();
 });
 
-// Activate — clean old caches
+// Activate — clean ALL old caches
 self.addEventListener('activate', function(event) {
   event.waitUntil(
     caches.keys().then(function(names) {
@@ -32,7 +32,7 @@ self.addEventListener('activate', function(event) {
   self.clients.claim();
 });
 
-// Fetch — network-first for API calls, cache-first for static assets
+// Fetch strategy
 self.addEventListener('fetch', function(event) {
   var url = event.request.url;
 
@@ -43,10 +43,28 @@ self.addEventListener('fetch', function(event) {
     return;
   }
 
+  // Network-first for HTML and JSON (always get latest)
+  if (url.indexOf('.html') !== -1 || url.indexOf('.json') !== -1 || url.endsWith('/')) {
+    event.respondWith(
+      fetch(event.request).then(function(response) {
+        if (response && response.status === 200) {
+          var clone = response.clone();
+          caches.open(CACHE_NAME).then(function(cache) {
+            cache.put(event.request, clone);
+          });
+        }
+        return response;
+      }).catch(function() {
+        return caches.match(event.request);
+      })
+    );
+    return;
+  }
+
+  // Cache-first for static assets (fonts, icons, CSS, JS libraries)
   event.respondWith(
     caches.match(event.request).then(function(cached) {
       var fetchPromise = fetch(event.request).then(function(response) {
-        // Update cache with fresh copy
         if (response && response.status === 200) {
           var clone = response.clone();
           caches.open(CACHE_NAME).then(function(cache) {
