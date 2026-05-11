@@ -14,7 +14,7 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
-  <meta name="description" content="Track weight, shape, vet visits and daily routines for your guinea pigs">
+  <meta name="description" content="Track weight, vet visits, daily routines and medications for your guinea pigs">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1218,21 +1218,6 @@ const firebaseConfig = {
       </div>
     </div>
 
-    <!-- Shape Tab -->
-    <div class="tab-panel" id="panelShape">
-      <div class="section-header">
-        <h2 class="section-title">Body Shape</h2>
-        <button class="btn btn-primary btn-sm" id="addShapeBtn"><i class="fas fa-plus"></i> Add</button>
-      </div>
-      <div id="shapeNoGp" class="empty-state" style="display:none;">
-        <i class="fas fa-hand-pointer"></i>
-        <p>Select a guinea pig first from the Profiles tab.</p>
-      </div>
-      <div id="shapeContent" style="display:none;">
-        <div id="shapeList"></div>
-      </div>
-    </div>
-
     <!-- Vet Tab -->
     <div class="tab-panel" id="panelVet">
       <div class="section-header">
@@ -1261,6 +1246,9 @@ const firebaseConfig = {
         </div>
         <p class="routine-subtitle">Applies to all piggies — tap ✕ to mark exceptions</p>
         <ul class="checklist" id="routineChecklist"></ul>
+        <button class="btn btn-secondary btn-sm btn-block" id="addRoutineItemBtn" style="margin-top:4px;margin-bottom:8px;border:1.5px dashed var(--border);">
+          <i class="fas fa-plus"></i> Add Food Item
+        </button>
         <div class="form-group" style="margin-top:16px;">
           <label>Notes</label>
           <textarea id="routineNotes" placeholder="Any observations today..." rows="2"></textarea>
@@ -1355,10 +1343,6 @@ const firebaseConfig = {
       <i class="fas fa-weight-scale"></i>
       <span>Weight</span>
     </button>
-    <button class="nav-item" data-tab="panelShape">
-      <i class="fas fa-shapes"></i>
-      <span>Shape</span>
-    </button>
     <button class="nav-item" data-tab="panelVet">
       <i class="fas fa-stethoscope"></i>
       <span>Vet</span>
@@ -1409,11 +1393,11 @@ const firebaseConfig = {
   </div>
 </div>
 
-<!-- Add Weight + Shape Modal -->
+<!-- Add Weight Modal -->
 <div class="modal-overlay" id="weightModal">
   <div class="modal">
     <div class="modal-handle"></div>
-    <h2 class="modal-title">Add Weight &amp; Shape</h2>
+    <h2 class="modal-title">Add Weight</h2>
     <input type="hidden" id="weightEditId">
     <div class="form-row">
       <div class="form-group">
@@ -1430,85 +1414,9 @@ const firebaseConfig = {
       <input type="text" id="weightNote" placeholder="Optional note...">
     </div>
 
-    <!-- Body Shape section (collapsible) -->
-    <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:14px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:8px;" id="shapeToggle">
-        <span style="font-family:'Fredoka',sans-serif;font-size:15px;font-weight:600;color:var(--primary);">
-          <i class="fas fa-shapes" style="margin-right:6px;"></i>Body Shape
-        </span>
-        <span style="font-size:12px;color:var(--text-muted);" id="shapeToggleHint">tap to add ▼</span>
-      </div>
-      <div id="weightShapeFields" style="display:none;">
-        <div class="form-group">
-          <label>Condition</label>
-          <select id="weightShapeCondition">
-            <option value="">— not recording —</option>
-            <option value="underweight">Underweight</option>
-            <option value="ideal">Ideal</option>
-            <option value="slightly_over">Slightly Overweight</option>
-            <option value="overweight">Overweight</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Shape Notes</label>
-          <textarea id="weightShapeNotes" placeholder="Body condition observations..." rows="2"></textarea>
-        </div>
-        <div class="form-group">
-          <label>Shape Photos</label>
-          <div class="upload-area" id="weightShapePhotoUpload">
-            <i class="fas fa-images"></i>
-            <p>Tap to upload photos</p>
-          </div>
-          <input type="file" id="weightShapePhotoInput" accept="image/*" multiple style="display:none;">
-          <div class="uploaded-files" id="weightShapePhotoPreviews"></div>
-        </div>
-      </div>
-    </div>
-
     <div class="modal-actions">
       <button class="btn btn-secondary" id="weightCancelBtn">Cancel</button>
       <button class="btn btn-primary" id="weightSaveBtn"><i class="fas fa-check"></i> Save</button>
-    </div>
-  </div>
-</div>
-
-<!-- Add Shape Modal -->
-<div class="modal-overlay" id="shapeModal">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <h2 class="modal-title">Body Shape Record</h2>
-    <input type="hidden" id="shapeEditId">
-    <div class="form-row">
-      <div class="form-group">
-        <label>Date *</label>
-        <input type="date" id="shapeDate">
-      </div>
-      <div class="form-group">
-        <label>Condition</label>
-        <select id="shapeCondition">
-          <option value="underweight">Underweight</option>
-          <option value="ideal" selected>Ideal</option>
-          <option value="slightly_over">Slightly Overweight</option>
-          <option value="overweight">Overweight</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Notes</label>
-      <textarea id="shapeNotes" placeholder="Body condition observations..."></textarea>
-    </div>
-    <div class="form-group">
-      <label>Photos</label>
-      <div class="upload-area" id="shapePhotoUpload">
-        <i class="fas fa-images"></i>
-        <p>Tap to upload photos</p>
-      </div>
-      <input type="file" id="shapePhotoInput" accept="image/*" multiple style="display:none;">
-      <div class="uploaded-files" id="shapePhotoPreviews"></div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-secondary" id="shapeCancelBtn">Cancel</button>
-      <button class="btn btn-primary" id="shapeSaveBtn"><i class="fas fa-check"></i> Save</button>
     </div>
   </div>
 </div>
@@ -1633,7 +1541,7 @@ var currentGpId = null;
 var guineaPigs = [];
 var weightChart = null;
 var routineDate = new Date();
-var pendingUploadFiles = { profile: null, shape: [], vet: [], weightShape: [] };
+var pendingUploadFiles = { profile: null, vet: [] };
 var unsubscribers = [];
 
 // ---- Utility Functions ----
@@ -1863,30 +1771,6 @@ function deleteWeight(gpId, id) {
   return db.collection('guineaPigs').doc(gpId).collection('weights').doc(id).delete();
 }
 
-// ---- Body Shape CRUD ----
-function loadShapes(gpId) {
-  var unsub = db.collection('guineaPigs').doc(gpId).collection('bodyShapes')
-    .orderBy('date', 'desc').onSnapshot(function(snapshot) {
-      var shapes = [];
-      snapshot.forEach(function(doc) {
-        shapes.push(Object.assign({ id: doc.id }, doc.data()));
-      });
-      renderShapes(shapes);
-    });
-  unsubscribers.push(unsub);
-}
-
-function saveShape(gpId, data, id) {
-  var col = db.collection('guineaPigs').doc(gpId).collection('bodyShapes');
-  if (id) return col.doc(id).update(data);
-  data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-  return col.add(data);
-}
-
-function deleteShape(gpId, id) {
-  return db.collection('guineaPigs').doc(gpId).collection('bodyShapes').doc(id).delete();
-}
-
 // ---- Vet Visit CRUD ----
 function loadVetVisits(gpId) {
   var unsub = db.collection('guineaPigs').doc(gpId).collection('vetVisits')
@@ -1937,7 +1821,8 @@ function loadMedications() {
     });
     renderMedications();
   });
-  unsubscribers.push(function() { if (medUnsub) { medUnsub(); medUnsub = null; } });
+  // Note: med listener is global (not per-GP), so we do NOT push to unsubscribers
+  // which get cleaned on tab switch. It persists for the app session.
 }
 
 function saveMedication(data, id) {
@@ -2129,51 +2014,6 @@ function deleteWeightItem(wid) {
   });
 }
 
-// ---- Render: Body Shapes ----
-function renderShapes(shapes) {
-  if (!currentGpId) {
-    show('shapeNoGp'); hide('shapeContent');
-    return;
-  }
-  hide('shapeNoGp'); show('shapeContent');
-
-  var conditionLabels = {
-    underweight: '🔻 Underweight',
-    ideal: '✅ Ideal',
-    slightly_over: '⚠️ Slightly Over',
-    overweight: '🔺 Overweight'
-  };
-
-  var list = $('shapeList');
-  var html = '';
-  shapes.forEach(function(s) {
-    var photos = '';
-    if (s.photoURLs && s.photoURLs.length > 0) {
-      photos = '<div class="uploaded-files" style="margin-top:8px;">';
-      s.photoURLs.forEach(function(url) {
-        photos += '<img src="' + escapeHtml(url) + '" class="file-thumb" onclick="previewImage(\'' + escapeHtml(url) + '\')">';
-      });
-      photos += '</div>';
-    }
-    html += '<div class="card">' +
-      '<div class="card-header">' +
-        '<span class="card-title">' + (conditionLabels[s.condition] || s.condition) + '</span>' +
-        '<span class="card-date">' + formatDate(s.date) + '</span>' +
-      '</div>' +
-      (s.notes ? '<div class="card-body">' + escapeHtml(s.notes) + '</div>' : '') +
-      photos +
-      '<div class="card-actions">' +
-        '<button class="btn btn-secondary btn-sm" onclick="deleteShapeItem(\'' + s.id + '\')"><i class="fas fa-trash"></i></button>' +
-      '</div>' +
-    '</div>';
-  });
-  if (shapes.length === 0) {
-    html = '<div class="empty-state"><i class="fas fa-shapes"></i><p>No body shape records yet. Tap "Add" to start tracking.</p></div>';
-  }
-  list.innerHTML = html;
-}
-
-
 function previewImage(url) {
   var img = $('previewImage');
   img.src = url;
@@ -2265,15 +2105,6 @@ function setupPreviewZoom() {
     if (previewZoom.scale < 1.05) { previewZoom.tx = 0; previewZoom.ty = 0; }
     applyPreviewTransform();
   }, { passive: false });
-}
-
- 
-function deleteShapeItem(sid) {
-  showConfirmDialog('Delete this body shape record?', function() {
-    deleteShape(currentGpId, sid).then(function() {
-      toast('Shape record deleted');
-    });
-  });
 }
 
 // ---- Render: Vet Visits ----
@@ -2387,7 +2218,7 @@ function editVetItem(vid) {
 }
 
 // ---- Render: Daily Routine ----
-var routineItems = [
+var defaultRoutineItems = [
   { key: 'cucumber', label: 'Cucumber', icon: '🥒' },
   { key: 'lettuce', label: 'Lettuce', icon: '🥬' },
   { key: 'bellPepper', label: 'Bell Pepper', icon: '🫑' },
@@ -2395,6 +2226,96 @@ var routineItems = [
   { key: 'hay', label: 'Hay', icon: '🌿' },
   { key: 'water', label: 'Fresh Water', icon: '💧' }
 ];
+var customRoutineItems = []; // loaded from Firestore
+
+function getAllRoutineItems() {
+  return defaultRoutineItems.concat(customRoutineItems);
+}
+
+function loadCustomRoutineItems() {
+  return db.collection('settings').doc('customRoutineItems').get().then(function(doc) {
+    if (doc.exists && doc.data().items) {
+      customRoutineItems = doc.data().items;
+    } else {
+      customRoutineItems = [];
+    }
+  }).catch(function() { customRoutineItems = []; });
+}
+
+function saveCustomRoutineItems() {
+  return db.collection('settings').doc('customRoutineItems').set({ items: customRoutineItems });
+}
+
+function addCustomRoutineItem(label, icon) {
+  var key = 'custom_' + label.toLowerCase().replace(/[^a-z0-9]/g, '_').replace(/_+/g, '_');
+  // Check duplicate
+  if (getAllRoutineItems().some(function(it) { return it.key === key; })) {
+    toast('Item already exists', true);
+    return;
+  }
+  customRoutineItems.push({ key: key, label: label, icon: icon || '🍽️', custom: true });
+  saveCustomRoutineItems().then(function() {
+    renderRoutine();
+    toast('Item added!');
+  });
+}
+
+function removeCustomRoutineItem(key) {
+  customRoutineItems = customRoutineItems.filter(function(it) { return it.key !== key; });
+  saveCustomRoutineItems().then(function() {
+    renderRoutine();
+    toast('Item removed');
+  });
+}
+
+function showAddRoutineItemDialog() {
+  var overlay = document.createElement('div');
+  overlay.className = 'confirm-overlay active';
+  overlay.style.zIndex = '260';
+  var foodIcons = ['🥕','🥦','🥬','🍎','🍓','🫐','🍌','🥝','🌽','🍅','🫑','🥒','🌾','🍽️','🧃','💊'];
+  var iconsHtml = foodIcons.map(function(ic) {
+    return '<span class="icon-pick" data-icon="' + ic + '" style="font-size:24px;cursor:pointer;padding:6px;border-radius:8px;display:inline-block;">' + ic + '</span>';
+  }).join('');
+
+  overlay.innerHTML = '<div class="confirm-dialog" style="max-width:340px;">' +
+    '<p style="font-weight:600;margin-bottom:12px;">Add Food Item</p>' +
+    '<div class="form-group" style="margin-bottom:10px;">' +
+      '<label style="font-size:13px;">Name *</label>' +
+      '<input type="text" id="newRoutineItemName" placeholder="e.g. Carrot, Parsley..." style="font-size:16px;">' +
+    '</div>' +
+    '<div class="form-group" style="margin-bottom:14px;">' +
+      '<label style="font-size:13px;">Pick an icon</label>' +
+      '<div style="display:flex;flex-wrap:wrap;gap:4px;">' + iconsHtml + '</div>' +
+      '<input type="hidden" id="newRoutineItemIcon" value="🍽️">' +
+    '</div>' +
+    '<div style="display:flex;gap:8px;">' +
+      '<button class="btn btn-secondary btn-sm" style="flex:1;" id="riCancel">Cancel</button>' +
+      '<button class="btn btn-primary btn-sm" style="flex:1;" id="riSave"><i class="fas fa-plus"></i> Add</button>' +
+    '</div>' +
+  '</div>';
+  document.body.appendChild(overlay);
+
+  // Icon picker
+  var selectedIcon = overlay.querySelector('[data-icon="🍽️"]');
+  if (selectedIcon) selectedIcon.style.background = 'var(--primary-light)';
+  overlay.querySelectorAll('.icon-pick').forEach(function(el) {
+    el.addEventListener('click', function() {
+      overlay.querySelectorAll('.icon-pick').forEach(function(e) { e.style.background = ''; });
+      this.style.background = 'var(--primary-light)';
+      overlay.querySelector('#newRoutineItemIcon').value = this.dataset.icon;
+    });
+  });
+
+  overlay.querySelector('#riCancel').addEventListener('click', function() { overlay.remove(); });
+  overlay.querySelector('#riSave').addEventListener('click', function() {
+    var name = overlay.querySelector('#newRoutineItemName').value.trim();
+    var icon = overlay.querySelector('#newRoutineItemIcon').value;
+    if (!name) { toast('Please enter a name', true); return; }
+    addCustomRoutineItem(name, icon);
+    overlay.remove();
+  });
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+}
 
  
 function addRoutineException(itemKey) {
@@ -2452,7 +2373,7 @@ function renderRoutine() {
   loadRoutine(dateKey).then(function(data) {
     var checklist = $('routineChecklist');
     var html = '';
-    routineItems.forEach(function(item) {
+    getAllRoutineItems().forEach(function(item) {
       var checked = data && data[item.key];
       var time = data && data[item.key + '_time'] ? data[item.key + '_time'] : '';
       var exceptions = (data && data[item.key + '_exceptions']) || [];
@@ -2462,6 +2383,7 @@ function renderRoutine() {
         '<span class="check-icon">' + item.icon + '</span>' +
         '<span class="check-label">' + item.label + '</span>' +
         (checked ? '<input type="time" class="check-time-input" data-timekey="' + item.key + '" value="' + (time || '') + '">' : '') +
+        (item.custom ? '<button class="btn-icon" style="font-size:12px;color:var(--text-muted);margin-left:4px;flex-shrink:0;" data-rmcustom="' + item.key + '" title="Remove item">×</button>' : '') +
       '</li>';
 
       // Exception chips row
@@ -2514,6 +2436,17 @@ function renderRoutine() {
         });
       });
     });
+
+    // Attach delete handlers for custom routine items
+    checklist.querySelectorAll('[data-rmcustom]').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var key = this.dataset.rmcustom;
+        showConfirmDialog('Remove this food item from the list?', function() {
+          removeCustomRoutineItem(key);
+        });
+      });
+    });
   });
 }
 
@@ -2548,25 +2481,7 @@ function openWeightModal() {
   $('weightDate').value = todayStr();
   $('weightValue').value = '';
   $('weightNote').value = '';
-  // Reset shape fields
-  $('weightShapeCondition').value = '';
-  $('weightShapeNotes').value = '';
-  $('weightShapePhotoPreviews').innerHTML = '';
-  pendingUploadFiles.weightShape = [];
-  hide('weightShapeFields');
-  $('shapeToggleHint').textContent = 'tap to add ▼';
   openModal('weightModal');
-}
-
-// ---- Modal: Shape ----
-function openShapeModal() {
-  $('shapeEditId').value = '';
-  $('shapeDate').value = todayStr();
-  $('shapeCondition').value = 'ideal';
-  $('shapeNotes').value = '';
-  $('shapePhotoPreviews').innerHTML = '';
-  pendingUploadFiles.shape = [];
-  openModal('shapeModal');
 }
 
 // ---- Modal: Vet ----
@@ -3067,7 +2982,6 @@ function refreshCurrentTab() {
   if (panelId === 'panelLibrary') { loadLibraryIndex(); return; }
   if (!currentGpId && panelId !== 'panelProfiles' && panelId !== 'panelSettings' && panelId !== 'panelRoutine') {
     if (panelId === 'panelWeight') { show('weightNoGp'); hide('weightContent'); }
-    if (panelId === 'panelShape') { show('shapeNoGp'); hide('shapeContent'); }
     if (panelId === 'panelVet') { show('vetNoGp'); hide('vetContent'); }
     return;
   }
@@ -3079,9 +2993,8 @@ function refreshCurrentTab() {
   }
 
   if (panelId === 'panelWeight' && currentGpId) loadWeights(currentGpId);
-  if (panelId === 'panelShape' && currentGpId) loadShapes(currentGpId);
   if (panelId === 'panelVet' && currentGpId) loadVetVisits(currentGpId);
-  if (panelId === 'panelRoutine') renderRoutine();
+  if (panelId === 'panelRoutine') { renderRoutine(); renderMedications(); }
   if (panelId === 'panelSettings') loadSettings();
 }
 
@@ -3227,107 +3140,17 @@ function setupEventHandlers() {
   });
   $('weightCancelBtn').addEventListener('click', function() { closeModal('weightModal'); });
 
-  // Shape toggle inside weight modal
-  $('shapeToggle').addEventListener('click', function() {
-    var fields = $('weightShapeFields');
-    if (fields.style.display === 'none') {
-      fields.style.display = '';
-      $('shapeToggleHint').textContent = 'tap to hide ▲';
-    } else {
-      fields.style.display = 'none';
-      $('shapeToggleHint').textContent = 'tap to add ▼';
-    }
-  });
-  $('weightShapePhotoUpload').addEventListener('click', function() { $('weightShapePhotoInput').click(); });
-  $('weightShapePhotoInput').addEventListener('change', function() {
-    var files = Array.from(this.files);
-    files.forEach(function(file) {
-      pendingUploadFiles.weightShape.push(file);
-      var reader = new FileReader();
-      reader.onload = function(e) {
-        var thumb = document.createElement('img');
-        thumb.src = e.target.result;
-        thumb.className = 'file-thumb';
-        $('weightShapePhotoPreviews').appendChild(thumb);
-      };
-      reader.readAsDataURL(file);
-    });
-  });
-
   $('weightSaveBtn').addEventListener('click', function() {
     var date = $('weightDate').value;
     var weight = parseInt($('weightValue').value, 10);
     if (!date || isNaN(weight) || weight <= 0) { toast('Please fill in date and weight', true); return; }
 
-    var shapeCondition = $('weightShapeCondition').value;
-    var shapeNotes = $('weightShapeNotes').value.trim();
-    var shapePhotos = pendingUploadFiles.weightShape || [];
-
-    // Save weight first
     saveWeight(currentGpId, { date: date, weight: weight, note: $('weightNote').value.trim() }, $('weightEditId').value || null)
       .then(function() {
-        // Also save body shape if condition selected
-        if (shapeCondition) {
-          var shapeData = { date: date, condition: shapeCondition, notes: shapeNotes };
-          var compressPromises = shapePhotos.map(function(file) {
-            return compressImage(file, 800, 0.7);
-          });
-          return Promise.all(compressPromises).then(function(base64Arr) {
-            shapeData.photoURLs = base64Arr;
-            return saveShape(currentGpId, shapeData, null);
-          });
-        }
-      })
-      .then(function() {
         closeModal('weightModal');
-        toast(shapeCondition ? 'Weight & shape saved!' : 'Weight saved!');
+        toast('Weight saved!');
       })
       .catch(function(err) { toast('Error: ' + err.message, true); });
-  });
-
-  // Shape Modal
-  $('addShapeBtn').addEventListener('click', function() {
-    if (!currentGpId) { toast('Select a guinea pig first', true); return; }
-    openShapeModal();
-  });
-  $('shapePhotoUpload').addEventListener('click', function() { $('shapePhotoInput').click(); });
-  $('shapePhotoInput').addEventListener('change', function() {
-    var files = Array.from(this.files);
-    files.forEach(function(file) {
-      pendingUploadFiles.shape.push(file);
-      var reader = new FileReader();
-      reader.onload = function(e) {
-        var thumb = document.createElement('img');
-        thumb.src = e.target.result;
-        thumb.className = 'file-thumb';
-        $('shapePhotoPreviews').appendChild(thumb);
-      };
-      reader.readAsDataURL(file);
-    });
-  });
-  $('shapeCancelBtn').addEventListener('click', function() { closeModal('shapeModal'); });
-  $('shapeSaveBtn').addEventListener('click', function() {
-    var date = $('shapeDate').value;
-    if (!date) { toast('Please select a date', true); return; }
-    var data = {
-      date: date,
-      condition: $('shapeCondition').value,
-      notes: $('shapeNotes').value.trim()
-    };
-
-    var compressPromises = pendingUploadFiles.shape.map(function(file) {
-      return compressImage(file, 800, 0.7);
-    });
-
-    Promise.all(compressPromises).then(function(base64Arr) {
-      data.photoURLs = base64Arr;
-      return saveShape(currentGpId, data, $('shapeEditId').value || null);
-    }).then(function() {
-      closeModal('shapeModal');
-      toast('Shape record saved!');
-    }).catch(function(err) {
-      toast('Error: ' + err.message, true);
-    });
   });
 
   // Vet Modal
@@ -3398,6 +3221,9 @@ function setupEventHandlers() {
       toast('Notes saved!');
     });
   });
+
+  // Add custom routine item
+  $('addRoutineItemBtn').addEventListener('click', function() { showAddRoutineItemDialog(); });
 
   // Medication
   $('addMedBtn').addEventListener('click', function() { openMedModal(); });
@@ -3541,6 +3367,7 @@ function enterApp() {
 
   loadGuineaPigs();
   loadMedications();
+  loadCustomRoutineItems();
 }
 
 // ---- Boot ----
