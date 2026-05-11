@@ -14,7 +14,7 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
-  <meta name="description" content="Track weight, vet visits, daily routines and medications for your guinea pigs">
+  <meta name="description" content="Track weight, vet visits and daily routines for your guinea pigs">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -534,6 +534,63 @@
     }
     .check-time-input:focus { border-color: var(--primary); }
     .checklist-item .check-time-input { margin-left: auto; flex-shrink: 0; }
+
+    /* Per-pig time rows */
+    .pig-times-wrap {
+      padding: 4px 0 4px 40px;
+      margin-bottom: 4px;
+    }
+    .pig-time-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 12px;
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+    .pig-time-row .pig-avatar-sm {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    .pig-time-name { font-weight: 600; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pig-time-row .check-time-input { width: 64px; font-size: 12px; padding: 2px 4px; }
+
+    /* Add item button */
+    .add-routine-item-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 16px;
+      background: transparent;
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+      margin-top: 4px;
+    }
+    .add-routine-item-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+    /* Custom item delete btn */
+    .custom-item-del {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 14px;
+      padding: 0 2px;
+      cursor: pointer;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+    .custom-item-del:hover { color: var(--danger); }
 
     /* Medication Schedule */
     .med-section {
@@ -1244,11 +1301,9 @@ const firebaseConfig = {
           <h3 class="routine-date" id="routineDate" style="flex:1;text-align:center;"></h3>
           <button class="btn-icon" id="routineNext"><i class="fas fa-chevron-right"></i></button>
         </div>
-        <p class="routine-subtitle">Applies to all piggies — tap ✕ to mark exceptions</p>
+        <p class="routine-subtitle">Tap to mark done — each piggy gets its own timestamp</p>
         <ul class="checklist" id="routineChecklist"></ul>
-        <button class="btn btn-secondary btn-sm btn-block" id="addRoutineItemBtn" style="margin-top:4px;margin-bottom:8px;border:1.5px dashed var(--border);">
-          <i class="fas fa-plus"></i> Add Food Item
-        </button>
+        <button class="add-routine-item-btn" id="addRoutineItemBtn"><i class="fas fa-plus"></i> Add food / snack</button>
         <div class="form-group" style="margin-top:16px;">
           <label>Notes</label>
           <textarea id="routineNotes" placeholder="Any observations today..." rows="2"></textarea>
@@ -1417,6 +1472,46 @@ const firebaseConfig = {
     <div class="modal-actions">
       <button class="btn btn-secondary" id="weightCancelBtn">Cancel</button>
       <button class="btn btn-primary" id="weightSaveBtn"><i class="fas fa-check"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Routine Item Modal -->
+<div class="modal-overlay" id="routineItemModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2 class="modal-title">Add Food / Snack</h2>
+    <div class="form-group">
+      <label>Name *</label>
+      <input type="text" id="routineItemName" placeholder="e.g. Carrot, Vitamin C, Parsley">
+    </div>
+    <div class="form-group">
+      <label>Emoji Icon</label>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;" id="emojiPicker">
+        <button class="btn btn-secondary btn-sm emoji-pick" data-emoji="🥕" style="font-size:20px;padding:6px 10px;">🥕</button>
+        <button class="btn btn-secondary btn-sm emoji-pick" data-emoji="🍎" style="font-size:20px;padding:6px 10px;">🍎</button>
+        <button class="btn btn-secondary btn-sm emoji-pick" data-emoji="🫐" style="font-size:20px;padding:6px 10px;">🫐</button>
+        <button class="btn btn-secondary btn-sm emoji-pick" data-emoji="🍇" style="font-size:20px;padding:6px 10px;">🍇</button>
+        <button class="btn btn-secondary btn-sm emoji-pick" data-emoji="🥦" style="font-size:20px;padding:6px 10px;">🥦</button>
+        <button class="btn btn-secondary btn-sm emoji-pick" data-emoji="🥬" style="font-size:20px;padding:6px 10px;">🥬</button>
+        <button class="btn btn-secondary btn-sm emoji-pick" data-emoji="🌽" style="font-size:20px;padding:6px 10px;">🌽</button>
+        <button class="btn btn-secondary btn-sm emoji-pick" data-emoji="🍌" style="font-size:20px;padding:6px 10px;">🍌</button>
+        <button class="btn btn-secondary btn-sm emoji-pick" data-emoji="🍓" style="font-size:20px;padding:6px 10px;">🍓</button>
+        <button class="btn btn-secondary btn-sm emoji-pick" data-emoji="🥝" style="font-size:20px;padding:6px 10px;">🥝</button>
+        <button class="btn btn-secondary btn-sm emoji-pick" data-emoji="🍅" style="font-size:20px;padding:6px 10px;">🍅</button>
+        <button class="btn btn-secondary btn-sm emoji-pick" data-emoji="🥗" style="font-size:20px;padding:6px 10px;">🥗</button>
+        <button class="btn btn-secondary btn-sm emoji-pick" data-emoji="🌿" style="font-size:20px;padding:6px 10px;">🌿</button>
+        <button class="btn btn-secondary btn-sm emoji-pick" data-emoji="🌾" style="font-size:20px;padding:6px 10px;">🌾</button>
+        <button class="btn btn-secondary btn-sm emoji-pick" data-emoji="💊" style="font-size:20px;padding:6px 10px;">💊</button>
+        <button class="btn btn-secondary btn-sm emoji-pick" data-emoji="🧃" style="font-size:20px;padding:6px 10px;">🧃</button>
+        <button class="btn btn-secondary btn-sm emoji-pick" data-emoji="🥜" style="font-size:20px;padding:6px 10px;">🥜</button>
+        <button class="btn btn-secondary btn-sm emoji-pick" data-emoji="🍠" style="font-size:20px;padding:6px 10px;">🍠</button>
+      </div>
+      <input type="text" id="routineItemEmoji" placeholder="Or type a custom emoji..." maxlength="4" style="margin-top:8px;width:100px;text-align:center;font-size:24px;">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="routineItemCancelBtn">Cancel</button>
+      <button class="btn btn-primary" id="routineItemSaveBtn"><i class="fas fa-check"></i> Add</button>
     </div>
   </div>
 </div>
@@ -1821,8 +1916,7 @@ function loadMedications() {
     });
     renderMedications();
   });
-  // Note: med listener is global (not per-GP), so we do NOT push to unsubscribers
-  // which get cleaned on tab switch. It persists for the app session.
+  unsubscribers.push(function() { if (medUnsub) { medUnsub(); medUnsub = null; } });
 }
 
 function saveMedication(data, id) {
@@ -2107,6 +2201,7 @@ function setupPreviewZoom() {
   }, { passive: false });
 }
 
+ 
 // ---- Render: Vet Visits ----
 function renderVetVisits(visits) {
   if (!currentGpId) {
@@ -2226,14 +2321,14 @@ var defaultRoutineItems = [
   { key: 'hay', label: 'Hay', icon: '🌿' },
   { key: 'water', label: 'Fresh Water', icon: '💧' }
 ];
-var customRoutineItems = []; // loaded from Firestore
+var customRoutineItems = [];
 
 function getAllRoutineItems() {
   return defaultRoutineItems.concat(customRoutineItems);
 }
 
 function loadCustomRoutineItems() {
-  return db.collection('settings').doc('customRoutineItems').get().then(function(doc) {
+  return db.collection('settings').doc('routineItems').get().then(function(doc) {
     if (doc.exists && doc.data().items) {
       customRoutineItems = doc.data().items;
     } else {
@@ -2243,124 +2338,86 @@ function loadCustomRoutineItems() {
 }
 
 function saveCustomRoutineItems() {
-  return db.collection('settings').doc('customRoutineItems').set({ items: customRoutineItems });
+  return db.collection('settings').doc('routineItems').set({ items: customRoutineItems }, { merge: true });
 }
 
 function addCustomRoutineItem(label, icon) {
   var key = 'custom_' + label.toLowerCase().replace(/[^a-z0-9]/g, '_').replace(/_+/g, '_');
-  // Check duplicate
-  if (getAllRoutineItems().some(function(it) { return it.key === key; })) {
-    toast('Item already exists', true);
-    return;
+  // Ensure unique key
+  var existing = getAllRoutineItems().map(function(i) { return i.key; });
+  if (existing.indexOf(key) !== -1) {
+    key = key + '_' + Date.now().toString(36);
   }
   customRoutineItems.push({ key: key, label: label, icon: icon || '🍽️', custom: true });
-  saveCustomRoutineItems().then(function() {
-    renderRoutine();
-    toast('Item added!');
-  });
+  return saveCustomRoutineItems();
 }
 
 function removeCustomRoutineItem(key) {
-  customRoutineItems = customRoutineItems.filter(function(it) { return it.key !== key; });
-  saveCustomRoutineItems().then(function() {
-    renderRoutine();
-    toast('Item removed');
-  });
+  customRoutineItems = customRoutineItems.filter(function(i) { return i.key !== key; });
+  return saveCustomRoutineItems();
 }
 
-function showAddRoutineItemDialog() {
-  var overlay = document.createElement('div');
-  overlay.className = 'confirm-overlay active';
-  overlay.style.zIndex = '260';
-  var foodIcons = ['🥕','🥦','🥬','🍎','🍓','🫐','🍌','🥝','🌽','🍅','🫑','🥒','🌾','🍽️','🧃','💊'];
-  var iconsHtml = foodIcons.map(function(ic) {
-    return '<span class="icon-pick" data-icon="' + ic + '" style="font-size:24px;cursor:pointer;padding:6px;border-radius:8px;display:inline-block;">' + ic + '</span>';
-  }).join('');
-
-  overlay.innerHTML = '<div class="confirm-dialog" style="max-width:340px;">' +
-    '<p style="font-weight:600;margin-bottom:12px;">Add Food Item</p>' +
-    '<div class="form-group" style="margin-bottom:10px;">' +
-      '<label style="font-size:13px;">Name *</label>' +
-      '<input type="text" id="newRoutineItemName" placeholder="e.g. Carrot, Parsley..." style="font-size:16px;">' +
-    '</div>' +
-    '<div class="form-group" style="margin-bottom:14px;">' +
-      '<label style="font-size:13px;">Pick an icon</label>' +
-      '<div style="display:flex;flex-wrap:wrap;gap:4px;">' + iconsHtml + '</div>' +
-      '<input type="hidden" id="newRoutineItemIcon" value="🍽️">' +
-    '</div>' +
-    '<div style="display:flex;gap:8px;">' +
-      '<button class="btn btn-secondary btn-sm" style="flex:1;" id="riCancel">Cancel</button>' +
-      '<button class="btn btn-primary btn-sm" style="flex:1;" id="riSave"><i class="fas fa-plus"></i> Add</button>' +
-    '</div>' +
-  '</div>';
-  document.body.appendChild(overlay);
-
-  // Icon picker
-  var selectedIcon = overlay.querySelector('[data-icon="🍽️"]');
-  if (selectedIcon) selectedIcon.style.background = 'var(--primary-light)';
-  overlay.querySelectorAll('.icon-pick').forEach(function(el) {
-    el.addEventListener('click', function() {
-      overlay.querySelectorAll('.icon-pick').forEach(function(e) { e.style.background = ''; });
-      this.style.background = 'var(--primary-light)';
-      overlay.querySelector('#newRoutineItemIcon').value = this.dataset.icon;
-    });
-  });
-
-  overlay.querySelector('#riCancel').addEventListener('click', function() { overlay.remove(); });
-  overlay.querySelector('#riSave').addEventListener('click', function() {
-    var name = overlay.querySelector('#newRoutineItemName').value.trim();
-    var icon = overlay.querySelector('#newRoutineItemIcon').value;
-    if (!name) { toast('Please enter a name', true); return; }
-    addCustomRoutineItem(name, icon);
-    overlay.remove();
-  });
-  overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+function getNowTimeStr() {
+  var now = new Date();
+  return now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
 }
 
  
-function addRoutineException(itemKey) {
-  // Build a picker from existing guinea pigs
+function getPigTimesForItem(data, itemKey) {
+  // New model: key_times = { "PigName": "HH:MM", ... }
+  if (data && data[itemKey + '_times'] && typeof data[itemKey + '_times'] === 'object') {
+    return data[itemKey + '_times'];
+  }
+  // Backward compat: old model with single key_time and exceptions
+  if (data && data[itemKey + '_time']) {
+    var times = {};
+    var exceptions = (data[itemKey + '_exceptions']) || [];
+    guineaPigs.forEach(function(gp) {
+      if (exceptions.indexOf(gp.name) === -1) {
+        times[gp.name] = data[itemKey + '_time'];
+      }
+    });
+    return times;
+  }
+  return {};
+}
+
+function togglePigForItem(itemKey, pigName) {
   var dateKey = dateStr(routineDate);
   loadRoutine(dateKey).then(function(data) {
-    var exKey = itemKey + '_exceptions';
-    var current = (data && data[exKey]) || [];
-    // Filter out already-excepted piggies
-    var available = guineaPigs.filter(function(gp) { return current.indexOf(gp.name) === -1; });
-    if (available.length === 0) { toast('All piggies already excluded', true); return; }
-
-    // Build picker modal
-    var overlay = document.createElement('div');
-    overlay.className = 'confirm-overlay active';
-    overlay.style.zIndex = '260';
-    var listHtml = available.map(function(gp) {
-      return '<button class="btn btn-secondary btn-sm btn-block" style="margin-bottom:6px;" data-name="' + escapeHtml(gp.name) + '">' +
-        '🐹 ' + escapeHtml(gp.name) + '</button>';
-    }).join('');
-    overlay.innerHTML = '<div class="confirm-dialog">' +
-      '<p style="font-weight:600;margin-bottom:12px;">Who did NOT get ' + escapeHtml(itemKey) + '?</p>' +
-      listHtml +
-      '<button class="btn btn-secondary btn-sm btn-block" style="margin-top:4px;" id="exPickerCancel">Cancel</button>' +
-    '</div>';
-    document.body.appendChild(overlay);
-    overlay.querySelector('#exPickerCancel').addEventListener('click', function() { overlay.remove(); });
-    overlay.querySelectorAll('[data-name]').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        var name = this.dataset.name;
-        var update = {};
-        update[exKey] = firebase.firestore.FieldValue.arrayUnion(name);
-        saveRoutine(dateKey, update).then(function() { renderRoutine(); });
-        overlay.remove();
-      });
-    });
+    var times = getPigTimesForItem(data, itemKey);
+    var update = {};
+    if (times[pigName]) {
+      // Remove this pig
+      delete times[pigName];
+    } else {
+      // Add this pig with current time
+      times[pigName] = getNowTimeStr();
+    }
+    update[itemKey + '_times'] = times;
+    // If no pigs left, uncheck the item entirely
+    if (Object.keys(times).length === 0) {
+      update[itemKey] = false;
+      update[itemKey + '_times'] = firebase.firestore.FieldValue.delete();
+    }
+    saveRoutine(dateKey, update).then(function() { renderRoutine(); });
   });
 }
 
- 
-function removeRoutineException(itemKey, name) {
+function updatePigTime(itemKey, pigName, newTime) {
   var dateKey = dateStr(routineDate);
   var update = {};
-  update[itemKey + '_exceptions'] = firebase.firestore.FieldValue.arrayRemove(name);
-  saveRoutine(dateKey, update).then(function() { renderRoutine(); });
+  update[itemKey + '_times.' + pigName] = newTime;
+  saveRoutine(dateKey, update);
+}
+
+function deleteCustomItem(key) {
+  showConfirmDialog('Remove this custom item from the checklist?', function() {
+    removeCustomRoutineItem(key).then(function() {
+      toast('Item removed');
+      renderRoutine();
+    });
+  });
 }
 
 function renderRoutine() {
@@ -2370,81 +2427,108 @@ function renderRoutine() {
   var isToday = dateKey === todayStr();
   $('routineDate').textContent = isToday ? '📅 Today' : formatDate(dateKey);
 
+  var allItems = getAllRoutineItems();
+
   loadRoutine(dateKey).then(function(data) {
     var checklist = $('routineChecklist');
     var html = '';
-    getAllRoutineItems().forEach(function(item) {
+    allItems.forEach(function(item) {
       var checked = data && data[item.key];
-      var time = data && data[item.key + '_time'] ? data[item.key + '_time'] : '';
-      var exceptions = (data && data[item.key + '_exceptions']) || [];
+      var pigTimes = checked ? getPigTimesForItem(data, item.key) : {};
+      var hasPigs = guineaPigs.length > 0;
+      var fedCount = Object.keys(pigTimes).length;
+      var totalCount = guineaPigs.length;
+      var countLabel = (checked && hasPigs) ? ' <span style="font-size:11px;color:var(--text-muted);font-weight:400;">(' + fedCount + '/' + totalCount + ')</span>' : '';
 
       html += '<li class="checklist-item' + (checked ? ' checked' : '') + '" data-key="' + item.key + '">' +
         '<div class="check-box">' + (checked ? '<i class="fas fa-check" style="font-size:13px;"></i>' : '') + '</div>' +
         '<span class="check-icon">' + item.icon + '</span>' +
-        '<span class="check-label">' + item.label + '</span>' +
-        (checked ? '<input type="time" class="check-time-input" data-timekey="' + item.key + '" value="' + (time || '') + '">' : '') +
-        (item.custom ? '<button class="btn-icon" style="font-size:12px;color:var(--text-muted);margin-left:4px;flex-shrink:0;" data-rmcustom="' + item.key + '" title="Remove item">×</button>' : '') +
-      '</li>';
-
-      // Exception chips row
-      html += '<div class="exception-chips" data-exkey="' + item.key + '">';
-      exceptions.forEach(function(name) {
-        html += '<span class="exception-chip">' + escapeHtml(name) + ' ✕' +
-          '<button onclick="event.stopPropagation();removeRoutineException(\'' + escapeHtml(item.key) + '\',\'' + escapeHtml(name) + '\')">×</button></span>';
-      });
-      if (guineaPigs.length > 0 && checked) {
-        html += '<span class="exception-chip add-ex" onclick="event.stopPropagation();addRoutineException(\'' + escapeHtml(item.key) + '\')">+ skip</span>';
+        '<span class="check-label">' + item.label + countLabel + '</span>';
+      if (item.custom) {
+        html += '<button class="custom-item-del" data-delkey="' + item.key + '" title="Remove item">×</button>';
       }
-      html += '</div>';
+      html += '</li>';
+
+      // Per-pig time rows (only when checked and pigs exist)
+      if (checked && hasPigs) {
+        html += '<div class="pig-times-wrap" data-ptkey="' + item.key + '">';
+        guineaPigs.forEach(function(gp) {
+          var pigTime = pigTimes[gp.name] || '';
+          var isFed = !!pigTime;
+          var avatarHtml = gp.photoURL
+            ? '<img class="pig-avatar-sm" src="' + escapeHtml(gp.photoURL) + '">'
+            : '<span style="font-size:16px;">🐹</span>';
+          html += '<div class="pig-time-row' + (isFed ? '' : ' skipped') + '" data-pig="' + escapeHtml(gp.name) + '" data-itemkey="' + item.key + '">';
+          html += avatarHtml;
+          html += '<span class="pig-time-name"' + (isFed ? '' : ' style="text-decoration:line-through;opacity:0.5;"') + '>' + escapeHtml(gp.name) + '</span>';
+          if (isFed) {
+            html += '<input type="time" class="check-time-input pig-time-edit" value="' + pigTime + '" data-itemkey="' + item.key + '" data-pig="' + escapeHtml(gp.name) + '">';
+            html += '<button class="custom-item-del pig-skip-btn" data-itemkey="' + item.key + '" data-pig="' + escapeHtml(gp.name) + '" title="Skip">✕</button>';
+          } else {
+            html += '<button class="btn btn-secondary btn-sm" style="padding:3px 10px;font-size:11px;" data-itemkey="' + item.key + '" data-pig="' + escapeHtml(gp.name) + '" data-action="readd">+ add</button>';
+          }
+          html += '</div>';
+        });
+        html += '</div>';
+      }
     });
     checklist.innerHTML = html;
 
     $('routineNotes').value = (data && data.notes) || '';
 
-    // Attach click events to checklist items only
+    // Attach click events to checklist items (toggle check)
     checklist.querySelectorAll('.checklist-item').forEach(function(li) {
       li.addEventListener('click', function(e) {
-        // Don't toggle check when clicking the time input
-        if (e.target.classList.contains('check-time-input')) return;
+        if (e.target.classList.contains('check-time-input') || e.target.classList.contains('custom-item-del') || e.target.closest('.custom-item-del')) return;
         var key = this.dataset.key;
         var isChecked = this.classList.contains('checked');
         var update = {};
         update[key] = !isChecked;
         if (!isChecked) {
-          var now = new Date();
-          update[key + '_time'] = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+          // Check: set times for ALL pigs
+          var times = {};
+          var nowStr = getNowTimeStr();
+          guineaPigs.forEach(function(gp) { times[gp.name] = nowStr; });
+          update[key + '_times'] = times;
         } else {
+          // Uncheck: clear everything
+          update[key + '_times'] = firebase.firestore.FieldValue.delete();
           update[key + '_time'] = firebase.firestore.FieldValue.delete();
-          // Also clear exceptions when unchecking
           update[key + '_exceptions'] = firebase.firestore.FieldValue.delete();
         }
-        saveRoutine(dateKey, update).then(function() {
-          renderRoutine();
-        });
+        saveRoutine(dateKey, update).then(function() { renderRoutine(); });
       });
     });
 
-    // Attach change events to time inputs for retrospective editing
-    checklist.querySelectorAll('.check-time-input').forEach(function(input) {
+    // Per-pig time edits
+    checklist.querySelectorAll('.pig-time-edit').forEach(function(input) {
       input.addEventListener('click', function(e) { e.stopPropagation(); });
       input.addEventListener('change', function() {
-        var key = this.dataset.timekey;
-        var update = {};
-        update[key + '_time'] = this.value;
-        saveRoutine(dateKey, update).then(function() {
-          toast('Time updated');
-        });
+        updatePigTime(this.dataset.itemkey, this.dataset.pig, this.value);
       });
     });
 
-    // Attach delete handlers for custom routine items
-    checklist.querySelectorAll('[data-rmcustom]').forEach(function(btn) {
+    // Per-pig skip buttons
+    checklist.querySelectorAll('.pig-skip-btn').forEach(function(btn) {
       btn.addEventListener('click', function(e) {
         e.stopPropagation();
-        var key = this.dataset.rmcustom;
-        showConfirmDialog('Remove this food item from the list?', function() {
-          removeCustomRoutineItem(key);
-        });
+        togglePigForItem(this.dataset.itemkey, this.dataset.pig);
+      });
+    });
+
+    // Per-pig re-add buttons
+    checklist.querySelectorAll('[data-action="readd"]').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        togglePigForItem(this.dataset.itemkey, this.dataset.pig);
+      });
+    });
+
+    // Custom item delete buttons
+    checklist.querySelectorAll('[data-delkey]').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        deleteCustomItem(this.dataset.delkey);
       });
     });
   });
@@ -3222,8 +3306,35 @@ function setupEventHandlers() {
     });
   });
 
-  // Add custom routine item
-  $('addRoutineItemBtn').addEventListener('click', function() { showAddRoutineItemDialog(); });
+  // Add routine item modal
+  $('addRoutineItemBtn').addEventListener('click', function() {
+    $('routineItemName').value = '';
+    $('routineItemEmoji').value = '';
+    // Reset emoji picker selection
+    document.querySelectorAll('.emoji-pick').forEach(function(b) { b.style.outline = ''; b.style.background = ''; });
+    openModal('routineItemModal');
+  });
+  document.querySelectorAll('.emoji-pick').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.emoji-pick').forEach(function(b) { b.style.outline = ''; b.style.background = ''; });
+      this.style.outline = '2px solid var(--primary)';
+      this.style.background = 'var(--surface-hover)';
+      $('routineItemEmoji').value = this.dataset.emoji;
+    });
+  });
+  $('routineItemCancelBtn').addEventListener('click', function() { closeModal('routineItemModal'); });
+  $('routineItemSaveBtn').addEventListener('click', function() {
+    var name = $('routineItemName').value.trim();
+    if (!name) { toast('Please enter a name', true); return; }
+    var emoji = $('routineItemEmoji').value.trim() || '🍽️';
+    addCustomRoutineItem(name, emoji).then(function() {
+      closeModal('routineItemModal');
+      toast(emoji + ' ' + name + ' added!');
+      renderRoutine();
+    }).catch(function(err) {
+      toast('Error: ' + err.message, true);
+    });
+  });
 
   // Medication
   $('addMedBtn').addEventListener('click', function() { openMedModal(); });
