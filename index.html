@@ -610,6 +610,48 @@
     .pig-add-time:hover { border-color: var(--primary); color: var(--primary); }
     .pig-time-row { flex-wrap: wrap; }
 
+    /* Health observations */
+    .health-obs-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: var(--surface);
+      border-radius: var(--radius-sm);
+      margin-bottom: 6px;
+    }
+    .health-obs-item .obs-icon { font-size: 18px; flex-shrink: 0; }
+    .health-obs-item .obs-label { font-weight: 600; font-size: 14px; flex: 1; min-width: 0; }
+    .health-obs-pigs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .health-obs-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 14px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--text-secondary);
+      transition: all 0.15s;
+    }
+    .health-obs-chip.active {
+      border-color: var(--warning);
+      background: rgba(253, 203, 110, 0.15);
+      color: var(--text);
+    }
+    .health-obs-chip img {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
     /* Medication Schedule */
     .med-section {
       margin-top: 24px;
@@ -1329,6 +1371,14 @@ const firebaseConfig = {
         <button class="btn btn-primary btn-sm" id="saveRoutineNotes" style="margin-top:8px;">
           <i class="fas fa-save"></i> Save Notes
         </button>
+
+        <!-- Health Observations -->
+        <div class="med-section" style="border-top-color:var(--warning);">
+          <div class="med-section-title" style="color:var(--warning);">
+            <i class="fas fa-notes-medical"></i> Health Observations
+          </div>
+          <div id="healthObsList"></div>
+        </div>
 
         <!-- Medication Schedule -->
         <div class="med-section">
@@ -2487,8 +2537,62 @@ function deleteCustomItem(key) {
   });
 }
 
+// ---- Health Observations ----
+var healthObsItems = [
+  { key: 'calciumUrine', label: 'Calcium Urine', icon: '🟡' },
+  { key: 'looseStool', label: 'Loose Stool', icon: '🟤' }
+];
+
+function renderHealthObs() {
+  var dateKey = dateStr(routineDate);
+  loadRoutine(dateKey).then(function(data) {
+    var container = $('healthObsList');
+    var html = '';
+    healthObsItems.forEach(function(obs) {
+      var affected = (data && data['health_' + obs.key]) || [];
+      html += '<div class="health-obs-item">';
+      html += '<span class="obs-icon">' + obs.icon + '</span>';
+      html += '<span class="obs-label">' + obs.label + '</span>';
+      html += '</div>';
+      html += '<div class="health-obs-pigs" data-obskey="' + obs.key + '" style="padding:0 0 10px 42px;">';
+      guineaPigs.forEach(function(gp) {
+        var isActive = affected.indexOf(gp.name) !== -1;
+        var avatarHtml = gp.photoURL
+          ? '<img src="' + escapeHtml(gp.photoURL) + '">'
+          : '<span style="font-size:13px;">🐹</span>';
+        html += '<span class="health-obs-chip' + (isActive ? ' active' : '') + '" data-obskey="' + obs.key + '" data-pig="' + escapeHtml(gp.name) + '">';
+        html += avatarHtml + ' ' + escapeHtml(gp.name);
+        if (isActive) html += ' ✓';
+        html += '</span>';
+      });
+      if (guineaPigs.length === 0) {
+        html += '<span style="font-size:12px;color:var(--text-muted);font-style:italic;">Add guinea pigs in Profiles first</span>';
+      }
+      html += '</div>';
+    });
+    container.innerHTML = html;
+
+    // Attach toggle handlers
+    container.querySelectorAll('.health-obs-chip').forEach(function(chip) {
+      chip.addEventListener('click', function() {
+        var obsKey = this.dataset.obskey;
+        var pigName = this.dataset.pig;
+        var isActive = this.classList.contains('active');
+        var update = {};
+        if (isActive) {
+          update['health_' + obsKey] = firebase.firestore.FieldValue.arrayRemove(pigName);
+        } else {
+          update['health_' + obsKey] = firebase.firestore.FieldValue.arrayUnion(pigName);
+        }
+        saveRoutine(dateKey, update).then(function() { renderHealthObs(); });
+      });
+    });
+  });
+}
+
 function renderRoutine() {
   show('routineContent');
+  renderHealthObs();
 
   var dateKey = dateStr(routineDate);
   var isToday = dateKey === todayStr();
@@ -2839,13 +2943,21 @@ function loadLibraryIndex() {
   $('libraryChapterList').innerHTML = '';
   $('libraryStats').innerHTML = '';
 
-  // Try multiple folder paths and index filenames
+  // Try multiple folder paths and index filenames (relative + absolute GitHub Pages)
+  var GITHUB_PAGES = 'https://jeffhim.github.io/Guinea-pig-app/';
   var folders = ['library/', 'book_data/', 'data/', ''];
   var indexNames = [INDEX_FILE, 'index.json'];
   var urls = [];
+  // Relative paths first
   folders.forEach(function(f) {
     indexNames.forEach(function(n) {
       urls.push(f + n);
+    });
+  });
+  // Absolute GitHub Pages paths as fallback
+  folders.forEach(function(f) {
+    indexNames.forEach(function(n) {
+      urls.push(GITHUB_PAGES + f + n);
     });
   });
   var triedUrls = [];
