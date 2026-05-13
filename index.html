@@ -964,6 +964,230 @@
       user-select: none; -webkit-user-drag: none;
     }
 
+    /* ---- Routine History Section ---- */
+    .history-section {
+      margin-top: 24px;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1.5px solid var(--border);
+    }
+    .history-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      background: var(--surface);
+      cursor: pointer;
+      user-select: none;
+      font-weight: 600;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 15px;
+      color: var(--text);
+      transition: background 0.2s;
+    }
+    .history-toggle:hover { background: var(--bg); }
+    .history-toggle i {
+      transition: transform 0.3s;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .history-toggle.open i { transform: rotate(180deg); }
+    .history-content {
+      background: var(--bg);
+      padding: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .history-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .history-controls input[type="date"],
+    .history-controls select {
+      font-size: 14px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      color: var(--text);
+      font-family: inherit;
+    }
+    .history-controls .history-range-sep {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .history-tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 14px;
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 3px;
+    }
+    .history-tab-btn {
+      flex: 1;
+      padding: 8px 6px;
+      border: none;
+      background: transparent;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+    .history-tab-btn.active {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    .history-panel { display: none; }
+    .history-panel.active { display: block; }
+    .history-loading {
+      text-align: center;
+      padding: 30px 10px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+    .history-loading i { animation: spin 1s linear infinite; margin-right: 6px; }
+    .history-empty {
+      text-align: center;
+      padding: 30px 10px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+    .history-empty i {
+      font-size: 28px;
+      display: block;
+      margin-bottom: 8px;
+      opacity: 0.4;
+    }
+    /* Med history cards */
+    .med-history-card {
+      background: var(--surface);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      border-left: 3px solid var(--text-muted);
+    }
+    .med-history-card.active { border-left-color: var(--success); }
+    .med-history-card.completed { border-left-color: var(--text-muted); }
+    .med-history-card.upcoming { border-left-color: var(--primary); }
+    .med-history-card h4 {
+      font-size: 14px;
+      font-weight: 600;
+      margin: 0 0 4px 0;
+      color: var(--text);
+    }
+    .med-history-meta {
+      font-size: 12px;
+      color: var(--text-secondary);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .med-history-meta i { margin-right: 3px; }
+    /* Symptom log */
+    .symptom-log-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      background: var(--surface);
+      border-radius: var(--radius-sm);
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+    .symptom-log-date {
+      font-weight: 600;
+      color: var(--text-secondary);
+      min-width: 85px;
+      font-size: 12px;
+    }
+    .symptom-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .symptom-chip {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 500;
+    }
+    .symptom-chip.calcium { background: #fff3cd; color: #856404; }
+    .dark .symptom-chip.calcium { background: #4a3f1f; color: #ffc107; }
+    .symptom-chip.stool { background: #f0d9c8; color: #6d4c2d; }
+    .dark .symptom-chip.stool { background: #3d2e1f; color: #d4a574; }
+    /* Food heatmap */
+    .food-heatmap-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 4px;
+    }
+    .food-heatmap {
+      font-size: 11px;
+      border-collapse: separate;
+      border-spacing: 2px;
+      width: 100%;
+      min-width: 500px;
+    }
+    .food-heatmap th {
+      padding: 4px 6px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-align: center;
+      white-space: nowrap;
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      z-index: 1;
+    }
+    .food-heatmap th:first-child {
+      text-align: left;
+      position: sticky;
+      left: 0;
+      background: var(--bg);
+      z-index: 2;
+    }
+    .food-heatmap td {
+      padding: 4px;
+      text-align: center;
+      border-radius: 3px;
+    }
+    .food-heatmap td:first-child {
+      text-align: left;
+      white-space: nowrap;
+      font-weight: 500;
+      color: var(--text);
+      padding-right: 8px;
+      position: sticky;
+      left: 0;
+      background: var(--bg);
+      z-index: 1;
+    }
+    .food-heatmap .hm-yes {
+      background: var(--success);
+      color: #fff;
+      font-weight: 700;
+      font-size: 10px;
+    }
+    .food-heatmap .hm-no {
+      background: var(--surface);
+      color: var(--text-muted);
+      font-size: 10px;
+    }
+    .history-pig-filter {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
     /* ---- Library Tab ---- */
     .library-search {
       position: relative;
@@ -1285,6 +1509,40 @@ const firebaseConfig = {
           <div id="medEmpty" class="empty-state" style="display:none;padding:20px 10px;">
             <i class="fas fa-prescription-bottle-medical" style="font-size:28px;"></i>
             <p style="font-size:13px;">No medications scheduled.<br>Tap "Add" to set up a medication course.</p>
+          </div>
+        </div>
+
+        <!-- Routine History (collapsible) -->
+        <div class="history-section">
+          <div class="history-toggle" id="historyToggle">
+            <span><i class="fas fa-chart-line" style="margin-right:6px;"></i>Routine History</span>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="history-content" id="historyContent" style="display:none;">
+            <div class="history-controls">
+              <input type="date" id="historyStart" title="Start date">
+              <span class="history-range-sep">to</span>
+              <input type="date" id="historyEnd" title="End date">
+              <button class="btn btn-primary btn-sm" id="historyLoadBtn" style="white-space:nowrap;"><i class="fas fa-search"></i> Load</button>
+            </div>
+            <div class="history-controls" id="historyPigFilterWrap" style="display:none;">
+              <span style="font-size:12px;color:var(--text-secondary);font-weight:600;">Filter pig:</span>
+              <div class="history-pig-filter" id="historyPigFilter"></div>
+            </div>
+            <div class="history-tabs">
+              <button class="history-tab-btn active" data-htab="medHistoryPanel">💊 Meds</button>
+              <button class="history-tab-btn" data-htab="symptomHistoryPanel">🩺 Symptoms</button>
+              <button class="history-tab-btn" data-htab="foodHistoryPanel">🥗 Food</button>
+            </div>
+            <div class="history-panel active" id="medHistoryPanel">
+              <div class="history-empty"><i class="fas fa-pills"></i>Select a date range and tap Load.</div>
+            </div>
+            <div class="history-panel" id="symptomHistoryPanel">
+              <div class="history-empty"><i class="fas fa-notes-medical"></i>Select a date range and tap Load.</div>
+            </div>
+            <div class="history-panel" id="foodHistoryPanel">
+              <div class="history-empty"><i class="fas fa-utensils"></i>Select a date range and tap Load.</div>
+            </div>
           </div>
         </div>
       </div>
@@ -2650,7 +2908,14 @@ function renderMedications() {
   var empty = $('medEmpty');
   var dateKey = dateStr(routineDate);
 
-  if (medicationsCache.length === 0) {
+  // Filter: hide medications whose course ended before today (actual today, not browsed date)
+  var realToday = todayStr();
+  var activeMeds = medicationsCache.filter(function(med) {
+    var end = med.endDate || '';
+    return !end || end >= realToday;
+  });
+
+  if (activeMeds.length === 0) {
     list.innerHTML = '';
     show(empty);
     return;
@@ -2662,7 +2927,7 @@ function renderMedications() {
   var freqKeys = { once: ['dose'], twice: ['am', 'pm'], thrice: ['am', 'mid', 'pm'] };
 
   var html = '';
-  medicationsCache.forEach(function(med) {
+  activeMeds.forEach(function(med) {
     var start = med.startDate || '';
     var end = med.endDate || '';
     var freq = med.frequency || 'once';
@@ -2797,15 +3062,307 @@ function deleteMedicationItem(medId) {
   });
 }
 
+// ---- Routine History ----
+var historyCache = { routines: null, startDate: '', endDate: '', pigFilter: 'all' };
+
+function fetchRoutineRange(startDate, endDate) {
+  // Fetch all routine docs in the date range
+  return db.collection('routines')
+    .where(firebase.firestore.FieldPath.documentId(), '>=', startDate)
+    .where(firebase.firestore.FieldPath.documentId(), '<=', endDate)
+    .get()
+    .then(function(snapshot) {
+      var docs = {};
+      snapshot.forEach(function(doc) {
+        docs[doc.id] = doc.data();
+      });
+      return docs;
+    });
+}
+
+function initHistoryDefaults() {
+  var end = new Date();
+  var start = new Date();
+  start.setDate(start.getDate() - 30);
+  $('historyEnd').value = dateStr(end);
+  $('historyStart').value = dateStr(start);
+}
+
+function loadHistory() {
+  var startDate = $('historyStart').value;
+  var endDate = $('historyEnd').value;
+  if (!startDate || !endDate || startDate > endDate) {
+    toast('Please select a valid date range', true);
+    return;
+  }
+
+  // Show loading in all panels
+  ['medHistoryPanel', 'symptomHistoryPanel', 'foodHistoryPanel'].forEach(function(id) {
+    $(id).innerHTML = '<div class="history-loading"><i class="fas fa-spinner"></i> Loading...</div>';
+  });
+
+  historyCache.startDate = startDate;
+  historyCache.endDate = endDate;
+
+  // Fetch routines + medications in parallel
+  Promise.all([
+    fetchRoutineRange(startDate, endDate),
+    db.collection('medications').get().then(function(snap) {
+      var meds = [];
+      snap.forEach(function(doc) { meds.push(Object.assign({ id: doc.id }, doc.data())); });
+      return meds;
+    })
+  ]).then(function(results) {
+    historyCache.routines = results[0];
+    historyCache.allMeds = results[1];
+    buildHistoryPigFilter();
+    renderAllHistory();
+  }).catch(function(err) {
+    ['medHistoryPanel', 'symptomHistoryPanel', 'foodHistoryPanel'].forEach(function(id) {
+      $(id).innerHTML = '<div class="history-empty"><i class="fas fa-exclamation-triangle"></i>Error: ' + escapeHtml(err.message) + '</div>';
+    });
+  });
+}
+
+function buildHistoryPigFilter() {
+  var wrap = $('historyPigFilterWrap');
+  var container = $('historyPigFilter');
+  if (guineaPigs.length === 0) { hide(wrap); return; }
+  show(wrap);
+
+  var html = '<button class="btn btn-sm ' + (historyCache.pigFilter === 'all' ? 'btn-primary' : 'btn-secondary') + '" data-hpig="all" style="font-size:11px;padding:4px 10px;">All</button>';
+  guineaPigs.forEach(function(gp) {
+    var isActive = historyCache.pigFilter === gp.name;
+    html += '<button class="btn btn-sm ' + (isActive ? 'btn-primary' : 'btn-secondary') + '" data-hpig="' + escapeHtml(gp.name) + '" style="font-size:11px;padding:4px 10px;">' + escapeHtml(gp.name) + '</button>';
+  });
+  container.innerHTML = html;
+
+  container.querySelectorAll('[data-hpig]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      historyCache.pigFilter = this.dataset.hpig;
+      buildHistoryPigFilter();
+      renderAllHistory();
+    });
+  });
+}
+
+function renderAllHistory() {
+  renderMedHistory();
+  renderSymptomHistory();
+  renderFoodHeatmap();
+}
+
+function renderMedHistory() {
+  var panel = $('medHistoryPanel');
+  var meds = historyCache.allMeds || [];
+  var pigFilter = historyCache.pigFilter;
+
+  // Filter by pig
+  if (pigFilter !== 'all') {
+    meds = meds.filter(function(m) {
+      return m.piggy === 'all' || m.piggy === pigFilter;
+    });
+  }
+
+  // Sort by startDate desc
+  meds.sort(function(a, b) { return (b.startDate || '').localeCompare(a.startDate || ''); });
+
+  if (meds.length === 0) {
+    panel.innerHTML = '<div class="history-empty"><i class="fas fa-pills"></i>No medication records found' + (pigFilter !== 'all' ? ' for ' + escapeHtml(pigFilter) : '') + '.</div>';
+    return;
+  }
+
+  var realToday = todayStr();
+  var html = '';
+  meds.forEach(function(med) {
+    var start = med.startDate || '';
+    var end = med.endDate || '';
+    var statusClass = 'completed';
+    var statusLabel = 'Completed';
+    if (!end || end >= realToday) {
+      if (start > realToday) { statusClass = 'upcoming'; statusLabel = 'Upcoming'; }
+      else { statusClass = 'active'; statusLabel = 'Active'; }
+    }
+
+    var piggyLabel = med.piggy === 'all' ? 'All piggies' : escapeHtml(med.piggy || 'All piggies');
+    var freq = med.frequency || 'once';
+    var freqLabel = freq === 'once' ? 'Once daily' : freq === 'twice' ? 'Twice daily' : 'Three times daily';
+
+    // Calculate adherence (checked doses / total expected doses)
+    var checks = med.checks || {};
+    var checkedCount = 0;
+    Object.keys(checks).forEach(function(k) {
+      if (!k.endsWith('_time') && checks[k] === true) checkedCount++;
+    });
+
+    html += '<div class="med-history-card ' + statusClass + '">';
+    html += '<h4>💊 ' + escapeHtml(med.name || 'Unnamed') + ' <span class="med-badge ' + statusClass + '" style="font-size:10px;vertical-align:middle;">' + statusLabel + '</span></h4>';
+    html += '<div class="med-history-meta">';
+    html += '<span><i class="fas fa-calendar"></i>' + formatDate(start) + ' → ' + formatDate(end) + '</span>';
+    html += '<span><i class="fas fa-paw"></i>' + piggyLabel + '</span>';
+    html += '<span><i class="fas fa-clock"></i>' + freqLabel + '</span>';
+    if (checkedCount > 0) html += '<span><i class="fas fa-check-circle"></i>' + checkedCount + ' doses logged</span>';
+    html += '</div>';
+    if (med.notes) html += '<div style="font-size:11px;color:var(--text-muted);margin-top:4px;"><i class="fas fa-info-circle" style="margin-right:3px;"></i>' + escapeHtml(med.notes) + '</div>';
+    html += '</div>';
+  });
+
+  panel.innerHTML = html;
+}
+
+function renderSymptomHistory() {
+  var panel = $('symptomHistoryPanel');
+  var routines = historyCache.routines || {};
+  var pigFilter = historyCache.pigFilter;
+
+  // Collect symptom entries
+  var entries = [];
+  var dates = Object.keys(routines).sort().reverse();
+  dates.forEach(function(dateKey) {
+    var data = routines[dateKey];
+    var daySymptoms = [];
+
+    healthObsItems.forEach(function(obs) {
+      var affected = (data['health_' + obs.key]) || [];
+      if (pigFilter !== 'all') {
+        affected = affected.filter(function(p) { return p === pigFilter; });
+      }
+      if (affected.length > 0) {
+        daySymptoms.push({ obs: obs, pigs: affected });
+      }
+    });
+
+    if (daySymptoms.length > 0) {
+      entries.push({ date: dateKey, symptoms: daySymptoms });
+    }
+  });
+
+  if (entries.length === 0) {
+    panel.innerHTML = '<div class="history-empty"><i class="fas fa-notes-medical"></i>No symptoms recorded' + (pigFilter !== 'all' ? ' for ' + escapeHtml(pigFilter) : '') + ' in this range.</div>';
+    return;
+  }
+
+  var html = '';
+  entries.forEach(function(entry) {
+    html += '<div class="symptom-log-item">';
+    html += '<span class="symptom-log-date">' + formatDate(entry.date) + '</span>';
+    html += '<div class="symptom-chips">';
+    entry.symptoms.forEach(function(s) {
+      var chipClass = s.obs.key === 'calciumUrine' ? 'calcium' : 'stool';
+      s.pigs.forEach(function(pig) {
+        html += '<span class="symptom-chip ' + chipClass + '">' + s.obs.icon + ' ' + escapeHtml(pig) + '</span>';
+      });
+    });
+    html += '</div>';
+    html += '</div>';
+  });
+
+  // Summary counts
+  var summaryHtml = '<div style="margin-bottom:12px;padding:10px 12px;background:var(--surface);border-radius:var(--radius-sm);font-size:12px;">';
+  summaryHtml += '<strong style="display:block;margin-bottom:6px;">Summary (' + entries.length + ' day' + (entries.length !== 1 ? 's' : '') + ' with symptoms)</strong>';
+  var counts = {};
+  entries.forEach(function(entry) {
+    entry.symptoms.forEach(function(s) {
+      s.pigs.forEach(function(pig) {
+        var k = pig + '|' + s.obs.label;
+        counts[k] = (counts[k] || 0) + 1;
+      });
+    });
+  });
+  Object.keys(counts).sort().forEach(function(k) {
+    var parts = k.split('|');
+    summaryHtml += '<span style="margin-right:12px;">' + escapeHtml(parts[0]) + ' — ' + escapeHtml(parts[1]) + ': <strong>' + counts[k] + '</strong> day' + (counts[k] !== 1 ? 's' : '') + '</span>';
+  });
+  summaryHtml += '</div>';
+
+  panel.innerHTML = summaryHtml + html;
+}
+
+function renderFoodHeatmap() {
+  var panel = $('foodHistoryPanel');
+  var routines = historyCache.routines || {};
+  var pigFilter = historyCache.pigFilter;
+
+  var dates = Object.keys(routines).sort();
+  if (dates.length === 0) {
+    panel.innerHTML = '<div class="history-empty"><i class="fas fa-utensils"></i>No routine data in this range.</div>';
+    return;
+  }
+
+  var allItems = getAllRoutineItems();
+
+  // Build heatmap table
+  var html = '<div class="food-heatmap-wrap"><table class="food-heatmap"><thead><tr><th>Food</th>';
+  dates.forEach(function(d) {
+    var dt = new Date(d + 'T00:00:00');
+    var dayLabel = dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    html += '<th>' + dayLabel + '</th>';
+  });
+  html += '</tr></thead><tbody>';
+
+  allItems.forEach(function(item) {
+    var hasAny = false;
+    var cells = '';
+    dates.forEach(function(d) {
+      var data = routines[d];
+      var checked = data && data[item.key];
+      // If pig filter is active, check if that specific pig was fed
+      if (checked && pigFilter !== 'all') {
+        var pigTimes = getPigTimesForItem(data, item.key);
+        checked = pigTimes[pigFilter] && pigTimes[pigFilter].length > 0;
+      }
+      if (checked) {
+        hasAny = true;
+        cells += '<td class="hm-yes">✓</td>';
+      } else {
+        cells += '<td class="hm-no">·</td>';
+      }
+    });
+    // Only show rows that have at least one entry
+    if (hasAny) {
+      html += '<tr><td>' + item.icon + ' ' + escapeHtml(item.label) + '</td>' + cells + '</tr>';
+    }
+  });
+
+  html += '</tbody></table></div>';
+
+  // Add a food frequency summary below
+  var freqHtml = '<div style="margin-top:12px;padding:10px 12px;background:var(--surface);border-radius:var(--radius-sm);font-size:12px;">';
+  freqHtml += '<strong style="display:block;margin-bottom:6px;">Frequency (' + dates.length + ' days)</strong>';
+  allItems.forEach(function(item) {
+    var count = 0;
+    dates.forEach(function(d) {
+      var data = routines[d];
+      var checked = data && data[item.key];
+      if (checked && pigFilter !== 'all') {
+        var pigTimes = getPigTimesForItem(data, item.key);
+        checked = pigTimes[pigFilter] && pigTimes[pigFilter].length > 0;
+      }
+      if (checked) count++;
+    });
+    if (count > 0) {
+      var pct = Math.round((count / dates.length) * 100);
+      freqHtml += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">';
+      freqHtml += '<span style="min-width:100px;">' + item.icon + ' ' + escapeHtml(item.label) + '</span>';
+      freqHtml += '<div style="flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden;"><div style="height:100%;width:' + pct + '%;background:var(--success);border-radius:4px;"></div></div>';
+      freqHtml += '<span style="min-width:55px;text-align:right;font-weight:600;">' + count + '/' + dates.length + '</span>';
+      freqHtml += '</div>';
+    }
+  });
+  freqHtml += '</div>';
+
+  panel.innerHTML = html + freqHtml;
+}
+
 // ---- Library (Google Drive PDFs) ----
-// Mapped from Google Drive screenshots (alphabetical file list) + user-provided URL order
+// URL mapping derived from user's ordered URL list (Ch1-Ch24 in sequential positions 5-28)
 var libraryChapters = [
-  // Front Matter
-  { section: 'Front Matter', label: 'FM', type: 'frontmatter', title: 'Front Matters', url: 'https://drive.google.com/file/d/1MuV0ZMnNyABB5iXJkzehY1_fTavw5S-w/view?usp=drive_link' },
-  { section: 'Front Matter', label: 'FM', type: 'frontmatter', title: 'Contributor', url: 'https://drive.google.com/file/d/12-b0A6CFW9hdX1xxmff2s75VNAJsvwqp/view?usp=drive_link' },
-  { section: 'Front Matter', label: 'FM', type: 'frontmatter', title: 'Foreword', url: 'https://drive.google.com/file/d/1iF20CuuLmbMVtcMB5kND2bHiFrSry0Vn/view?usp=drive_link' },
-  { section: 'Front Matter', label: 'FM', type: 'frontmatter', title: 'Preface', url: 'https://drive.google.com/file/d/1K6a4ujjgUSCrivj33CRQgWFnNmx2fwR0/view?usp=drive_link' },
-  // Chapter 1\u201324
+  // Front Matter (4 entries)
+  { section: 'Front Matter', label: 'FM', type: 'frontmatter', title: 'Front Matter 1', url: 'https://drive.google.com/file/d/1MuV0ZMnNyABB5iXJkzehY1_fTavw5S-w/view?usp=drive_link' },
+  { section: 'Front Matter', label: 'FM', type: 'frontmatter', title: 'Front Matter 2', url: 'https://drive.google.com/file/d/12-b0A6CFW9hdX1xxmff2s75VNAJsvwqp/view?usp=drive_link' },
+  { section: 'Front Matter', label: 'FM', type: 'frontmatter', title: 'Front Matter 3', url: 'https://drive.google.com/file/d/1iF20CuuLmbMVtcMB5kND2bHiFrSry0Vn/view?usp=drive_link' },
+  { section: 'Front Matter', label: 'FM', type: 'frontmatter', title: 'Front Matter 4', url: 'https://drive.google.com/file/d/1K6a4ujjgUSCrivj33CRQgWFnNmx2fwR0/view?usp=drive_link' },
+  // Chapters 1-10: confirmed from attachment filenames
   { section: 'Chapters', label: '1', type: 'chapter', title: 'Ch 1 \u2013 Biology, Behaviour and Husbandry', url: 'https://drive.google.com/file/d/1UsQ0jgUgnuVrv6ReijYDCZ04w1-7_XKb/view?usp=drive_link' },
   { section: 'Chapters', label: '2', type: 'chapter', title: 'Ch 2 \u2013 Nutrition', url: 'https://drive.google.com/file/d/1xC8pUrXxuj4_zh0ojIZprzTOZTF-b5iG/view?usp=drive_link' },
   { section: 'Chapters', label: '3', type: 'chapter', title: 'Ch 3 \u2013 History Taking and Examination', url: 'https://drive.google.com/file/d/15cY9OpPLTDo1vlE2xfODCf8m9xU0uWVC/view?usp=drive_link' },
@@ -2816,27 +3373,30 @@ var libraryChapters = [
   { section: 'Chapters', label: '8', type: 'chapter', title: 'Ch 8 \u2013 Nursing Care and Hospital Management', url: 'https://drive.google.com/file/d/1DXz0vRSDyYbKY0jKsHtPPtbgQzLjSBgF/view?usp=drive_link' },
   { section: 'Chapters', label: '9', type: 'chapter', title: 'Ch 9 \u2013 Diagnostic Imaging', url: 'https://drive.google.com/file/d/1szhRh784Rq6W8jhbJzWhnaHP415JKSEd/view?usp=drive_link' },
   { section: 'Chapters', label: '10', type: 'chapter', title: 'Ch 10 \u2013 Dental Imaging', url: 'https://drive.google.com/file/d/1X5Zwb63SiiQBrkTdw8EozTfTrBGoD_30/view?usp=drive_link' },
-  { section: 'Chapters', label: '11', type: 'chapter', title: 'Ch 11 \u2013 Dental Disease', url: 'https://drive.google.com/file/d/1tcx2eusXhKNkV8yDlaNgpkuMITOKPU2E/view?usp=drive_link' },
-  { section: 'Chapters', label: '12', type: 'chapter', title: 'Ch 12 \u2013 Soft Tissue Surgery', url: 'https://drive.google.com/file/d/1fSZyYH-2S4XXmEYPaTutZAoD1nNgHA-n/view?usp=drive_link' },
-  { section: 'Chapters', label: '13', type: 'chapter', title: 'Ch 13 \u2013 Hard Tissue Surgery', url: 'https://drive.google.com/file/d/14i1snpmifmK_flPjV2tewp3RVrnYRdH2/view?usp=drive_link' },
-  { section: 'Chapters', label: '14', type: 'chapter', title: 'Ch 14 \u2013 Skin Disease', url: 'https://drive.google.com/file/d/1mATqegYBT_desjO0IBK96gNfHN-uY6PO/view?usp=drive_link' },
-  { section: 'Chapters', label: '15', type: 'chapter', title: 'Ch 15 \u2013 Gastrointestinal Disease', url: 'https://drive.google.com/file/d/1QSVjGuzrJnLSlkuWlLgCFCAZ2EW8qkxt/view?usp=drive_link' },
-  { section: 'Chapters', label: '16', type: 'chapter', title: 'Ch 16 \u2013 Cardiorespiratory Disease', url: 'https://drive.google.com/file/d/1dLrpS8tfpDCK0MGIuvKfflhmxCb9kEZK/view?usp=drive_link' },
+  // Chapters 11-16: URLs corrected (+1 shift applied), titles still unknown
+  { section: 'Chapters', label: '11', type: 'chapter', title: 'Chapter 11', url: 'https://drive.google.com/file/d/1tcx2eusXhKNkV8yDlaNgpkuMITOKPU2E/view?usp=drive_link' },
+  { section: 'Chapters', label: '12', type: 'chapter', title: 'Chapter 12', url: 'https://drive.google.com/file/d/1fSZyYH-2S4XXmEYPaTutZAoD1nNgHA-n/view?usp=drive_link' },
+  { section: 'Chapters', label: '13', type: 'chapter', title: 'Chapter 13', url: 'https://drive.google.com/file/d/14i1snpmifmK_flPjV2tewp3RVrnYRdH2/view?usp=drive_link' },
+  { section: 'Chapters', label: '14', type: 'chapter', title: 'Chapter 14', url: 'https://drive.google.com/file/d/1mATqegYBT_desjO0IBK96gNfHN-uY6PO/view?usp=drive_link' },
+  { section: 'Chapters', label: '15', type: 'chapter', title: 'Chapter 15', url: 'https://drive.google.com/file/d/1QSVjGuzrJnLSlkuWlLgCFCAZ2EW8qkxt/view?usp=drive_link' },
+  { section: 'Chapters', label: '16', type: 'chapter', title: 'Chapter 16', url: 'https://drive.google.com/file/d/1dLrpS8tfpDCK0MGIuvKfflhmxCb9kEZK/view?usp=drive_link' },
+  // Chapters 17-20: URLs corrected (+1 shift applied), titles confirmed from PDF content
   { section: 'Chapters', label: '17', type: 'chapter', title: 'Ch 17 \u2013 Urinary Tract Disease', url: 'https://drive.google.com/file/d/1SnwFdUWW_dVsrSVhVs1hgxBJ9IL2KTZy/view?usp=drive_link' },
   { section: 'Chapters', label: '18', type: 'chapter', title: 'Ch 18 \u2013 Reproductive Disease', url: 'https://drive.google.com/file/d/1E-RXtnWzSJZJcir3WuCHHYSqBQSbZlJi/view?usp=drive_link' },
   { section: 'Chapters', label: '19', type: 'chapter', title: 'Ch 19 \u2013 Neoplastic Disease', url: 'https://drive.google.com/file/d/1rXnN7M2YRzZEMYXDIIwSV6Y3nkOJX-h0/view?usp=drive_link' },
   { section: 'Chapters', label: '20', type: 'chapter', title: 'Ch 20 \u2013 Neurological and Ophthalmological Disease', url: 'https://drive.google.com/file/d/1LZ0baJ55Kb9PiQ4g_KMX34sU7skLWF6Q/view?usp=drive_link' },
+  // Chapters 21-24: confirmed from attachment filenames
   { section: 'Chapters', label: '21', type: 'chapter', title: 'Ch 21 \u2013 Ear Disease', url: 'https://drive.google.com/file/d/1FIw8WMMsWwYKOeexSeKgIqRpFcWlgbg_/view?usp=drive_link' },
   { section: 'Chapters', label: '22', type: 'chapter', title: 'Ch 22 \u2013 Endocrine and Multisystemic Disease', url: 'https://drive.google.com/file/d/14ixdsaHuar8m85X9JNIKzKJmE9dihV6p/view?usp=drive_link' },
   { section: 'Chapters', label: '23', type: 'chapter', title: 'Ch 23 \u2013 Musculoskeletal Disease', url: 'https://drive.google.com/file/d/1Q1FVFmbDW0oqlA8YX3YBYuzTBsi5bK02/view?usp=drive_link' },
   { section: 'Chapters', label: '24', type: 'chapter', title: 'Ch 24 \u2013 Geriatric Guinea Pigs', url: 'https://drive.google.com/file/d/11uOvPsNuEBzlLtU8E77c_TaBF8PlPCqx/view?usp=drive_link' },
-  // Appendices
+  // Appendices: confirmed from attachment filenames
   { section: 'Appendices', label: 'A1', type: 'appendix', title: 'Appendix 1 \u2013 Investigating Thin and Anorexic Guinea Pigs', url: 'https://drive.google.com/file/d/1lQA17BR63q-rGOBoksoBh-ChAUKxY94E/view?usp=drive_link' },
   { section: 'Appendices', label: 'A2', type: 'appendix', title: 'Appendix 2 \u2013 Formulary', url: 'https://drive.google.com/file/d/1f0CggZ4ilKLuLTMUMShDpnx8RApFnJxg/view?usp=drive_link' },
   { section: 'Appendices', label: 'A3', type: 'appendix', title: 'Appendix 3 \u2013 Toxic Plants and Substances', url: 'https://drive.google.com/file/d/1DkmKleg1-qJp3Fmpe-ZSWTZiBsS9RiZY/view?usp=drive_link' },
-  // Back Matter
-  { section: 'Back Matter', label: 'Idx', type: 'backmatter', title: 'Index', url: 'https://drive.google.com/file/d/1MTmRJeplWZgR0eowb0dqWALEe7NIxOkR/view?usp=drive_link' },
-  { section: 'Back Matter', label: 'BC', type: 'backmatter', title: 'Back Cover', url: 'https://drive.google.com/file/d/1_IeQ7L7R_9iQcfc0aMDx70Yr8WSNlhX-/view?usp=drive_link' }
+  // Back Matter: confirmed from attachment filenames
+  { section: 'Back Matter', label: 'Idx', type: 'backmatter', title: 'Index (Part 1)', url: 'https://drive.google.com/file/d/1MTmRJeplWZgR0eowb0dqWALEe7NIxOkR/view?usp=drive_link' },
+  { section: 'Back Matter', label: 'Idx', type: 'backmatter', title: 'Index (Part 2)', url: 'https://drive.google.com/file/d/1_IeQ7L7R_9iQcfc0aMDx70Yr8WSNlhX-/view?usp=drive_link' }
 ];
 
 var libraryRendered = false;
@@ -3203,6 +3763,26 @@ function setupEventHandlers() {
       toast('Medication saved!');
     }).catch(function(err) {
       toast('Error: ' + err.message, true);
+    });
+  });
+
+  // Routine History
+  $('historyToggle').addEventListener('click', function() {
+    var content = $('historyContent');
+    var isOpen = content.style.display !== 'none';
+    content.style.display = isOpen ? 'none' : 'block';
+    this.classList.toggle('open', !isOpen);
+    if (!isOpen && !historyCache.routines) {
+      initHistoryDefaults();
+    }
+  });
+  $('historyLoadBtn').addEventListener('click', function() { loadHistory(); });
+  document.querySelectorAll('.history-tab-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.history-tab-btn').forEach(function(b) { b.classList.remove('active'); });
+      document.querySelectorAll('.history-panel').forEach(function(p) { p.classList.remove('active'); });
+      this.classList.add('active');
+      $(this.dataset.htab).classList.add('active');
     });
   });
 
